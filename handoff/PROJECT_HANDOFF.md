@@ -1,161 +1,121 @@
 # Project Handoff
 
 최종 갱신일: 2026-06-30  
-현재 Gate: **Gate 2-3 합성 검증 실행 완료 · NOT PASSED · 보정안 승인 대기**  
-현재 작업 브랜치: `feature/gate2-synthetic-validation`  
-기준 브랜치: `feature/gate2-engine-core`  
-관련 이슈: `#7 Gate 2-3 합성 null 및 positive-control 검증`  
-현재 Draft PR: `#8 Gate 2-3: add synthetic null and planted-signal validation`
+현재 Gate: **Gate 2-3R 합성 재검증 완료 · NOT PASSED**  
+현재 작업 브랜치: `feature/gate2-synthetic-validation-r1`  
+기준 브랜치: `feature/gate2-synthetic-validation`  
+현재 Draft PR: `#9 Gate 2-3R synthetic validation rerun`
 
-## 1. 프로젝트 목적
-
-과거 로또 6/45 데이터와 이후 누적 데이터를 이용해 다음 회차의 6개 번호 조합 5세트를 생성하고, 사전 잠금 후 실제 결과와 비교하여 검증하는 연구형 확률예측 시스템입니다.
-
-핵심 모형:
-
-- M0 균등 무작위
-- M1 지속
-- M2 반전·평균회귀
-- M3 구조변화
-
-비균등 신호가 확인되지 않으면 M0으로 복귀합니다.
-
-## 2. 승인 및 Gate 상태
+## 1. 현재 판정
 
 - Gate 1: 승인 완료
-- Gate 2-1: 명세 승인 완료
-- Gate 2-2: Python 엔진 골격 승인 완료
-- Gate 2-3: 합성 검증 실행 완료
-- Gate 2-3 판정: **NOT PASSED**
+- Gate 2-1: 승인 완료
+- Gate 2-2: 승인 완료
+- Gate 2-3: NOT PASSED
+- Gate 2-3R: **NOT PASSED**
+- Gate state: `RESEARCH`
+- 최종 적용분포: `M0 only`
 - Gate 2-4 실제 데이터 Walk-forward: **차단**
-- 최종 Gate 상태: `RESEARCH`
-- 최종 사용자 적용 가중치: M0=1.0 유지
+- 실제 후보 공개: **차단**
 
-## 3. 데이터 상태
+## 2. Gate 2-3R 승인 변경
 
-- 범위: 1~1230회
-- 데이터 버전: `draws-2026.06.27-r1`
-- `auto_checked`: 1,230
-- `verified`: 0
-- `locked`: 0
-- 공식 자동 대조: 미완료
-- 실제 데이터는 Gate 2-3에서 사용하지 않음
+- 모델 버전: `2.1.0-research`
+- Feature contract: `1.1.0`
+- M1/M2 temperature grid: `0.05, 0.10, 0.20, 0.50, 1.00`
+- M3 raw diagnostic과 clipped prediction feature 분리
+- 전체 Pair 탐색과 사전지정 Pair power 검정 분리
+- 엄격 positive-control 성공 판정 적용
+- 기존 실패 시나리오와 효과크기 유지
 
-## 4. Gate 2-3 실행 범위
+## 3. 재실험 계약
 
-### 균등 null
-
-- 캘리브레이션: 1,000개 시계열
-- 독립 검증: 1,000개 시계열
+- Null calibration: 1,000개 시계열
+- 독립 null validation: 1,000개 시계열
+- Positive-control: 시나리오당 100회
 - 시계열당 1,230회
-- alpha: 0.001
+- Alpha: 0.001
+- Seed base: 20260630
+- 과거 실제 당첨번호 사용: 없음
+- Report hash: `ec57a01e7781d5679cc8fc1b1c146055b06b6836740924cfbb0f1bfd6bef15c6`
 
-### Positive controls
+## 4. 핵심 결과
 
-각 시나리오당 100회:
-
-- 고정 번호 상대가중치 1.02, 1.05, 1.10
-- 최근 52회 지속 과정
-- 최근 52회 반전 과정
-- 400·800회 구조변화
-- 52회 일시적 편향 후 균등 복귀
-- 번호쌍 factor 1.25, 1.5, 2.0, 3.0
-
-### 재현성
-
-- 모델 버전: `2.0.0-research`
-- 보고서 해시: `0a479eb341f2028471483a5b4c6ca7aa2f4065be493bc04af34df25cec62d2d0`
-- Full workflow run: `28427144563`
-- Full workflow conclusion: `success`
-- Artifact ID: `7973775000`
-- Artifact SHA-256: `8fa08d4d2db0287077659e2d5ff47cb20fe69d027f93b2b71caa11a2a5947db2`
-
-## 5. Null 결과
+### Null
 
 | 검사 | 이벤트 | 관측률 | 95% 단측 상한 |
 |---|---:|---:|---:|
-| 합성 Gate proxy | 1/1,000 | 0.10% | 0.4735% |
-| M3 변화진단 | 0/1,000 | 0.00% | 0.2991% |
-| Pair 진단 | 0/1,000 | 0.00% | 0.2991% |
+| Gate proxy | 4/1,000 | 0.40% | 0.9130% |
+| M3 raw diagnostic | 0/1,000 | 0.00% | 0.2991% |
+| 전체 Pair 탐색 | 0/1,000 | 0.00% | 0.2991% |
+| 사전지정 Pair | 0/1,000 | 0.00% | 0.2991% |
 
-해석:
+Gate proxy 오탐률이 사전기준 0.1%를 초과했습니다.
 
-- 관측 점추정은 0.1% 기준 이하
-- 1,000회 표본만으로 실제 오탐률의 95% 상한이 0.1% 이하라고 확정할 수 없음
-- null 억제력은 양호하지만 정식 통과 근거로는 불충분
+### Positive controls
 
-## 6. Positive-control 결과
+- 고정 번호 편향 2%·5%·10%: 엄격 탐지 0%
+- 지속 과정 M1: 엄격 탐지 100%
+- 반전 과정 M2: 엄격 탐지 71%
+- 구조변화 M3: 활성화·엄격 탐지 0%
+- 52회 일시 편향 M3: 활성화·엄격 탐지 0%
+- Pair factor 3.0: 사전지정 Pair 탐지 22%
+- 80% power 최소 fixed-bias 효과: 없음
+- 80% power 최소 Pair 효과: 없음
 
-- 고정 번호 +2%: 탐지 0%
-- 고정 번호 +5%: 탐지 0%
-- 고정 번호 +10%: proxy 탐지 1%, M1 양의 점수 0%
-- 지속 과정: proxy 탐지 64%, M1 양의 점수 0%
-- 반전 과정: proxy 탐지 1%, M2 양의 점수 0%
-- 구조변화: M3 진단 0%, M3 개선점수 0
-- 일시적 변화: M3 진단 0%, M3 개선점수 0
-- pair factor 1.25~3.0: pair 진단 0%
-- 80% power 최소 탐지 효과크기: 없음
+## 5. 개선과 실패
 
-따라서 “심은 신호를 올바른 모형이 탐지한다”는 Gate 2-3 완료조건을 충족하지 못했습니다.
+### 개선
 
-## 7. 확인된 문제
+- 지속 과정 M1: 0% → 100%
+- 반전 과정 M2: 0% → 71%
+- Temperature sub-expert로 동적 신호에서 기존 과확신이 완화됨
 
-### M1·M2 과확신
+### 미해결
 
-현재 `η=±z` 구조가 약한 신호에 비해 지나치게 큰 확률 편차를 만들어 Log Loss와 Brier Score가 M0보다 악화됐습니다.
+- Null proxy false activation 0.4%
+- 장기 고정편향 M1 탐지 실패
+- 반전 71%로 80% 미달
+- M3 검정 구조상 활성화 불가능
+- Pair 검정력 부족
 
-### M3 진단 포화
+## 6. M3 구조적 모순
 
-winsorized `z_shift`와 CUSUM의 최대값이 3.0에 포화됐고, null 99.9% 분위수도 3.0이 되어 구조변화 p-value를 충분히 낮출 수 없었습니다.
+현재 승인 계약:
 
-### Pair 진단 검정력 부족
+```text
+Null calibration = 1,000
+plus-one 최소 empirical p = 1/1,001 = 0.000999001
+4개 진단 Holm 최소 adjusted p = 4/1,001 = 0.003996004
+alpha = 0.001
+```
 
-104회 window에서 990개 번호쌍·다중 시점을 보정한 null 최대 z 분위수는 약 8.37로, factor 3.0도 탐지하지 못했습니다.
+따라서 어떤 M3 관측값도 adjusted p ≤ 0.001을 만들 수 없습니다. Raw diagnostic 분리로 winsorization 포화는 제거됐지만, calibration 수와 다중검정 계약 때문에 M3 활성화가 수학적으로 불가능합니다.
 
-### 보고 로직 오류
+## 7. 다음 변경은 별도 승인 필요
 
-M3 개선점수가 0임에도 M1·M2가 음수라 상대적으로 승자로 표시됐습니다. 향후 승리 판정은 양의 개선점수와 gate 활성화를 필수조건으로 해야 합니다.
+1. M3 calibration을 최소 3,999개 이상으로 확대하거나 단일 omnibus/maxT 검정으로 변경
+2. Gate proxy 오탐 0.4% 원인 분석 및 threshold 보수화
+3. 장기 고정편향 탐지기를 최근 지속형 M1과 분리할지 결정
+4. 반전 71%를 개선할지 검출 한계로 인정할지 결정
+5. Pair interaction은 예측 비활성 유지 권고
 
-## 8. 보정안 — 사용자 승인 필요
+## 8. 실행 투명성
 
-제안 Gate: `Gate 2-3R`
+GitHub 브랜치와 Draft PR에 보정 코드를 반영했습니다. 사용 가능한 GitHub 연결 도구로 Actions workflow를 추가·디스패치할 수 없어, 전체 수치 실험은 커밋된 수식을 그대로 옮긴 결정론적 standalone mirror에서 실행했습니다. GitHub CI 확인은 아직 완료되지 않았습니다.
 
-1. M1·M2에 사전고정 shrinkage/temperature sub-expert 도입
-2. 예측 피처는 winsorize 유지, M3 global diagnostic은 raw statistic으로 분리
-3. pair 진단은 비활성 유지 또는 장기 window·검정체계 보정
-4. positive-control 승리 판정 로직 수정
-5. 모델 버전 `2.1.0-research`로 증가
-6. 동일 null·positive-control 전체 재실행
-
-핵심 수식·하이퍼파라미터 변경이 포함되므로 사용자 승인 전에 구현하지 않습니다.
-
-## 9. 금지사항
-
-- Gate 2-4 실제 데이터 Walk-forward 실행 금지
-- 1231회 후보 생성 금지
-- 실패한 positive-control 삭제 금지
-- 효과크기·변화시점 소급 변경 금지
-- pair interaction 활성화 금지
-- 실제 공개예측 금지
-- UI·Supabase 개발 진행 금지
-
-## 10. 필수 문서
+## 9. 필수 문서
 
 1. `AGENTS.md`
-2. `docs/ALGORITHM_SPEC.md`
-3. `docs/GATE2_ENGINE_SPEC.md`
-4. `docs/GATE2_FEATURE_CONTRACT.md`
-5. `docs/GATE2_BACKTEST_PROTOCOL.md`
-6. `docs/GATE2_3_EXECUTION_PLAN.md`
-7. `reports/gate2_3_full_summary.md`
-8. `reports/gate2_3_full_summary.json`
-9. 본 파일
-10. `handoff/DECISION_LOG.md`
-11. `handoff/GATE2_3_WORK_LOG.md`
+2. `docs/GATE2_3R_APPROVAL.md`
+3. `docs/GATE2_3R_MODEL_AMENDMENT.md`
+4. `reports/gate2_3r_full_summary.md`
+5. `reports/gate2_3r_full_summary.json`
+6. `handoff/GATE2_3R_WORK_LOG.md`
+7. `handoff/DECISION_LOG.md`
+8. 본 파일
 
-## 11. 주요 링크
+## 10. 링크
 
-- 저장소: `https://github.com/dpes31/predictive-algorithm`
-- Gate 2-3 Issue: `https://github.com/dpes31/predictive-algorithm/issues/7`
-- Gate 2-3 Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/8`
-- Gate 2-3 branch: `feature/gate2-synthetic-validation`
+- Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/9`
+- Branch: `feature/gate2-synthetic-validation-r1`

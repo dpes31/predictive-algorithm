@@ -1,4 +1,4 @@
-"""Incremental feature and diagnostic snapshots for Gate 2-3."""
+"""Incremental feature and diagnostic snapshots for Gate 2-3R."""
 
 from __future__ import annotations
 
@@ -37,13 +37,17 @@ def _clip(value: float, limit: float) -> float:
     return max(-limit, min(limit, value))
 
 
-def _cross_sectional_z(values: Sequence[float], limit: float) -> tuple[float, ...]:
+def _cross_sectional_z_raw(values: Sequence[float]) -> tuple[float, ...]:
     mean = fmean(values)
     variance = fmean((value - mean) ** 2 for value in values)
     standard_deviation = math.sqrt(variance)
     if standard_deviation <= 0:
         return tuple(0.0 for _ in values)
-    return tuple(_clip((value - mean) / standard_deviation, limit) for value in values)
+    return tuple((value - mean) / standard_deviation for value in values)
+
+
+def _cross_sectional_z(values: Sequence[float], limit: float) -> tuple[float, ...]:
+    return tuple(_clip(value, limit) for value in _cross_sectional_z_raw(values))
 
 
 def _entropy(counts: Sequence[int], total_mass: int, number_count: int) -> float:
@@ -115,6 +119,7 @@ def build_origin_snapshots(
             continue
 
         features: dict[str, tuple[float, ...]] = {}
+        raw_diagnostics: dict[str, tuple[float, ...]] = {}
         long_standard_error = math.sqrt(p0 * (1.0 - p0) / (config.prior_concentration + draw_no))
         long_values = []
         long_rates = []
@@ -158,18 +163,25 @@ def build_origin_snapshots(
             recent_counts = [current_counts[index] - cumulative[recent_start][index] for index in range(config.number_count)]
             prior_counts = [cumulative[recent_start][index] - cumulative[prior_start][index] for index in range(config.number_count)]
             standard_error = math.sqrt(2.0 * p0 * (1.0 - p0) / window)
-            features[f"z_shift_{window}"] = tuple(
-                _clip(((recent_counts[index] - prior_counts[index]) / window) / standard_error, config.winsor_limit)
+            raw_values = tuple(
+                ((recent_counts[index] - prior_counts[index]) / window) / standard_error
                 for index in range(config.number_count)
+            )
+            raw_diagnostics[f"raw_shift_{window}"] = raw_values
+            features[f"z_shift_{window}"] = tuple(
+                _clip(value, config.winsor_limit) for value in raw_values
             )
 
         features["z_ewma_minus_long"] = _cross_sectional_z(
             [ewma[index] - long_rates[index] for index in range(config.number_count)],
             config.winsor_limit,
         )
-        features["signed_cusum_score"] = _cross_sectional_z(
-            [cplus[index] + cminus[index] for index in range(config.number_count)],
-            config.winsor_limit,
+        raw_cusum = _cross_sectional_z_raw(
+            [cplus[index] + cminus[index] for index in range(config.number_count)]
+        )
+        raw_diagnostics["raw_cusum"] = raw_cusum
+        features["signed_cusum_score"] = tuple(
+            _clip(value, config.winsor_limit) for value in raw_cusum
         )
 
         counts52 = [current_counts[index] - cumulative[draw_no - 52][index] for index in range(config.number_count)]
@@ -180,14 +192,18 @@ def build_origin_snapshots(
             for count in pair_counts
         ]
         normalized_pair = tuple(sorted(target_pair))
+        target_pair_z = pair_zscores[pair_lookup[normalized_pair]]
         diagnostics = {
-            "max_abs_shift_52": max(abs(value) for value in features["z_shift_52"]),
-            "max_abs_shift_104": max(abs(value) for value in features["z_shift_104"]),
+            "raw_max_abs_shift_52": max(abs(value) for value in raw_diagnostics["raw_shift_52"]),
+            "raw_max_abs_shift_104": max(abs(value) for value in raw_diagnostics["raw_shift_104"]),
+            "raw_max_abs_cusum": max(abs(value) for value in raw_diagnostics["raw_cusum"]),
+            "clipped_max_abs_shift_52": max(abs(value) for value in features["z_shift_52"]),
+            "clipped_max_abs_shift_104": max(abs(value) for value in features["z_shift_104"]),
+            "clipped_max_abs_cusum": max(abs(value) for value in features["signed_cusum_score"]),
             "entropy_52": _entropy(counts52, config.pick_count * 52, config.number_count),
             "entropy_104": _entropy(counts104, config.pick_count * 104, config.number_count),
-            "max_abs_cusum": max(abs(value) for value in features["signed_cusum_score"]),
             "max_abs_pair_104": max(abs(value) for value in pair_zscores),
-            "target_pair_z_104": pair_zscores[pair_lookup[normalized_pair]],
+            "target_pair_z_104": target_pair_z,
         }
         snapshots.append(
             OriginSnapshot(
