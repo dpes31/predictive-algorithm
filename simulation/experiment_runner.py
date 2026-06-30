@@ -8,7 +8,7 @@ from engine.config import DEFAULT_CONFIG, EngineConfig
 from engine.hashing import sha256_value
 from .experiment_config import ExperimentConfig
 from .null_experiment_r1 import run_null_experiment
-from .positive_experiment import minimum_detectable_effect, run_positive_experiments
+from .positive_experiment_r1 import minimum_detectable_effect, run_positive_experiments
 
 
 def run_gate2_3_experiment(
