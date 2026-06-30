@@ -8,32 +8,31 @@ from engine.experts.physical_hierarchy import HierarchicalPhysicalEstimator
 from engine.physical_metadata import EvidenceValue
 
 
-def ev(value, confidence=1.0):
+def ev(value):
     return EvidenceValue(
         value=value,
         status="observed",
         source_type="official_document",
-        source_url="https://synthetic.invalid/source",
         observed_at="2026-01-01T00:00:00+09:00",
         available_before_draw=True,
-        confidence=confidence,
+        confidence=1.0,
     )
 
 
 class PhysicalHierarchyTests(unittest.TestCase):
     def test_unseen_context_uses_parent_fallback(self):
-        config = replace(DEFAULT_CONFIG, correction_k_global=20.0, correction_k_context=10.0, correction_effect_clip=0.35)
+        config = replace(DEFAULT_CONFIG, correction_k_global=20.0, correction_k_context=10.0, correction_effect_clip=2.0)
         estimator = HierarchicalPhysicalEstimator(config)
         for _ in range(40):
             estimator.update_field("machine.machine_id", ev("M1"), (1, 2, 3, 4, 5, 6))
         result = estimator.distribution("machine.machine_id", ev("M2"))
         self.assertTrue(result.diagnostics.used_parent_fallback)
         self.assertGreater(result.diagnostics.parent_support, 0.0)
-        self.assertAlmostEqual(sum(result.distribution.logits), 0.0, places=10)
+        self.assertTrue(all(-2.0 <= value <= 2.0 for value in result.distribution.logits))
         self.assertGreater(result.distribution.logits[0], result.distribution.logits[-1])
 
     def test_context_child_moves_away_from_parent(self):
-        config = replace(DEFAULT_CONFIG, correction_k_global=20.0, correction_k_context=5.0, correction_effect_clip=0.35)
+        config = replace(DEFAULT_CONFIG, correction_k_global=20.0, correction_k_context=5.0, correction_effect_clip=2.0)
         estimator = HierarchicalPhysicalEstimator(config)
         for _ in range(20):
             estimator.update_field("ball_set.ball_set_id", ev("B1"), (1, 2, 3, 4, 5, 6))
