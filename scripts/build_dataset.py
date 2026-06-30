@@ -6,6 +6,12 @@ attempts an independent comparison with the official Donghaeng Lottery JSON
 endpoint. Records are marked ``verified`` and ``locked`` only when the official
 response is available and matches exactly. A mirror-only record remains
 ``auto_checked`` and is never silently presented as officially verified.
+
+Reproducibility rule
+--------------------
+When draw content and verification state are unchanged, the existing timestamps,
+data version, and resulting SHA-256 are preserved. Re-running the same build must
+not create a different immutable dataset merely because the clock changed.
 """
 
 from __future__ import annotations
@@ -17,6 +23,7 @@ import hashlib
 import json
 import os
 import pathlib
+import re
 import time
 import urllib.error
 import urllib.request
@@ -26,6 +33,17 @@ from typing import Any
 PRIMARY_URL = "https://smok95.github.io/lotto/results/all.json"
 OFFICIAL_URL = "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={draw_no}"
 USER_AGENT = "predictive-algorithm-gate1/1.0 (+https://github.com/dpes31/predictive-algorithm)"
+PERSISTENT_RECORD_FIELDS = (
+    "draw_no",
+    "draw_date",
+    "numbers",
+    "bonus_number",
+    "source",
+    "source_reference",
+    "verification_status",
+    "checksum",
+    "locked",
+)
 
 
 def utc_now() -> str:
@@ -38,6 +56,15 @@ def canonical_json(value: Any) -> str:
 
 def sha256_text(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+def read_json_if_exists(path: pathlib.Path) -> Any | None:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
 
 
 def request_json(url: str, timeout: int = 20, retries: int = 3) -> Any:
@@ -85,6 +112,10 @@ def normalize_primary(raw: dict[str, Any]) -> dict[str, Any]:
 
 def record_checksum(core: dict[str, Any]) -> str:
     return sha256_text(canonical_json(core))
+
+
+def persistent_record(record: dict[str, Any]) -> dict[str, Any]:
+    return {field: record.get(field) for field in PERSISTENT_RECORD_FIELDS}
 
 
 def structural_validation(records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -168,7 +199,7 @@ def verify_official(records: list[dict[str, Any]], mode: str) -> tuple[dict[int,
             draw_no = future_map[future]
             try:
                 payload = future.result()
-            except Exception as exc:  # defensive: a single request must not hide other results
+            except Exception as exc:  # defensive: one request must not hide other results
                 warnings.append(f"Draw {draw_no}: official request error: {exc}")
                 continue
             if payload is not None:
@@ -182,8 +213,31 @@ def verify_official(records: list[dict[str, Any]], mode: str) -> tuple[dict[int,
     return verified, warnings
 
 
+def next_data_version(existing: dict[str, Any] | None, last_date: str, unchanged: bool) -> str:
+    if unchanged and existing and isinstance(existing.get("data_version"), str):
+        return existing["data_version"]
+
+    revision = 1
+    if existing:
+        match = re.fullmatch(r"draws-(\d{4}\.\d{2}\.\d{2})-r(\d+)", str(existing.get("data_version", "")))
+        if match and match.group(1) == last_date.replace("-", "."):
+            revision = int(match.group(2)) + 1
+    return f"draws-{last_date.replace('-', '.')}-r{revision}"
+
+
 def build(args: argparse.Namespace) -> int:
-    generated_at = utc_now()
+    now = utc_now()
+    output_path = pathlib.Path(args.output)
+    report_path = pathlib.Path(args.report)
+    manifest_path = pathlib.Path(args.manifest)
+    checksum_path = pathlib.Path(args.checksums)
+    existing_dataset = read_json_if_exists(output_path)
+    existing_records = {
+        int(record["draw_no"]): record
+        for record in (existing_dataset or {}).get("records", [])
+        if isinstance(record, dict) and isinstance(record.get("draw_no"), int)
+    }
+
     raw_payload = request_json(args.primary_url, timeout=30, retries=4)
     if not isinstance(raw_payload, list):
         raise RuntimeError("Primary source must return a JSON array.")
@@ -219,52 +273,72 @@ def build(args: argparse.Namespace) -> int:
                 status = "verified"
                 source = "dhlottery_official_json"
                 source_reference = OFFICIAL_URL.format(draw_no=draw_no)
-                verified_at = generated_at
                 locked = True
                 official_matches += 1
             else:
                 mismatches.append({"draw_no": draw_no, "primary": core, "official": comparable})
 
+        candidate = {
+            **core,
+            "source": source,
+            "source_reference": source_reference,
+            "verification_status": status,
+            "checksum": record_checksum(core),
+            "locked": locked,
+        }
+        previous = existing_records.get(draw_no)
+        unchanged_record = previous is not None and persistent_record(previous) == persistent_record(candidate)
+        created_at = previous.get("created_at", now) if previous else now
+        updated_at = previous.get("updated_at", now) if unchanged_record else now
+        if status == "verified":
+            verified_at = previous.get("verified_at") if unchanged_record and previous else now
+        else:
+            verified_at = None
+
         output_records.append(
             {
-                **core,
-                "source": source,
-                "source_reference": source_reference,
-                "verification_status": status,
+                **candidate,
                 "verified_at": verified_at,
-                "checksum": record_checksum(core),
-                "created_at": generated_at,
-                "updated_at": generated_at,
-                "locked": locked,
+                "created_at": created_at,
+                "updated_at": updated_at,
             }
         )
 
     if mismatches:
-        pathlib.Path(args.report).parent.mkdir(parents=True, exist_ok=True)
-        pathlib.Path(args.report).write_text(
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        report_path.write_text(
             json.dumps({"status": "failed", "official_mismatches": mismatches}, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
         raise RuntimeError(f"Official comparison found {len(mismatches)} mismatched draws.")
 
+    previous_persistent = [persistent_record(record) for record in (existing_dataset or {}).get("records", [])]
+    current_persistent = [persistent_record(record) for record in output_records]
+    unchanged_dataset = bool(existing_dataset) and previous_persistent == current_persistent
+    generated_at = str(existing_dataset.get("generated_at")) if unchanged_dataset else now
+
     last = output_records[-1]
-    data_version = f"draws-{last['draw_date'].replace('-', '.')}-r1"
-    source_manifest = [
-        {
-            "name": "smok95/lotto public mirror",
-            "url": args.primary_url,
-            "role": "complete bootstrap source",
-            "retrieved_at": generated_at,
-            "notes": "The mirror itself warns that the official Donghaeng Lottery result is authoritative.",
-        },
-        {
-            "name": "Donghaeng Lottery JSON endpoint",
-            "url": OFFICIAL_URL,
-            "role": "independent official comparison when available",
-            "retrieved_at": generated_at if official_records else None,
-            "notes": "Only exact matches are marked verified and locked.",
-        },
-    ]
+    data_version = next_data_version(existing_dataset, last["draw_date"], unchanged_dataset)
+    if unchanged_dataset and isinstance(existing_dataset.get("source_manifest"), list):
+        source_manifest = existing_dataset["source_manifest"]
+    else:
+        source_manifest = [
+            {
+                "name": "smok95/lotto public mirror",
+                "url": args.primary_url,
+                "role": "complete bootstrap source",
+                "retrieved_at": generated_at,
+                "notes": "The mirror itself warns that the official Donghaeng Lottery result is authoritative.",
+            },
+            {
+                "name": "Donghaeng Lottery JSON endpoint",
+                "url": OFFICIAL_URL,
+                "role": "independent official comparison when available",
+                "retrieved_at": generated_at if official_records else None,
+                "notes": "Only exact matches are marked verified and locked.",
+            },
+        ]
+
     dataset = {
         "data_version": data_version,
         "generated_at": generated_at,
@@ -272,10 +346,6 @@ def build(args: argparse.Namespace) -> int:
         "records": output_records,
     }
 
-    output_path = pathlib.Path(args.output)
-    report_path = pathlib.Path(args.report)
-    manifest_path = pathlib.Path(args.manifest)
-    checksum_path = pathlib.Path(args.checksums)
     for path in (output_path, report_path, manifest_path, checksum_path):
         path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -298,6 +368,7 @@ def build(args: argparse.Namespace) -> int:
         "official_warnings": official_warnings,
         "official_mismatches": mismatches,
         "dataset_sha256": sha256_text(output_text),
+        "reproducible_no_change": unchanged_dataset,
     }
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
