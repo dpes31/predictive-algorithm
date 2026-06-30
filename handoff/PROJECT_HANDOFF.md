@@ -1,9 +1,9 @@
 # Project Handoff
 
 최종 갱신일: 2026-06-30  
-현재 Gate: Gate 1 준비  
+현재 Gate: Gate 1 구현 완료 · 사용자 검토 대기  
 현재 작업 브랜치: `feature/gate1-governance-foundation`  
-현재 Draft PR: `#2 Gate 1 foundation: algorithm and handoff docs`
+현재 Draft PR: `#2 Gate 1 data integrity and archive MVP`
 
 ## 1. 프로젝트 목적
 
@@ -33,75 +33,139 @@
 - 사용자는 비개발자이므로 결과 보고는 화면과 의사결정 중심으로 작성
 - 향후 Codex 또는 다른 AI 에이전트가 이어서 작업할 수 있도록 Markdown 문서와 handoff 기록을 항상 유지
 
-## 3. 완료된 작업
+## 3. Gate 1 완료 항목
 
-- Gate 0 승인
-- GitHub Issue #1에 MVP 계획 및 알고리즘 고정 명세 등록
-- 빈 저장소 초기화
-- 에이전트 운영 규칙 `AGENTS.md` 작성
-- 핵심 알고리즘 `docs/ALGORITHM_SPEC.md` v1.0.0 고정
-- 변경 금지사항 `docs/NON_NEGOTIABLES.md` 작성
-- 데이터 정책 `docs/DATA_POLICY.md` 작성
-- 검증 프로토콜 `docs/VALIDATION_PROTOCOL.md` 작성
-- 인수인계 폴더 생성
-- `handoff/PROJECT_HANDOFF.md` 작성
-- `handoff/WORK_LOG.md` 작성
-- `handoff/DECISION_LOG.md` 작성
-- README 문서 진입점 확장
-- Draft PR #2 생성
+### 데이터 기반
+
+- `data/draws.json`: 1~1230회 단일 원본
+- `data/draws.schema.json`: 데이터 계약
+- `data/source_manifest.json`: 출처 및 역할
+- `data/checksums.sha256`: 파일 체크섬
+- 회차·날짜·번호·보너스·결측·중복·잠금상태 자동검사
+- 레코드별 SHA-256
+- 동일 입력 재생성 시 동일 SHA 유지
+
+### 아카이브 UI
+
+- 회차 검색
+- 연도 필터
+- 최신순·오래된순 정렬
+- 30개 단위 더 보기
+- 당첨번호와 보너스번호 원형 표시
+- 색상 규칙 적용
+- 검증상태 배지
+- 출처·잠금·체크섬 상세정보
+- 전체·최근 52·30·10회 참고 통계
+- 모바일 반응형 화면
+
+### 검증 및 운영
+
+- GitHub Actions 자동 빌드
+- 데이터 무결성 단위 테스트
+- HTML 정적 계약 테스트
+- 재현성 SHA 테스트
+- 리뷰용 ZIP 아티팩트
+- 비개발자용 `docs/GATE1_REVIEW_GUIDE.md`
+- 보조 교차검증 기록 `reports/secondary_crosscheck.md`
+
+Gate 1에서는 예측 엔진과 고정 알고리즘 수식을 변경하지 않았습니다.
 
 ## 4. 현재 데이터 상태
 
-- 1~1229회 데이터 파일은 이전 작업에서 준비됨
-- 1230회 사용자 제공값:
-  - 추첨일: 2026-06-27
-  - 당첨번호: 3, 8, 9, 22, 28, 42
+- 데이터 버전: `draws-2026.06.27-r1`
+- 범위: 1~1230회
+- 레코드: 1,230개
+- 최신 회차:
+  - 1230회
+  - 2026-06-27
+  - 본번호: 3, 8, 9, 22, 28, 42
   - 보너스: 45
-- 1230회는 공식 독립 대조 전까지 `pending_manual`로 취급
-- Gate 1에서 단일 원본 JSON과 무결성 검사를 구축해야 함
+- 구조·체크섬·파생 데이터 검사: 통과
+- 데이터셋 SHA-256: `57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1`
+- 재현성 검사: 통과
 
-## 5. 다음 작업 — Gate 1
+## 5. 공식 검증 상태와 제한
 
-1. 데이터 폴더와 JSON 스키마 생성
-2. 1~1230회 원본 적재
-3. 회차·날짜·번호·보너스·결측·중복·체크섬 검사
-4. 1230회 공식 대조 상태 처리
-5. 아카이브용 파생 JSON 생성기 작성
-6. 원형 번호 UI 기반 아카이브 HTML 제작
-7. 테스트 결과와 데이터 체크섬 제출
+기존 동행복권 JSON 엔드포인트가 자동 요청에 응답하지 않아 공식 전수 대조는 완료되지 않았습니다.
 
-Gate 1에서는 예측 엔진을 임의 구현하지 않습니다. 데이터·아카이브 기반을 먼저 검수합니다.
+현재 상태:
 
-## 6. 주요 위험
+- official exact matches: 0
+- verified: 0
+- auto_checked: 1,230
+- locked: 0
 
-- 과거 번호의 출처가 혼합되거나 잘못된 값을 공식값으로 표시할 위험
-- 번호를 HTML과 JSON에 중복 입력해 불일치가 발생할 위험
-- 1230회를 공식 대조 없이 검증 완료로 표시할 위험
-- 예측 엔진 구현 중 고정 수식이 단일 빈도식으로 축소될 위험
-- 버튼 클릭 시 매번 다른 난수를 생성해 사전 잠금 원칙을 위반할 위험
+따라서 UI는 `자동 형식 검증`으로 표시하며 `공식 대조 완료`라고 표현하지 않습니다.
 
-## 7. 작업 재개 시 필수 순서
+보조 교차검증:
+
+- 1~1229회 날짜·본번호를 이전 별도 데이터셋과 비교: 불일치 0건
+- 1230회 본번호·보너스번호를 동행복권 발표 인용 보도와 비교: 일치
+- 1~1229회 보너스번호는 별도 공식 전수 대조 미완료
+
+## 6. 자동검증 결과
+
+GitHub Actions run `28421838019` 성공.
+
+통과 단계:
+
+1. 단일 원본 생성
+2. 오프라인 무결성 검증
+3. HTML 아카이브 데이터 생성
+4. 동일 입력 재생성 SHA 비교
+5. Python 단위 테스트
+6. HTML 정적 계약 테스트
+7. 리뷰 ZIP 생성
+
+## 7. 사용자 검토 필요사항
+
+Gate 1 승인 전 다음을 확인해야 합니다.
+
+- 과거번호 아카이브 화면 구성
+- 원형 번호 크기·색상·간격
+- 회차 검색·연도 필터·정렬
+- 모바일 가독성
+- `자동 형식 검증` 문구의 이해도
+- 공식 검증 미완료 상태에서 Gate 1을 조건부 승인할지 여부
+
+## 8. 다음 단계 후보
+
+### Gate 1 승인 후
+
+- PR #2를 병합하거나 Gate 1 전용 PR로 정리
+- 공식 검증 경로를 별도 데이터 운영 과제로 유지
+- Gate 2 예측 엔진의 walk-forward 설계 및 구현 시작
+
+### Gate 2 착수 전 필수 조건
+
+다음 중 하나를 사용자와 확정해야 합니다.
+
+1. 공식 페이지 기반 수동 전수 대조 완료 후 데이터 잠금
+2. 승인된 복수 데이터 출처의 일치 기준으로 조건부 잠금
+3. `auto_checked` 상태로 연구 백테스트만 허용하고 실제 미래예측 공개는 공식 잠금 이후 진행
+
+## 9. 주요 위험
+
+- 보너스번호 1~1229회의 공식 전수 대조 미완료
+- 외부 미러의 오류가 구조검사를 통과할 가능성
+- 공식 사이트 자동 접근 제한으로 신규 회차 운영이 중단될 가능성
+- Gate 2가 공식 검증 정책 확정 전에 데이터를 확정값으로 오인할 가능성
+
+## 10. 작업 재개 시 필수 순서
 
 1. 루트 `AGENTS.md` 읽기
 2. `docs/ALGORITHM_SPEC.md` 확인
 3. `docs/NON_NEGOTIABLES.md` 확인
-4. 본 파일의 다음 작업과 위험 확인
+4. 본 파일의 공식 검증 제한 확인
 5. 최신 `handoff/WORK_LOG.md` 확인
 6. 최신 `handoff/DECISION_LOG.md` 확인
-7. 기존 Draft PR 또는 새 작업 브랜치 확인
+7. Draft PR #2 및 CI 상태 확인
 
-## 8. 주요 링크
+## 11. 주요 링크
 
 - 저장소: `https://github.com/dpes31/predictive-algorithm`
 - 계획 이슈: `https://github.com/dpes31/predictive-algorithm/issues/1`
-- 거버넌스 Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/2`
-
-## 9. 사용자 승인 필요 항목
-
-현재 추가 인터뷰는 필요하지 않습니다. Gate 1 구현 후 다음 항목을 사용자에게 보여주고 검수받아야 합니다.
-
-- 과거 번호 아카이브 정확성
-- 회차 검색·연도 필터 UX
-- 번호 원형 도형과 색상
-- 1230회 검증상태 표시
-- 데이터 무결성 검사 결과
+- Gate 1 Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/2`
+- 검토 안내: `docs/GATE1_REVIEW_GUIDE.md`
+- 자동 검사 요약: `reports/gate1_summary.md`
+- 보조 교차검증: `reports/secondary_crosscheck.md`
