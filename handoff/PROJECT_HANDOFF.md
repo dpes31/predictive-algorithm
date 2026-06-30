@@ -4,7 +4,8 @@
 현재 Gate: **Gate 2-1 예측 엔진 명세 작성 완료 · 사용자 검토 대기**  
 현재 작업 브랜치: `feature/gate2-engine-spec`  
 기준 브랜치: `feature/gate1-governance-foundation`  
-관련 이슈: `#3 Gate 2-1 예측 엔진 명세 및 백테스트 계약 고정`
+관련 이슈: `#3 Gate 2-1 예측 엔진 명세 및 백테스트 계약 고정`  
+현재 Draft PR: `#4 Gate 2-1: freeze predictive engine and backtest specification`
 
 ## 1. 프로젝트 목적
 
@@ -53,6 +54,7 @@
 - `docs/GATE2_FEATURE_CONTRACT.md`
 - `docs/GATE2_BACKTEST_PROTOCOL.md`
 - `docs/GATE2_IMPLEMENTATION_PLAN.md`
+- `docs/GATE2_REVIEW_GUIDE.md`
 
 ### 핵심 설계
 
@@ -117,13 +119,15 @@ Gate 2-2에서는 아직 전체 역사적 백테스트나 UI를 완료하지 않
 5. `docs/GATE2_FEATURE_CONTRACT.md`
 6. `docs/GATE2_BACKTEST_PROTOCOL.md`
 7. `docs/GATE2_IMPLEMENTATION_PLAN.md`
-8. 본 파일
-9. `handoff/DECISION_LOG.md`
-10. `handoff/WORK_LOG.md`
+8. `docs/GATE2_REVIEW_GUIDE.md`
+9. 본 파일
+10. `handoff/DECISION_LOG.md`
+11. `handoff/WORK_LOG.md`
 
 ## 9. 주요 링크
 
 - 저장소: `https://github.com/dpes31/predictive-algorithm`
 - Gate 1 Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/2`
 - Gate 2-1 Issue: `https://github.com/dpes31/predictive-algorithm/issues/3`
+- Gate 2-1 Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/4`
 - Gate 2-1 branch: `feature/gate2-engine-spec`
