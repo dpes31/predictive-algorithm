@@ -10,12 +10,12 @@
 
 - M0 균등 무작위 기준모형 유지
 - M1 지속, M2 반전, M3 구조변화 유지
-- M4 물리·운영 증거모형 유지
+- M4 물리·운영 증거모형 연구계약 보존
 - 신호 미확인 시 M0 복귀
 - 미래 데이터 누출 금지
 - 동일 입력·버전·seed 재현
 - 실패와 불확실성 보존
-- 최종 출력은 6개 번호 × 5세트
+- 최종 제품 출력은 6개 번호 × 5세트
 
 ## 2. 작업 전 필수 읽기
 
@@ -32,82 +32,93 @@
 11. `docs/GATE2_PHYSICAL_DATA_SCHEMA.md`
 12. `docs/GATE2_PHYSICAL_VALIDATION_PROTOCOL.md`
 13. `docs/GATE2_PHYSICAL_ENGINE_REVIEW.md`
-14. `handoff/GATE2_PHYSICAL_PROGRESS.md`
-15. `handoff/PROJECT_HANDOFF.md`
-16. `handoff/DECISION_LOG_GATE2_PHYSICAL.md`
+14. `reports/gate2_3p3_full_summary.md`
+15. `reports/gate2_3p3_result_manifest.json`
+16. `handoff/GATE2_PHYSICAL_PROGRESS.md`
+17. `handoff/PROJECT_HANDOFF.md`
+18. `handoff/DECISION_LOG_GATE2_PHYSICAL_VALIDATION.md`
 
 ## 3. 현재 Gate
 
 - Gate 2-3: NOT PASSED
 - Gate 2-3R: NOT PASSED
 - Gate 2-3P-1: 사용자 승인 완료
-- Gate 2-3P-2: 구현 완료, 사용자 검토 대기
-- Gate 2-3P-3: 사용자 승인 전 차단
+- Gate 2-3P-2: 사용자 승인 완료
+- Gate 2-3P-3: **NOT PASSED**
+- Gate 2-3P-R: 사용자 결정 대기
 - Gate P-1: 실제 메타데이터 파일럿 차단
 - Gate 2-4P: 실제 Walk-forward 차단
 - 모바일 UI: 차단
 
-현재 브랜치: `feature/gate2p2-engine`  
-현재 Draft PR: #13  
+현재 브랜치: `feature/gate2p3-validation`  
+현재 Draft PR: #15  
 현재 모델: `3.0.0-research`  
 현재 Gate state: `RESEARCH`  
-현재 최종 적용분포: `M0 only`
+현재 최종 적용분포: `M0 only`  
+현재 deployable M4 weight: `0`
 
-## 4. Gate 2-3P-2 구현 상태
+## 4. Gate 2-3P-3 결과
 
-완료:
+실험 규모:
 
-- physical metadata contract·validator
-- source·timestamp·pre-draw availability·confidence validation
-- current-result leakage 차단
-- M4 contextual shrinkage expert
-- quality·support 미달 uniform fallback
-- M3 single maxT calibrator
-- M0~M4 prediction integration
-- M4 weight cap 10%
-- physical synthetic scenarios
-- deterministic smoke·unit tests·CI
+- maxT calibration 10,000
+- model null calibration 4,000
+- independent null validation 5,000
+- positive controls 12,000
+- robustness 6,000
+- total 37,000
 
-최신 성공 workflow:
+실행:
 
-- run `28444499045`
-- head `e9f0dc303f596b8db52f2f6193581978944db401`
-- unit tests pass
-- physical smoke pass
-- research-only contract pass
+- workflow run `28451343507`
+- 20 shards and aggregate: success
+- report hash `b59cc753eda4058f0b55a685a136da01a327dd6b6b7fc33b10fd4758dfc36948`
 
-## 5. M4 입력 원칙
+판정:
 
-- target draw 이전에 알 수 있는 데이터만 사용
-- 현재 회차 배출순서는 결과이므로 입력 금지
-- 본추첨 후 공개된 정보를 사전 데이터처럼 사용 금지
-- 출처·observed_at·available_before_draw·confidence 필수
-- 결측·inferred·unknown은 prediction 기여 0
-- metadata 품질 미달 시 uniform fallback
-- context support 최소 20
-- M4 최종 비중 최대 10%
+- proxy false activation 0.1%, upper 0.205288% — upper criterion fail
+- M3 false activation 0.16% — criterion fail
+- lift 1.25 strict detection: all six scenarios below 80%
+- strongest machine scenario: 24.2%
+- regime-reversal M3 activation: 0.2%
+- post-draw-error activation: 2.6%
+- signal-decay return within 208 draws: 65.8%
 
-## 6. M3 maxT 원칙
+## 5. 결과 해석
 
-- 사전등록된 raw shift·CUSUM·entropy deviation만 사용
-- 전체 forecast origin 최대통계량으로 familywise null 보정
-- 별도 Holm 중복 적용 금지
-- calibration 최소 10,000
-- alpha 0.001 유지
-- calibration 부족 시 M3 비활성
+- CI/workflow는 성공했다.
+- 통계 검증은 실패했다.
+- 모든 알고리즘 개발이 불가능하다는 판정이 아니다.
+- `3.0.0-research` 구조가 사전등록된 오탐·탐지력 기준을 충족하지 못했다.
+- 동일 버전을 재실행하거나 임계값만 완화해서 통과시키지 않는다.
 
-## 7. Gate 2-3P-3 승인 전 금지
+## 6. 사용자 승인 전 금지
 
-- 전체 null·positive 대규모 실행
-- 통과 기준 변경
-- 효과크기·시나리오 삭제
-- 실패 seed 제외
+- Gate 2-3P-R 구현
+- 기존 M4 weight·shrinkage·context 결합 변경
+- M3 detector 변경
+- 효과크기·통과기준 변경
+- 실패 seed·시나리오 삭제
+- 동일 검증을 유리한 seed로 반복
 - 실제 과거번호 Walk-forward
 - 실제 미래후보 공개
 - Pair interaction 예측 활성화
 - M4 10% cap 완화
 - 모바일 UI·Supabase 개발
 - `통계적 우위 없음` 표시 제거
+
+## 7. 보정 명세 후보
+
+다음은 진단 후보이며 사용자 승인 전 확정하지 않는다.
+
+- field별 sequential evidence weighting
+- null-calibrated sparsity·abstention
+- hierarchical partial pooling
+- stable-context와 transient-context expert 분리
+- invalid timestamp global veto
+- M3 change detector 재설계
+- explicit signal decay·M0 return
+- 신규 모델 버전과 동일 규모 재검증
 
 ## 8. 브랜치와 PR
 
@@ -116,26 +127,21 @@
 - Draft PR
 - 사용자 검토 전 병합 금지
 - 기존 실패 버전과 보고서 덮어쓰기 금지
-- PR #11·#13 모두 미병합 상태 유지
+- PR #11·#13·#15 미병합 상태 유지
 
 ## 9. 연구·공개정책
 
 - 연구 출력: `research_only: true`
 - 공개 허용: `public_release_allowed: false`
-- 합성 smoke는 예측력 증명이 아님
-- Gate 2-3P-3 통과 후에도 실제 metadata Walk-forward가 필요함
+- 합성검증 실패로 Gate P-1 이동 금지
 - 실제 Walk-forward 통과 전 확률 우위 주장 금지
+- 실제 후보 5세트 공개 금지
 
-## 10. 다음 승인 후 작업
+## 10. 다음 사용자 결정
 
-Gate 2-3P-3:
+권고: Gate 2-3P-3 NOT PASSED 결과를 승인하고, Gate 2-3P-R 보정 명세 작성 여부를 결정한다.
 
-1. maxT null 10,000
-2. model null 4,000
-3. independent null 5,000
-4. positive scenario·effect size별 500
-5. missingness·misclassification·regime robustness
-6. strict PASS / NOT PASSED 판정
+승인 전 새 알고리즘 코드나 재검증을 실행하지 않는다.
 
 ## 11. 작업 종료 시 누적
 
@@ -147,9 +153,8 @@ Gate 2-3P-3:
 
 ## 12. 사용자 보고
 
-- 현재 단계가 개발인지 검증인지 명시
+- 검증 실행 성공과 모델 통과 여부를 구분
 - 단계별 진척도 표시
 - 완료·미착수·차단 구분
-- 5세트 출력 유지 여부 명시
-- smoke와 통계검증을 구분
-- 다음 승인사항 한 번에 제시
+- 5세트 제품 목표 유지 여부 명시
+- 실패 항목과 다음 보정 논리를 수치로 제시
