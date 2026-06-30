@@ -5,9 +5,18 @@ on:
   push:
     branches: [feature/gate2-synthetic-validation]
     paths: [docs/GATE2_3_FULL_RUN_REQUEST.md]
+  pull_request:
+    branches: [feature/gate2-engine-core]
+    paths:
+      - .github/workflows/gate2-synthetic-full.yml
+      - docs/GATE2_3_FULL_RUN_REQUEST.md
 
 permissions:
   contents: read
+
+concurrency:
+  group: gate2-synthetic-full-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   full-experiment:
