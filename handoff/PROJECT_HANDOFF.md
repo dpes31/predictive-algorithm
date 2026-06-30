@@ -1,171 +1,129 @@
 # Project Handoff
 
 최종 갱신일: 2026-06-30  
-현재 Gate: Gate 1 구현 완료 · 사용자 검토 대기  
-현재 작업 브랜치: `feature/gate1-governance-foundation`  
-현재 Draft PR: `#2 Gate 1 data integrity and archive MVP`
+현재 Gate: **Gate 2-1 예측 엔진 명세 작성 완료 · 사용자 검토 대기**  
+현재 작업 브랜치: `feature/gate2-engine-spec`  
+기준 브랜치: `feature/gate1-governance-foundation`  
+관련 이슈: `#3 Gate 2-1 예측 엔진 명세 및 백테스트 계약 고정`
 
 ## 1. 프로젝트 목적
 
 과거 로또 6/45 데이터와 이후 누적 데이터를 이용해 다음 회차의 6개 번호 조합 5세트를 생성하고, 추첨 전에 잠근 뒤 실제 결과와 비교하여 검증하는 연구형 확률예측 앱을 개발합니다.
 
-핵심은 단순 고빈도 추천이 아니라:
+핵심 모형:
 
 - M0 균등 무작위
 - M1 지속
 - M2 반전·평균회귀
 - M3 구조변화
 
-를 동시에 평가하는 동적 혼합모형입니다.
+비균등 신호가 확인되지 않으면 M0으로 복귀합니다.
 
 ## 2. 사용자 확정사항
 
 - 출력: 6개 번호 조합 5세트
-- 보너스번호: 저장·표시, v1 예측 제외
 - 성공목표: 6개 적중 가능성 → 최고 일치 개수 → 다양성 → 군중 회피
-- 신호가 없어도 5세트 제공, 단 `통계적 우위 없음` 표시
+- 신호가 없어도 후보 제공, 단 `통계적 우위 없음` 표시
 - 군중 회피 영향 최대 5%
 - 사용자 95% 구간, 모델 승격 99.9%
-- Python에서 예측 계산, HTML은 잠금 JSON 표시
-- 신규 회차는 자동 수집 후 공식 대조 완료 시 공개
-- 상세 분석은 기본 숨김
-- Supabase는 HTML 검수와 Gate 4 이후 진행
-- 사용자는 비개발자이므로 결과 보고는 화면과 의사결정 중심으로 작성
-- 향후 Codex 또는 다른 AI 에이전트가 이어서 작업할 수 있도록 Markdown 문서와 handoff 기록을 항상 유지
+- Python 예측, HTML은 잠금 JSON 표시
+- 상세 분석 기본 숨김
+- 인수인계 Markdown을 작업마다 누적
+- Gate 1 승인 완료
+- 현재 `auto_checked` 데이터는 연구용 백테스트에 사용
+- 실제 미래예측 공개와 데이터 잠금은 공식 검증 완료 후 진행
 
-## 3. Gate 1 완료 항목
+## 3. Gate 1 상태
 
-### 데이터 기반
-
-- `data/draws.json`: 1~1230회 단일 원본
-- `data/draws.schema.json`: 데이터 계약
-- `data/source_manifest.json`: 출처 및 역할
-- `data/checksums.sha256`: 파일 체크섬
-- 회차·날짜·번호·보너스·결측·중복·잠금상태 자동검사
-- 레코드별 SHA-256
-- 동일 입력 재생성 시 동일 SHA 유지
-
-### 아카이브 UI
-
-- 회차 검색
-- 연도 필터
-- 최신순·오래된순 정렬
-- 30개 단위 더 보기
-- 당첨번호와 보너스번호 원형 표시
-- 색상 규칙 적용
-- 검증상태 배지
-- 출처·잠금·체크섬 상세정보
-- 전체·최근 52·30·10회 참고 통계
-- 모바일 반응형 화면
-
-### 검증 및 운영
-
-- GitHub Actions 자동 빌드
-- 데이터 무결성 단위 테스트
-- HTML 정적 계약 테스트
-- 재현성 SHA 테스트
-- 리뷰용 ZIP 아티팩트
-- 비개발자용 `docs/GATE1_REVIEW_GUIDE.md`
-- 보조 교차검증 기록 `reports/secondary_crosscheck.md`
-
-Gate 1에서는 예측 엔진과 고정 알고리즘 수식을 변경하지 않았습니다.
-
-## 4. 현재 데이터 상태
-
+- 데이터 범위: 1~1230회
 - 데이터 버전: `draws-2026.06.27-r1`
-- 범위: 1~1230회
-- 레코드: 1,230개
-- 최신 회차:
-  - 1230회
-  - 2026-06-27
-  - 본번호: 3, 8, 9, 22, 28, 42
-  - 보너스: 45
-- 구조·체크섬·파생 데이터 검사: 통과
+- 구조·체크섬·파생 데이터·재현성 검사: 통과
 - 데이터셋 SHA-256: `57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1`
-- 재현성 검사: 통과
+- 공식 자동 대조: 미완료
+- `auto_checked`: 1,230
+- `verified`: 0
+- `locked`: 0
+- Vercel Preview 모바일 검수: 통과
 
-## 5. 공식 검증 상태와 제한
+## 4. Gate 2-1 완료 항목
 
-기존 동행복권 JSON 엔드포인트가 자동 요청에 응답하지 않아 공식 전수 대조는 완료되지 않았습니다.
+### 문서
 
-현재 상태:
+- `docs/GATE2_ENGINE_SPEC.md`
+- `docs/GATE2_FEATURE_CONTRACT.md`
+- `docs/GATE2_BACKTEST_PROTOCOL.md`
+- `docs/GATE2_IMPLEMENTATION_PLAN.md`
 
-- official exact matches: 0
-- verified: 0
-- auto_checked: 1,230
-- locked: 0
+### 핵심 설계
 
-따라서 UI는 `자동 형식 검증`으로 표시하며 `공식 대조 완료`라고 표현하지 않습니다.
+- 정확히 6개가 선택되는 조합확률을 elementary symmetric polynomial로 정규화
+- M0~M3와 sub-expert 구조 정의
+- 지속과 반전을 별도 경쟁가설로 유지
+- pair interaction은 계약상 유지하되 초기값 0
+- 무작위성 gate 상태: CLOSED / RESEARCH / CANDIDATE / PROMOTED
+- 역사적 데이터만으로 PROMOTED 금지
+- 300~1230회 Walk-forward 고정
+- Block A/B/C 고정
+- Joint Log Loss를 1차 지표로 고정
+- Brier·Calibration·후보 일치성과를 보조지표로 고정
+- 균등 null 1,000개와 planted positive-control 정의
+- Moving-block bootstrap·Holm 보정 정의
+- 동일 입력 결정론적 seed와 출력 해시 정의
 
-보조 교차검증:
+## 5. Gate 2-1 검토 필요사항
 
-- 1~1229회 날짜·본번호를 이전 별도 데이터셋과 비교: 불일치 0건
-- 1230회 본번호·보너스번호를 동행복권 발표 인용 보도와 비교: 일치
-- 1~1229회 보너스번호는 별도 공식 전수 대조 미완료
+사용자가 확인할 핵심:
 
-## 6. 자동검증 결과
+1. M0~M3 역할이 기존 논의와 일치하는지
+2. 최근 신호의 지속과 반전이 독립 가설로 유지되는지
+3. 신호가 없을 때 최종분포가 M0인지
+4. 역사적 백테스트만으로 검증완료라고 하지 않는지
+5. 실제 미래예측 공개가 공식 검증 이후인지
+6. 후보 5세트에서 정확히 6개 적중확률이 1순위인지
 
-GitHub Actions run `28421838019` 성공.
+## 6. Gate 2-2 다음 작업
 
-통과 단계:
+Gate 2-1 승인 후 새 구현 브랜치에서 진행합니다.
 
-1. 단일 원본 생성
-2. 오프라인 무결성 검증
-3. HTML 아카이브 데이터 생성
-4. 동일 입력 재생성 SHA 비교
-5. Python 단위 테스트
-6. HTML 정적 계약 테스트
-7. 리뷰 ZIP 생성
+1. `engine/` 패키지 골격
+2. 데이터 cutoff assertion
+3. 피처 스냅샷
+4. elementary symmetric polynomial DP
+5. M0 분포
+6. M1~M3 sub-expert
+7. 순차 가중치
+8. randomness gate 상태기계
+9. 후보 5세트 최적화
+10. 출력 JSON·해시
+11. 단위테스트와 CI
 
-## 7. 사용자 검토 필요사항
+Gate 2-2에서는 아직 전체 역사적 백테스트나 UI를 완료하지 않습니다. 먼저 수학적 정합성과 합성 smoke test를 검증합니다.
 
-Gate 1 승인 전 다음을 확인해야 합니다.
+## 7. 주요 위험
 
-- 과거번호 아카이브 화면 구성
-- 원형 번호 크기·색상·간격
-- 회차 검색·연도 필터·정렬
-- 모바일 가독성
-- `자동 형식 검증` 문구의 이해도
-- 공식 검증 미완료 상태에서 Gate 1을 조건부 승인할지 여부
+- 공식 데이터 잠금 미완료
+- 역사적 데이터가 완전한 untouched holdout이 아님
+- 작은 우연 패턴이 sub-expert weight를 움직일 위험
+- 990개 pair interaction의 과적합 위험
+- 후보 5세트 다양화가 1차 확률목표를 침해할 위험
+- 계산속도를 이유로 조합분포를 독립 Bernoulli 근사로 바꿀 위험
 
-## 8. 다음 단계 후보
+## 8. 작업 재개 시 필수 순서
 
-### Gate 1 승인 후
+1. `AGENTS.md`
+2. `docs/ALGORITHM_SPEC.md`
+3. `docs/NON_NEGOTIABLES.md`
+4. `docs/GATE2_ENGINE_SPEC.md`
+5. `docs/GATE2_FEATURE_CONTRACT.md`
+6. `docs/GATE2_BACKTEST_PROTOCOL.md`
+7. `docs/GATE2_IMPLEMENTATION_PLAN.md`
+8. 본 파일
+9. `handoff/DECISION_LOG.md`
+10. `handoff/WORK_LOG.md`
 
-- PR #2를 병합하거나 Gate 1 전용 PR로 정리
-- 공식 검증 경로를 별도 데이터 운영 과제로 유지
-- Gate 2 예측 엔진의 walk-forward 설계 및 구현 시작
-
-### Gate 2 착수 전 필수 조건
-
-다음 중 하나를 사용자와 확정해야 합니다.
-
-1. 공식 페이지 기반 수동 전수 대조 완료 후 데이터 잠금
-2. 승인된 복수 데이터 출처의 일치 기준으로 조건부 잠금
-3. `auto_checked` 상태로 연구 백테스트만 허용하고 실제 미래예측 공개는 공식 잠금 이후 진행
-
-## 9. 주요 위험
-
-- 보너스번호 1~1229회의 공식 전수 대조 미완료
-- 외부 미러의 오류가 구조검사를 통과할 가능성
-- 공식 사이트 자동 접근 제한으로 신규 회차 운영이 중단될 가능성
-- Gate 2가 공식 검증 정책 확정 전에 데이터를 확정값으로 오인할 가능성
-
-## 10. 작업 재개 시 필수 순서
-
-1. 루트 `AGENTS.md` 읽기
-2. `docs/ALGORITHM_SPEC.md` 확인
-3. `docs/NON_NEGOTIABLES.md` 확인
-4. 본 파일의 공식 검증 제한 확인
-5. 최신 `handoff/WORK_LOG.md` 확인
-6. 최신 `handoff/DECISION_LOG.md` 확인
-7. Draft PR #2 및 CI 상태 확인
-
-## 11. 주요 링크
+## 9. 주요 링크
 
 - 저장소: `https://github.com/dpes31/predictive-algorithm`
-- 계획 이슈: `https://github.com/dpes31/predictive-algorithm/issues/1`
 - Gate 1 Draft PR: `https://github.com/dpes31/predictive-algorithm/pull/2`
-- 검토 안내: `docs/GATE1_REVIEW_GUIDE.md`
-- 자동 검사 요약: `reports/gate1_summary.md`
-- 보조 교차검증: `reports/secondary_crosscheck.md`
+- Gate 2-1 Issue: `https://github.com/dpes31/predictive-algorithm/issues/3`
+- Gate 2-1 branch: `feature/gate2-engine-spec`
