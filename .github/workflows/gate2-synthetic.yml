@@ -28,5 +28,12 @@ jobs:
           status=$?
           tail -120 /tmp/unit-tests.log
           exit $status
+      - name: Upload unit-test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-3r-unit-test-log
+          path: /tmp/unit-tests.log
+          retention-days: 7
       - name: Run synthetic smoke
         run: PYTHONPATH=. python scripts/run_gate2_synthetic_r1.py --draw-count 360 --null-calibration 4 --null-validation 3 --positive 1 --alpha 0.20 --json-output /tmp/gate2-3r.json --markdown-output /tmp/gate2-3r.md
