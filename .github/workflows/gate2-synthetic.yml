@@ -1,14 +1,18 @@
-name: Gate 2 synthetic validation R1
+name: Gate 2 physical evidence engine
 
 on:
   workflow_dispatch:
   push:
-    branches: [feature/gate2-synthetic-validation-r1]
+    branches: [feature/gate2p2-engine]
   pull_request:
-    branches: [feature/gate2-synthetic-validation]
+    branches: [feature/gate2-physical-evidence-spec]
 
 permissions:
   contents: read
+
+concurrency:
+  group: gate2-physical-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   smoke:
@@ -26,14 +30,25 @@ jobs:
           set +e
           PYTHONPATH=. python -m unittest discover -s tests -v > /tmp/unit-tests.log 2>&1
           status=$?
-          tail -120 /tmp/unit-tests.log
+          tail -160 /tmp/unit-tests.log
           exit $status
       - name: Upload unit-test log
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gate2-3r-unit-test-log
+          name: gate2-3p2-unit-test-log
           path: /tmp/unit-tests.log
           retention-days: 7
-      - name: Run synthetic smoke
-        run: PYTHONPATH=. python scripts/run_gate2_synthetic_r1.py --draw-count 360 --null-calibration 4 --null-validation 3 --positive 1 --alpha 0.20 --json-output /tmp/gate2-3r.json --markdown-output /tmp/gate2-3r.md
+      - name: Run deterministic physical smoke twice
+        run: |
+          PYTHONPATH=. python scripts/run_gate2_physical_smoke.py --draw-count 360 --seed 20260630 --output /tmp/physical-a.json > /tmp/physical-a.log
+          PYTHONPATH=. python scripts/run_gate2_physical_smoke.py --draw-count 360 --seed 20260630 --output /tmp/physical-b.json > /tmp/physical-b.log
+          cmp /tmp/physical-a.json /tmp/physical-b.json
+      - name: Assert research-only contract
+        run: python -c "import json; p=json.load(open('/tmp/physical-a.json')); assert p['model_version']=='3.0.0-research'; assert p['research_only'] is True; assert p['public_release_allowed'] is False; assert p['statistical_validation_complete'] is False"
+      - name: Upload smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-3p2-physical-smoke
+          path: /tmp/physical-a.json
+          retention-days: 14

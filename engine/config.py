@@ -1,4 +1,4 @@
-"""Frozen Gate 2 engine constants."""
+"""Frozen Gate 2-3P-2 engine constants."""
 
 from __future__ import annotations
 
@@ -9,8 +9,9 @@ from .hashing import sha256_value
 
 @dataclass(frozen=True)
 class EngineConfig:
-    model_version: str = "2.1.0-research"
-    feature_contract_version: str = "1.1.0"
+    model_version: str = "3.0.0-research"
+    feature_contract_version: str = "2.0.0"
+    physical_data_schema_version: str = "1.0.0"
     backtest_protocol_version: str = "1.0.0"
     number_count: int = 45
     pick_count: int = 6
@@ -29,6 +30,35 @@ class EngineConfig:
     uniform_candidate_pool: int = 3000
     near_tie_ratio: float = 0.99
     crowd_avoidance_max_share: float = 0.05
+
+    # Gate 2-3P M3 maxT contract.
+    maxt_alpha: float = 0.001
+    maxt_min_calibration_series: int = 10_000
+
+    # Gate 2-3P M4 physical-evidence contract.
+    physical_prior_concentration: float = 260.0
+    physical_effect_clip: float = 0.35
+    physical_candidate_weight_cap: float = 0.10
+    physical_min_context_support: float = 20.0
+    physical_required_fields: tuple[str, ...] = (
+        "machine.machine_id",
+        "ball_set.ball_set_id",
+        "regime.machine_regime_id",
+        "regime.ball_regime_id",
+    )
+    physical_context_fields: tuple[str, ...] = (
+        "machine.machine_id",
+        "machine.machine_generation",
+        "ball_set.ball_set_id",
+        "ball_set.ball_generation",
+        "regime.machine_regime_id",
+        "regime.ball_regime_id",
+        "regime.operating_procedure_regime_id",
+    )
+    physical_min_completeness: float = 0.70
+    physical_min_weighted_reliability: float = 0.70
+    physical_min_source_traceability: float = 0.90
+    physical_required_pre_draw_rate: float = 1.00
 
     @property
     def uniform_number_probability(self) -> float:

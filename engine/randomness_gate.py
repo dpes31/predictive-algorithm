@@ -47,27 +47,58 @@ def evaluate_gate(evidence: GateEvidence) -> GateState:
     return GateState.PROMOTED if promoted else GateState.CANDIDATE
 
 
-def effective_weights(state: GateState, shadow: Mapping[str, float]) -> dict[str, float]:
+def effective_weights(
+    state: GateState,
+    shadow: Mapping[str, float],
+    *,
+    physical_weight_cap: float = 0.10,
+) -> dict[str, float]:
+    """Return deployable model weights while preserving the M0 safety floor.
+
+    M4 is optional for backward compatibility. When present it is capped at ten
+    percent until a later, explicitly approved promotion contract changes it.
+    """
+
     required = {"M0", "M1", "M2", "M3"}
-    if set(shadow) != required:
-        raise ValueError("shadow weights must contain M0, M1, M2, and M3")
+    allowed = required | {"M4"}
+    if not required.issubset(shadow) or not set(shadow).issubset(allowed):
+        raise ValueError("shadow weights must contain M0-M3 and may optionally contain M4")
     if any(value < 0 or not math.isfinite(value) for value in shadow.values()):
         raise ValueError("shadow weights must be finite and non-negative")
+    if not 0.0 <= physical_weight_cap <= 1.0:
+        raise ValueError("physical_weight_cap must be in [0, 1]")
     total = sum(shadow.values())
     if total <= 0:
         raise ValueError("shadow weights must have positive total")
     normalized = {name: value / total for name, value in shadow.items()}
+    names = tuple(name for name in ("M0", "M1", "M2", "M3", "M4") if name in normalized)
 
     if state in {GateState.CLOSED, GateState.RESEARCH}:
-        return {"M0": 1.0, "M1": 0.0, "M2": 0.0, "M3": 0.0}
+        return {name: (1.0 if name == "M0" else 0.0) for name in names}
 
     minimum_m0 = 0.70 if state == GateState.CANDIDATE else 0.25
     m0 = max(minimum_m0, normalized["M0"])
     available = 1.0 - m0
-    nonuniform_total = sum(normalized[name] for name in ("M1", "M2", "M3"))
+    nonuniform_names = tuple(name for name in names if name != "M0")
+    nonuniform_total = sum(normalized[name] for name in nonuniform_names)
     if nonuniform_total <= 0:
-        return {"M0": 1.0, "M1": 0.0, "M2": 0.0, "M3": 0.0}
+        return {name: (1.0 if name == "M0" else 0.0) for name in names}
+
     output = {"M0": m0}
-    for name in ("M1", "M2", "M3"):
+    for name in nonuniform_names:
         output[name] = available * normalized[name] / nonuniform_total
+
+    if "M4" in output and output["M4"] > physical_weight_cap:
+        excess = output["M4"] - physical_weight_cap
+        output["M4"] = physical_weight_cap
+        legacy_names = tuple(name for name in ("M1", "M2", "M3") if name in output)
+        legacy_total = sum(output[name] for name in legacy_names)
+        if legacy_total > 0:
+            for name in legacy_names:
+                output[name] += excess * output[name] / legacy_total
+        else:
+            output["M0"] += excess
+
+    correction = 1.0 - sum(output.values())
+    output["M0"] += correction
     return output
