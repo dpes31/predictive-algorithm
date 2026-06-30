@@ -196,3 +196,25 @@ GitHub Actions `Gate 1 data and archive build`에서 다음 단계가 모두 통
 - 공식 자동 대조 경로가 현재 차단되어 1,230개 모두 잠금 해제 상태
 - Gate 2 예측 입력으로 사용하기 전에 공식 검증 전략을 확정해야 함
 - 사용자 UI 검토 및 Gate 1 승인 전 Draft PR 병합 금지
+
+---
+
+## 2026-06-30 — Vercel Preview 배포 경로 설정
+
+### 사용자 상황
+
+- Vercel 프로젝트 연결 및 Production 배포 완료
+- 현재 배포 소스가 `main`의 초기 커밋이라 루트 화면에서 `404: NOT_FOUND` 확인
+
+### 수행 내용
+
+- feature 브랜치에 `vercel.json` 추가
+- `/` 요청을 `/app/index.html`로 임시 리다이렉트
+- `/archive` 요청을 `/app/archive.html`로 임시 리다이렉트
+- `main` 병합 없이 feature 브랜치 Preview에서 Gate 1 화면을 확인할 수 있도록 구성
+
+### 다음 확인
+
+- Vercel Deployments에서 `feature/gate1-governance-foundation` 소스의 Preview 배포가 생성되는지 확인
+- Preview URL에서 홈과 `/archive` 접속 확인
+- Production은 사용자 승인 전까지 `main` 초기 상태로 유지
