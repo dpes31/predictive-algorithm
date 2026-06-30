@@ -21,12 +21,15 @@ class SyntheticProbeTests(unittest.TestCase):
         records = generate_uniform_draws(360, seed=99)
         snapshots = build_origin_snapshots(records)
         result = run_blockwise_probe(records, snapshots, self.calibration)
-        self.assertIn(result.winning_model, {"M1", "M2", "M3"})
+        self.assertIn(result.winning_model, {None, "M1", "M2", "M3"})
         self.assertEqual(set(result.model_summaries), {"M1", "M2", "M3", "SHADOW"})
         for summary in result.model_summaries.values():
             self.assertTrue(math.isfinite(summary.mean_delta_log_loss))
             self.assertTrue(math.isfinite(summary.mean_delta_brier))
         self.assertAlmostEqual(sum(result.final_shadow_weights.values()), 1.0)
+        self.assertEqual(len(result.final_subexpert_weights["M1"]), 35)
+        self.assertEqual(len(result.final_subexpert_weights["M2"]), 35)
+        self.assertEqual(len(result.final_subexpert_weights["M3"]), 4)
 
     def test_small_experiment_is_reproducible_and_research_only(self):
         config = ExperimentConfig(
@@ -42,8 +45,11 @@ class SyntheticProbeTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertTrue(first["research_only"])
         self.assertFalse(first["public_release_allowed"])
+        self.assertEqual(first["model_version"], "2.1.0-research")
+        self.assertEqual(first["gate_revision"], "2-3R")
         self.assertEqual(first["experiment"]["draw_count"], 360)
         self.assertIn("fixed_bias_2pct", first["positive_controls"])
+        self.assertIn("strict_detection_rate", first["positive_controls"]["fixed_bias_2pct"])
 
 
 if __name__ == "__main__":
