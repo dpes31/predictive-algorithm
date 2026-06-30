@@ -1,0 +1,16 @@
+[
+  {
+    "name": "smok95/lotto public mirror",
+    "url": "https://smok95.github.io/lotto/results/all.json",
+    "role": "complete bootstrap source",
+    "retrieved_at": "2026-06-30T05:00:18Z",
+    "notes": "The mirror itself warns that the official Donghaeng Lottery result is authoritative."
+  },
+  {
+    "name": "Donghaeng Lottery JSON endpoint",
+    "url": "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={draw_no}",
+    "role": "independent official comparison when available",
+    "retrieved_at": null,
+    "notes": "Only exact matches are marked verified and locked."
+  }
+]
