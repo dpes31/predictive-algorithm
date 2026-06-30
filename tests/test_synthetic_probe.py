@@ -45,7 +45,7 @@ class SyntheticProbeTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertTrue(first["research_only"])
         self.assertFalse(first["public_release_allowed"])
-        self.assertEqual(first["model_version"], "2.1.0-research")
+        self.assertEqual(first["model_version"], "3.0.0-research")
         self.assertEqual(first["gate_revision"], "2-3R")
         self.assertEqual(first["experiment"]["draw_count"], 360)
         self.assertIn("fixed_bias_2pct", first["positive_controls"])
