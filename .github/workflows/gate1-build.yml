@@ -11,12 +11,21 @@ on:
       - "tests/**"
       - "data/draws.schema.json"
       - "app/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/gate1-build.yml"
+      - "scripts/**"
+      - "tests/**"
+      - "data/draws.schema.json"
+      - "app/**"
 
 permissions:
   contents: write
 
 concurrency:
-  group: gate1-${{ github.ref }}
+  group: gate1-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -95,6 +104,7 @@ jobs:
           retention-days: 14
 
       - name: Commit generated immutable data
+        if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
