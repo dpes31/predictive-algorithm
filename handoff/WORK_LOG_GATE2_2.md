@@ -3,7 +3,8 @@
 작성일: 2026-06-30  
 작업 브랜치: `feature/gate2-engine-core`  
 기준 브랜치: `feature/gate2-engine-spec`  
-관련 이슈: #5
+관련 이슈: #5  
+Draft PR: #6
 
 이 파일은 기존 `handoff/WORK_LOG.md`의 후속 상세 기록입니다. 기존 누적 로그는 삭제하거나 변경하지 않았습니다.
 
@@ -90,12 +91,44 @@ Ran 18 tests
 OK
 ```
 
-추가 계약 테스트를 저장소에 반영했으며 최종 통과 여부는 GitHub Actions 결과로 기록합니다.
+## GitHub Actions 검증
+
+- Workflow: `Gate 2 engine core`
+- Run ID: `28424836513`
+- Job ID: `84225479859`
+- Conclusion: `success`
+- 저장소 전체 테스트: 32개 통과
+
+통과 단계:
+
+- Gate 1 canonical data 재검증
+- 전체 unittest
+- 합성 균등 smoke 2회 실행
+- 두 결과 byte 비교
+- research-only 안전필드 assertion
+- artifact 업로드
+
+Artifact:
+
+```text
+name: gate2-engine-core-smoke
+id: 7972584334
+sha256: fdefd93b6a6af229f9398840c4cb334335098d8044010e17f930776edd51a1fb
+expires: 2026-07-14
+```
+
+## 현재 판정
+
+- 엔진 골격: 구현 완료
+- 수학적 정합성: 통과
+- 미래 데이터 차단: 통과
+- 결정론적 재현: 통과
+- 연구용 안전장치: 통과
+- 실제 예측력: 아직 미검증
 
 ## 남은 작업
 
-- Draft PR 생성
-- GitHub Actions 확인
-- 실패 시 수정 후 재실행
-- 최종 테스트 수·workflow run·artifact 기록
-- 사용자 검토 후 Gate 2-3 승인 여부 결정
+- 사용자 Gate 2-2 검토
+- 승인 시 Gate 2-3 합성 null/positive-control 구현
+- M3 null calibration
+- 오탐률·탐지력·복귀시간 측정
