@@ -80,10 +80,12 @@ def run_null_experiment(
         counts["planted_pair"] += int(probe.target_pair_significant_origins > 0)
 
     trials = experiment.null_validation_series
+    exploratory = rate_summary(counts["all_pair"], trials)
     report = {
         "proxy_false_activation": rate_summary(counts["proxy"], trials),
         "m3_diagnostic_false_activation": rate_summary(counts["m3"], trials),
-        "exploratory_pair_false_activation": rate_summary(counts["all_pair"], trials),
+        "exploratory_pair_false_activation": exploratory,
+        "pair_diagnostic_false_activation": exploratory,
         "target_pair_false_activation": rate_summary(counts["planted_pair"], trials),
     }
     return NullExperimentResult(calibration, score_calibration, report)
