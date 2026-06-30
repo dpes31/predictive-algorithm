@@ -22,12 +22,17 @@ class PredictionRunTests(unittest.TestCase):
         first = self._run()
         second = self._run()
         self.assertEqual(first.gate_state, "RESEARCH")
-        self.assertEqual(first.model_weights, {"M0": 1.0, "M1": 0.0, "M2": 0.0, "M3": 0.0})
+        self.assertEqual(
+            first.model_weights,
+            {"M0": 1.0, "M1": 0.0, "M2": 0.0, "M3": 0.0, "M4": 0.0},
+        )
         self.assertEqual(first.advantage_status, "통계적 우위 없음")
         self.assertTrue(first.research_only)
         self.assertFalse(first.public_release_allowed)
         self.assertEqual(first.prediction_hash, second.prediction_hash)
         self.assertEqual([c.numbers for c in first.candidate_sets], [c.numbers for c in second.candidate_sets])
+        self.assertFalse(first.metadata["physical_evidence"]["active"])
+        self.assertEqual(first.uncertainty_status, "pending_gate2_3p")
 
     def test_outputs_five_unique_sets_with_unit_lift(self):
         result = self._run()
