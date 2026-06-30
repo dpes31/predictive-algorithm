@@ -23,3 +23,5 @@ jobs:
         run: python scripts/validate_draws.py data/draws.json
       - name: Run unit tests
         run: PYTHONPATH=. python -m unittest discover -s tests -v
+      - name: Run synthetic smoke
+        run: PYTHONPATH=. python scripts/run_gate2_synthetic.py --draw-count 360 --null-calibration 4 --null-validation 3 --positive 1 --alpha 0.20 --json-output /tmp/gate2-3.json --markdown-output /tmp/gate2-3.md
