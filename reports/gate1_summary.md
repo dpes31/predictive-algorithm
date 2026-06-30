@@ -8,6 +8,7 @@
 - Verified records: **0**
 - Auto-checked records: **1230**
 - Dataset SHA-256: `57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1`
+- Deterministic no-change rebuild: **True**
 
 ## Interpretation
 
