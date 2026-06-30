@@ -1,6 +1,7 @@
 {
+  "archive_schema_version": "1.0.0",
   "data_version": "draws-2026.06.27-r1",
-  "generated_at": "2026-06-30T05:06:30Z",
+  "generated_at": "2026-06-30T05:07:16Z",
   "source_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
   "record_count": 1230,
   "first_draw": 1,
