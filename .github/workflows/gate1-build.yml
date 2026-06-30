@@ -1,0 +1,108 @@
+name: Gate 1 data and archive build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/gate1-governance-foundation
+    paths:
+      - ".github/workflows/gate1-build.yml"
+      - "scripts/**"
+      - "tests/**"
+      - "data/draws.schema.json"
+      - "app/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gate1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build canonical draw archive
+        run: |
+          python scripts/build_dataset.py \
+            --max-draw 1230 \
+            --official-verify all \
+            --output data/draws.json \
+            --report reports/data_integrity.json \
+            --manifest data/source_manifest.json \
+            --checksums data/checksums.sha256
+
+      - name: Validate canonical archive
+        run: python scripts/validate_draws.py data/draws.json
+
+      - name: Build HTML archive index
+        run: python scripts/build_archive.py --input data/draws.json --output app/data/archive_index.json
+
+      - name: Run Gate 1 tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Build non-developer summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('reports/data_integrity.json').read_text(encoding='utf-8'))
+          counts = report.get('verification_counts', {})
+          summary = f"""# Gate 1 Data Integrity Summary
+
+          - Status: **{report['status']}**
+          - Data version: `{report['data_version']}`
+          - Draw range: **{report['first_draw']}–{report['last_draw']}**
+          - Total records: **{report['record_count']}**
+          - Official exact matches: **{report['official_matches']}**
+          - Verified records: **{counts.get('verified', 0)}**
+          - Auto-checked records: **{counts.get('auto_checked', 0)}**
+          - Dataset SHA-256: `{report['dataset_sha256']}`
+
+          ## Interpretation
+
+          `verified` means that the official JSON endpoint returned the same draw date,
+          six winning numbers, and bonus number. `auto_checked` means the record passed
+          structural and checksum validation but the official endpoint was unavailable;
+          it is not presented as officially verified or locked.
+          """
+          Path('reports/gate1_summary.md').write_text('\n'.join(line.strip() for line in summary.splitlines()) + '\n', encoding='utf-8')
+          PY
+
+      - name: Upload review artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate1-archive-preview
+          path: |
+            app
+            data
+            reports
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Commit generated immutable data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/draws.json data/source_manifest.json data/checksums.sha256 \
+                  app/data/archive_index.json reports/data_integrity.json reports/gate1_summary.md
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "data: generate Gate 1 archive and integrity report [skip ci]"
+            git push
+          fi
