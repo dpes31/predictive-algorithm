@@ -5,7 +5,18 @@
 ## 현재 단계
 
 - Gate 0: 승인 완료
-- Gate 1: 데이터·아카이브 기반 준비
+- Gate 1: 데이터·아카이브 구현 완료, 사용자 검토 대기
+- Gate 2: 미착수
+
+## Gate 1 현재 상태
+
+- 데이터 범위: 1~1230회
+- 구조·체크섬·파생 아카이브 테스트: 통과
+- 과거번호 검색·연도 필터·정렬·원형 번호 UI: 구현
+- 공식 자동 대조: 기존 동행복권 JSON 엔드포인트가 응답하지 않아 미완료
+- 현재 검증상태: 1,230개 모두 `auto_checked`, 잠금 해제
+
+공식 대조 전 데이터를 `verified`로 과장하지 않습니다. 자세한 내용은 [`docs/GATE1_REVIEW_GUIDE.md`](docs/GATE1_REVIEW_GUIDE.md)와 [`reports/gate1_summary.md`](reports/gate1_summary.md)를 확인하십시오.
 
 ## 핵심 원칙
 
@@ -31,6 +42,12 @@ Codex 또는 다른 AI 에이전트는 코드 변경 전에 다음 문서를 순
 7. [`handoff/DECISION_LOG.md`](handoff/DECISION_LOG.md)
 8. [`handoff/WORK_LOG.md`](handoff/WORK_LOG.md)
 
+## 비개발자 검토 문서
+
+- [`docs/GATE1_REVIEW_GUIDE.md`](docs/GATE1_REVIEW_GUIDE.md): 실행·검색·필터·상태표시 검토법
+- [`reports/gate1_summary.md`](reports/gate1_summary.md): 자동 무결성 검사 결과
+- [`reports/secondary_crosscheck.md`](reports/secondary_crosscheck.md): 보조 교차검증과 한계
+
 ## 개발 운영
 
 - `main` 직접 개발 금지
@@ -48,6 +65,7 @@ Codex 또는 다른 AI 에이전트는 코드 변경 전에 다음 문서를 순
 5. **Gate 4** — 수식과 코드 일치 감사·사용자 검수
 6. **Gate 5** — Supabase 이전·자동 수집 및 평가
 
-## 관련 문서
+## 관련 링크
 
 - [MVP 계획 및 알고리즘 고정 명세 — Issue #1](https://github.com/dpes31/predictive-algorithm/issues/1)
+- [Gate 1 Draft PR #2](https://github.com/dpes31/predictive-algorithm/pull/2)
