@@ -20,19 +20,45 @@
 
 ## 개발 중 독립 실행 검증
 
-표준 라이브러리 Python 3 환경에서 다음 명령을 실행했습니다.
+표준 라이브러리 Python 3 환경에서 초기 엔진 테스트 18개를 실행했고 모두 통과했습니다.
 
-```bash
-PYTHONPATH=. python -m unittest discover -s tests -v
-```
+## GitHub Actions 최종 검증
 
-결과:
+Workflow:
 
 ```text
-18 tests passed
+Gate 2 engine core
+Run ID: 28424836513
+Conclusion: success
 ```
 
-검증 항목:
+통과 단계:
+
+1. Checkout
+2. Python 3.12 설정
+3. Gate 1 canonical data 재검증
+4. 전체 unit tests
+5. synthetic uniform smoke 2회 실행
+6. 두 smoke JSON byte 단위 비교
+7. research-only 안전필드 assertion
+8. artifact 업로드
+
+저장소 전체 테스트 수:
+
+```text
+32 tests passed
+```
+
+Artifact:
+
+```text
+name: gate2-engine-core-smoke
+artifact id: 7972584334
+sha256: fdefd93b6a6af229f9398840c4cb334335098d8044010e17f930776edd51a1fb
+expires: 2026-07-14
+```
+
+## 검증 항목
 
 - 미래 데이터 차단
 - 연구용 `auto_checked` 허용
@@ -50,6 +76,7 @@ PYTHONPATH=. python -m unittest discover -s tests -v
 - 후보 포트폴리오 커버리지
 - 한 회차 가중치 폭증 제한
 - CANDIDATE 비균등 비중 30% 상한
+- 모델 버전·번호수·세트수·군중회피 상한 계약
 
 ## 합성 smoke 결과
 
@@ -62,4 +89,8 @@ PYTHONPATH=. python -m unittest discover -s tests -v
 - public_release_allowed: false
 - 후보 5세트: 생성 및 재현 확인
 
-CI가 별도로 동일 테스트와 smoke 결과 byte 비교를 실행합니다.
+## 현재 판정
+
+Gate 2-2의 코드·수학적 정합성·재현성·연구용 안전장치는 자동검증을 통과했습니다.
+
+이는 실제 예측력 검증을 의미하지 않습니다. 비균등 신호의 오탐률과 탐지력은 Gate 2-3, 실제 역사적 성능은 Gate 2-4에서 평가합니다.
