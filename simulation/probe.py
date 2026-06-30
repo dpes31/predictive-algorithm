@@ -1,4 +1,4 @@
-"""Blockwise exact probability probe for Gate 2-3 synthetic controls."""
+"""Blockwise exact probability probe for Gate 2-3R synthetic controls."""
 
 from __future__ import annotations
 
@@ -10,10 +10,11 @@ from typing import Mapping, Sequence
 from engine.config import DEFAULT_CONFIG, EngineConfig
 from engine.contracts import DrawRecord
 from engine.distributions import FixedSizeDistribution
-from engine.weights import uniform_weights, update_weights
 from engine.experts.persistence import PERSISTENCE_FEATURES
 from engine.experts.regime_change import REGIME_FEATURES
 from engine.experts.reversal import REVERSAL_FEATURES
+from engine.weights import uniform_weights, update_weights
+
 from .calibration import NullCalibration
 from .diagnostics import OriginSnapshot
 
@@ -30,11 +31,13 @@ class ModelProbeSummary:
 @dataclass(frozen=True)
 class ProbeResult:
     model_summaries: Mapping[str, ModelProbeSummary]
-    winning_model: str
+    winning_model: str | None
     first_positive_origin: Mapping[str, int | None]
     m3_significant_origins: int
+    exploratory_pair_significant_origins: int
     target_pair_significant_origins: int
     final_shadow_weights: Mapping[str, float]
+    final_subexpert_weights: Mapping[str, Mapping[str, float]]
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -51,9 +54,33 @@ class ProbeResult:
             "winning_model": self.winning_model,
             "first_positive_origin": dict(self.first_positive_origin),
             "m3_significant_origins": self.m3_significant_origins,
+            "exploratory_pair_significant_origins": self.exploratory_pair_significant_origins,
             "target_pair_significant_origins": self.target_pair_significant_origins,
             "final_shadow_weights": dict(self.final_shadow_weights),
+            "final_subexpert_weights": {
+                model: dict(weights) for model, weights in self.final_subexpert_weights.items()
+            },
         }
+
+
+def _temperature_name(feature: str, temperature: float) -> str:
+    return f"{feature}@T{temperature:.2f}"
+
+
+def _expert_names(config: EngineConfig) -> dict[str, tuple[str, ...]]:
+    return {
+        "M1": tuple(
+            _temperature_name(feature, temperature)
+            for feature in PERSISTENCE_FEATURES
+            for temperature in config.temperature_grid
+        ),
+        "M2": tuple(
+            _temperature_name(feature, temperature)
+            for feature, _ in REVERSAL_FEATURES
+            for temperature in config.temperature_grid
+        ),
+        "M3": tuple(REGIME_FEATURES),
+    }
 
 
 def _expert_distributions(
@@ -62,15 +89,20 @@ def _expert_distributions(
     config: EngineConfig,
 ) -> dict[str, dict[str, FixedSizeDistribution]]:
     m1 = {
-        feature: FixedSizeDistribution(tuple(snapshot.number_features[feature]), config.pick_count)
+        _temperature_name(feature, temperature): FixedSizeDistribution(
+            tuple(temperature * value for value in snapshot.number_features[feature]),
+            config.pick_count,
+        )
         for feature in PERSISTENCE_FEATURES
+        for temperature in config.temperature_grid
     }
     m2 = {
-        feature: FixedSizeDistribution(
-            tuple(sign * value for value in snapshot.number_features[feature]),
+        _temperature_name(feature, temperature): FixedSizeDistribution(
+            tuple(sign * temperature * value for value in snapshot.number_features[feature]),
             config.pick_count,
         )
         for feature, sign in REVERSAL_FEATURES
+        for temperature in config.temperature_grid
     }
     m3 = {
         feature: FixedSizeDistribution(
@@ -122,6 +154,19 @@ def _macro_block(draw_no: int) -> int:
     return 2
 
 
+def _strict_winner(summaries: Mapping[str, ModelProbeSummary]) -> str | None:
+    names = ("M1", "M2", "M3")
+    ordered = sorted(
+        ((summaries[name].mean_delta_log_loss, name) for name in names),
+        reverse=True,
+    )
+    best_score, best_name = ordered[0]
+    second_score = ordered[1][0]
+    if best_score <= 0 or best_score <= second_score + 1e-15:
+        return None
+    return best_name
+
+
 def run_blockwise_probe(
     records: Sequence[DrawRecord],
     snapshots: Sequence[OriginSnapshot],
@@ -136,25 +181,26 @@ def run_blockwise_probe(
     uniform_loss = -math.log(uniform_joint)
     uniform_marginals = [config.uniform_number_probability] * config.number_count
 
-    subweights = {
-        "M1": uniform_weights(tuple(PERSISTENCE_FEATURES)),
-        "M2": uniform_weights(tuple(feature for feature, _ in REVERSAL_FEATURES)),
-        "M3": uniform_weights(tuple(REGIME_FEATURES)),
-    }
+    names = _expert_names(config)
+    subweights = {model: uniform_weights(expert_names) for model, expert_names in names.items()}
     shadow_weights = {"M0": 0.25, "M1": 0.25, "M2": 0.25, "M3": 0.25}
     delta_losses = {name: [] for name in ("M1", "M2", "M3", "SHADOW")}
     delta_briers = {name: [] for name in ("M1", "M2", "M3", "SHADOW")}
     macro_losses = {name: [[], [], []] for name in delta_losses}
     first_positive_origin: dict[str, int | None] = {name: None for name in ("M1", "M2", "M3")}
     m3_significant_origins = 0
-    pair_significant_origins = 0
+    exploratory_pair_significant_origins = 0
+    target_pair_significant_origins = 0
 
     for snapshot in snapshots:
         gate_result = calibration.evaluate(snapshot)
         if gate_result.significant:
             m3_significant_origins += 1
-        if gate_result.pair_tail_probability <= calibration.alpha:
-            pair_significant_origins += 1
+        if gate_result.exploratory_pair_tail_probability <= calibration.alpha:
+            exploratory_pair_significant_origins += 1
+        if gate_result.target_pair_tail_probability <= calibration.alpha:
+            target_pair_significant_origins += 1
+
         expert_groups = _expert_distributions(snapshot, gate_result.change_gate, config)
         expert_marginals: dict[str, dict[str, list[float]]] = {}
         for model_name, distributions in expert_groups.items():
@@ -246,12 +292,13 @@ def run_blockwise_probe(
             final_weight=final_weight,
         )
 
-    winner = max(("M1", "M2", "M3"), key=lambda name: summaries[name].mean_delta_log_loss)
     return ProbeResult(
         model_summaries=summaries,
-        winning_model=winner,
+        winning_model=_strict_winner(summaries),
         first_positive_origin=first_positive_origin,
         m3_significant_origins=m3_significant_origins,
-        target_pair_significant_origins=pair_significant_origins,
+        exploratory_pair_significant_origins=exploratory_pair_significant_origins,
+        target_pair_significant_origins=target_pair_significant_origins,
         final_shadow_weights=shadow_weights,
+        final_subexpert_weights=subweights,
     )
