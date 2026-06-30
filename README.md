@@ -12,6 +12,7 @@
 
 - 데이터 범위: 1~1230회
 - 구조·체크섬·파생 아카이브 테스트: 통과
+- 동일 입력 재생성 SHA 검사: 통과
 - 과거번호 검색·연도 필터·정렬·원형 번호 UI: 구현
 - 공식 자동 대조: 기존 동행복권 JSON 엔드포인트가 응답하지 않아 미완료
 - 현재 검증상태: 1,230개 모두 `auto_checked`, 잠금 해제
@@ -44,7 +45,7 @@ Codex 또는 다른 AI 에이전트는 코드 변경 전에 다음 문서를 순
 
 ## 비개발자 검토 문서
 
-- [`docs/GATE1_REVIEW_GUIDE.md`](docs/GATE1_REVIEW_GUIDE.md): 실행·검색·필터·상태표시 검토법
+- [`docs/GATE1_REVIEW_GUIDE.md`](docs/GATE1_REVIEW_GUIDE.md): 실행·검색·필터·상태표시 검토법과 Gate 2 데이터 사용정책 선택
 - [`reports/gate1_summary.md`](reports/gate1_summary.md): 자동 무결성 검사 결과
 - [`reports/secondary_crosscheck.md`](reports/secondary_crosscheck.md): 보조 교차검증과 한계
 
