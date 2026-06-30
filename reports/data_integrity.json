@@ -21,5 +21,6 @@
     "Official JSON endpoint unavailable; records remain auto_checked."
   ],
   "official_mismatches": [],
-  "dataset_sha256": "2fca3e519f08818e30c7e414a96b24430d29e9802c1f8ec74201dd43259ca61d"
+  "dataset_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+  "reproducible_no_change": true
 }
