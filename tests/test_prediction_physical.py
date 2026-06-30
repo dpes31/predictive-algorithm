@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from dataclasses import replace
 
 from engine.prediction_run import run_research_prediction
 from simulation.physical_scenarios import BALL_SET_LIFT_125, generate_physical_series, holdout_target
@@ -14,9 +15,13 @@ class PhysicalPredictionIntegrationTests(unittest.TestCase):
             draw_count=321,
             seed=777,
         )
-        cls.history, cls.metadata_history, cls.target_result, cls.target_metadata = holdout_target(
+        history, cls.metadata_history, cls.target_result, cls.target_metadata = holdout_target(
             records,
             metadata,
+        )
+        cls.history = tuple(
+            replace(record, verification_status="auto_checked")
+            for record in history
         )
 
     def _run(self):
