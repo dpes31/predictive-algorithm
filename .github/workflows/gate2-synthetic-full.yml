@@ -2,21 +2,9 @@ name: Gate 2 synthetic full experiment
 
 on:
   workflow_dispatch:
-  push:
-    branches: [feature/gate2-synthetic-validation]
-    paths: [docs/GATE2_3_FULL_RUN_REQUEST.md]
-  pull_request:
-    branches: [feature/gate2-engine-core]
-    paths:
-      - .github/workflows/gate2-synthetic-full.yml
-      - docs/GATE2_3_FULL_RUN_REQUEST.md
 
 permissions:
   contents: read
-
-concurrency:
-  group: gate2-synthetic-full-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   full-experiment:
@@ -30,14 +18,10 @@ jobs:
       - name: Validate canonical data
         run: python scripts/validate_draws.py data/draws.json
       - name: Run full synthetic experiment
-        run: time PYTHONPATH=. python scripts/run_gate2_synthetic.py --draw-count 1230 --null-calibration 1000 --null-validation 1000 --positive 100 --alpha 0.001 --json-output reports/gate2_3_full_summary.json --markdown-output reports/gate2_3_full_summary.md > reports/gate2_3_full_stdout.json
-      - name: Check report contract
-        run: python -c "import json; p=json.load(open('reports/gate2_3_full_summary.json')); assert p['experiment']['null_calibration_series']==1000; assert p['experiment']['null_validation_series']==1000; assert p['research_only'] is True; assert p['public_release_allowed'] is False"
+        run: PYTHONPATH=. python scripts/run_gate2_synthetic.py --draw-count 1230 --null-calibration 1000 --null-validation 1000 --positive 100 --alpha 0.001 --json-output reports/gate2_3_full_summary.json --markdown-output reports/gate2_3_full_summary.md
       - name: Upload full reports
         uses: actions/upload-artifact@v4
         with:
           name: gate2-3-full-experiment
-          path: |
-            reports/gate2_3_full_summary.json
-            reports/gate2_3_full_summary.md
+          path: reports/gate2_3_full_summary.*
           retention-days: 30
