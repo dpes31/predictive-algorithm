@@ -58,6 +58,7 @@ def scenario_summary(
     planted_pair_count = sum(probe.target_pair_significant_origins > 0 for probe in probes)
     mean_ll = fmean(probe.model_summaries[expected].mean_delta_log_loss for probe in probes) if is_model else None
     mean_brier = fmean(probe.model_summaries[expected].mean_delta_brier for probe in probes) if is_model else None
+    planted_pair_rate = planted_pair_count / repetitions if repetitions else None
     return {
         "family": spec.family,
         "expected_model": expected,
@@ -70,7 +71,8 @@ def scenario_summary(
         "proxy_detection_rate": proxy_count / repetitions if repetitions else None,
         "m3_activation_rate": m3_count / repetitions if repetitions else None,
         "exploratory_pair_activation_rate": all_pair_count / repetitions if repetitions else None,
-        "target_pair_activation_rate": planted_pair_count / repetitions if repetitions else None,
+        "target_pair_activation_rate": planted_pair_rate,
+        "pair_activation_rate": planted_pair_rate,
         "mean_matched_delta_log_loss": mean_ll,
         "mean_matched_delta_brier": mean_brier,
         "median_detection_delay_draws": median(delays) if delays else None,
