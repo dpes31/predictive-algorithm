@@ -1,4 +1,4 @@
-"""Frozen Gate 2-3P-2 engine constants."""
+"""Frozen Gate 2-3P engine constants."""
 
 from __future__ import annotations
 
@@ -30,12 +30,8 @@ class EngineConfig:
     uniform_candidate_pool: int = 3000
     near_tie_ratio: float = 0.99
     crowd_avoidance_max_share: float = 0.05
-
-    # Gate 2-3P M3 maxT contract.
     maxt_alpha: float = 0.001
     maxt_min_calibration_series: int = 10_000
-
-    # Gate 2-3P M4 physical-evidence contract.
     physical_prior_concentration: float = 260.0
     physical_effect_clip: float = 0.35
     physical_candidate_weight_cap: float = 0.10
@@ -54,6 +50,9 @@ class EngineConfig:
         "regime.machine_regime_id",
         "regime.ball_regime_id",
         "regime.operating_procedure_regime_id",
+        "interaction.machine_ball_set_id",
+        "environment.temperature_band",
+        "pre_draw_tests.condition_id",
     )
     physical_min_completeness: float = 0.70
     physical_min_weighted_reliability: float = 0.70

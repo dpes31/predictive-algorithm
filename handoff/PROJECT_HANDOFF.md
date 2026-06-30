@@ -1,15 +1,15 @@
 # Project Handoff
 
 최종 갱신일: 2026-06-30  
-현재 Gate: **Gate 2-3P-2 Python 구현 완료 · 사용자 검토 대기**  
-현재 작업 브랜치: `feature/gate2p2-engine`  
-기준 브랜치: `feature/gate2-physical-evidence-spec`  
-관련 이슈: `#12 Gate 2-3P-2 physical evidence engine implementation`  
-현재 Draft PR: `#13 Gate 2-3P-2: implement M4 physical evidence engine`
+현재 Gate: **Gate 2-3P-3 전체 합성검증 완료 · NOT PASSED**  
+현재 작업 브랜치: `feature/gate2p3-validation`  
+기준 브랜치: `feature/gate2p2-engine`  
+관련 이슈: `#14 Gate 2-3P-3 validation`  
+현재 Draft PR: `#15 Gate 2-3P-3: full synthetic validation`
 
 ## 1. 프로젝트 목적
 
-로또 6/45 다음 회차에 대해 6개 번호 조합 5세트를 출력하는 모바일 예측기를 개발한다.
+로또 6/45 다음 회차에 대해 정확히 6개 번호 조합 5세트를 출력하는 모바일 예측기를 개발한다.
 
 장기적으로 동일 구조를 일반 의사결정 알고리즘으로 확장하지만 현재 제품과 검증대상은 계속 로또번호 예측기다.
 
@@ -20,177 +20,156 @@
 - Gate 2-2: 승인 완료
 - Gate 2-3: NOT PASSED
 - Gate 2-3R: NOT PASSED
-- Gate 2-3P-1: 사용자 승인 완료
-- Gate 2-3P-2: **구현 완료, 사용자 검토 대기**
-- Gate 2-3P-3: 차단
+- Gate 2-3P-1: 승인 완료
+- Gate 2-3P-2: 승인 완료
+- Gate 2-3P-3: **NOT PASSED**
+- Gate 2-3P-R: 사용자 결정 대기
 - Gate P-1 실제 메타데이터 파일럿: 차단
 - Gate 2-4P 실제 Walk-forward: 차단
 - 모바일 MVP: 차단
 
-현재 Gate state는 `RESEARCH`, 최종 적용분포는 `M0 only`다.
+현재 Gate state는 `RESEARCH`, 최종 적용분포는 `M0 only`, M4 deployable weight는 0이다.
 
 ## 3. 현재 모델 계약
 
 - model version: `3.0.0-research`
 - feature contract: `2.0.0`
 - physical metadata schema: `1.0.0`
-- 출력: 정확히 6개 번호 × 5세트
+- 출력: 6개 번호 × 5세트
 - M0: 균등 기준
 - M1: 지속
 - M2: 반전·평균회귀
 - M3: 구조변화
 - M4: 물리·운영 context
 - Pair interaction: 예측 비활성
+- research only: true
+- public release allowed: false
 
-## 4. Gate 2-3P-2 구현
+## 4. Gate 2-3P-3 실행
 
-### 물리 메타데이터
+구현:
 
-`engine/physical_metadata.py`
+- `simulation/physical_validation.py`
+- `scripts/run_gate2_physical_validation_shard.py`
+- `scripts/aggregate_gate2_physical_validation.py`
+- `tests/test_physical_validation.py`
+- `.github/workflows/gate2p3-full.yml`
 
-- nested metadata flattening
-- evidence status·source type 검증
-- ISO-8601 timezone 검증
-- 추첨 후 관측값의 pre-draw 위장 차단
-- winning numbers·ordered numbers·bonus 등 결과필드 차단
-- inferred·unknown 데이터 입력 차단
-- completeness·reliability·pre-draw·traceability 계산
-- duplicate draw·future metadata 차단
+실험 규모:
 
-### M4 물리·운영 증거모형
+- maxT null calibration: 10,000
+- model null calibration: 4,000
+- independent null validation: 5,000
+- positive control: 12,000
+- robustness: 6,000
+- total: 37,000 synthetic series
+- 20 deterministic shards
 
-`engine/experts/physical_evidence.py`
+## 5. 실행 무결성
 
-- 추첨기·볼 세트·regime context별 번호 포함률 집계
-- 균등확률 중심의 강한 shrinkage
-- context support 최소 20
-- target·history confidence 결합
-- 번호별 logits 중심화와 효과 clip
-- 품질·지원 표본 미달 시 uniform fallback
+- workflow run: `28451343507`
+- workflow conclusion: success
+- head SHA: `56f5ace469ee42a1b5743029092585724819796b`
+- all 20 shards: success
+- aggregate job: success
+- summary artifact ID: `7983755657`
+- summary artifact digest: `sha256:58526bd3b6f9a178575092f0affdb29d115139bd9dd1210dac04ef768dbe7ca7`
+- report hash: `b59cc753eda4058f0b55a685a136da01a327dd6b6b7fc33b10fd4758dfc36948`
 
-### M3 maxT
+Workflow success and model validation success are different. The experiment executed successfully but the model failed the frozen criteria.
 
-`engine/maxt_gate.py`
+## 6. 핵심 결과
 
-- 단일 familywise maxT omnibus
-- 모든 origin·진단의 series maximum 사용
-- plus-one empirical p-value
-- 추가 Holm 중복적용 없음
-- 최소 10,000 null calibration 전 activation 금지
+### Null
 
-### 예측 파이프라인
+- proxy false activation: 5/5,000 = 0.100000%
+- proxy one-sided 95% upper: 0.205288% — FAIL, criterion 0.2%
+- M3 false activation: 8/5,000 = 0.160000% — FAIL, criterion 0.1%
+- irrelevant metadata activation: 0.120048% — FAIL, criterion 0.1%
+- irrelevant metadata mean M4 Δ Log Loss: -0.009065
 
-`engine/prediction_run.py`
+### Lift 1.25 strict detection
 
-- M0~M4 혼합
-- target metadata optional 입력
-- maxT result optional 입력
-- RESEARCH 최종가중치 M0=1.0
-- M4 CANDIDATE·PROMOTED 비중 상한 10%
-- physical metadata hash를 deterministic seed와 prediction hash에 포함
-- 기존 5세트 출력 유지
+- ball set: 0.8%
+- machine: 24.2%
+- machine × ball: 0.8%
+- regime reversal: 0.0%
+- temporary environment: 0.0%
+- pretest shared: 0.4%
 
-### 합성·Smoke
+Frozen target was 80%. No scenario passed.
 
-- `simulation/physical_scenarios.py`
-- `scripts/run_gate2_physical_smoke.py`
+### Robustness
 
-시나리오:
+Passed:
 
-- unrelated physical metadata
-- ball-set lift
-- machine lift
-- regime reversal
-- 30% missing metadata
+- missingness did not increase model strength
+- independent pretest did not activate
+- direction reversal adaptation within 208 draws: 100%
 
-## 5. 테스트·CI
+Failed:
 
-최신 성공 실행:
+- post-draw-error activation: 2.6%
+- signal-decay M0 return within 208 draws: 65.8%, criterion 80%
+- M3 regime-reversal activation at lift 1.25: 0.2%, criterion 80%
 
-- GitHub Actions run: `28444499045`
-- head SHA: `e9f0dc303f596b8db52f2f6193581978944db401`
-- conclusion: `success`
-- canonical data validation: pass
-- unit tests: pass
-- deterministic smoke twice: pass
-- research-only contract: pass
-- public-release prohibition: pass
+## 7. 판정
 
-Artifacts:
+```text
+Gate 2-3P-3 = NOT PASSED
+Model 3.0.0-research = not eligible for Gate P-1
+Gate state = RESEARCH
+Final distribution = M0 only
+```
 
-- physical smoke: `7980514978`
-- physical smoke digest: `sha256:8134f362de8e9c06f90fcd04586b27871ec4f5cfa84eba952e6036799e836253`
-- unit-test log: `7980514368`
-- unit-test digest: `sha256:a107163d564a4d80d32112332959e2148deef267b7396d11fd409755178c4896`
-- smoke report hash: `d6f504ccbc964a72fd2e870e0ae1c933a07241b4cb16a868436e1455d218a7f7`
+이 판정은 모든 알고리즘 개발이 불가능하다는 뜻이 아니다. 고정된 `3.0.0-research` 구조가 사전등록된 오탐·탐지력 기준을 충족하지 못했다는 뜻이다.
 
-## 6. Smoke 해석
+## 8. 진단
 
-Smoke는 구현 검증이지 예측력 검증이 아니다.
+아래는 결과 기반 진단이며 승인된 수정안은 아니다.
 
-- M4가 metadata를 읽고 유한한 조합분포를 생성함
-- 품질 미달에서는 uniform fallback함
-- 동일 seed에서 동일 결과를 생성함
-- unrelated metadata에서도 finite-sample 비균등분포는 계산될 수 있으나 RESEARCH 최종가중치는 0임
-- ball-set 단일 holdout이 M0보다 나빴던 결과를 삭제하지 않음
+1. M4의 동일 평균결합 구조가 무관한 context 잡음을 충분히 억제하지 못함
+2. 볼 세트·상호작용처럼 표본이 분산되는 context의 신호가 shrinkage와 평균결합으로 희석됨
+3. 일시적 신호 학습과 신호 종료 후 M0 복귀가 느림
+4. M3 maxT가 오탐 제어와 구조변화 탐지력을 동시에 확보하지 못함
+5. 일부 post-draw 오류가 있을 때 전체 M4를 비활성화하는 global veto가 없음
 
-대규모 오탐·탐지력 평가는 Gate 2-3P-3에서 수행한다.
+## 9. 다음 권고 단계
 
-## 7. 고정 안전장치
+`Gate 2-3P-R` 보정 명세를 먼저 작성해야 한다.
 
-- M0 제거 금지
-- M1·M2·M3 유지
-- M4 최대비중 10%
-- alpha 0.001 유지
-- maxT null 최소 10,000
-- 현재 회차 결과를 metadata로 사용 금지
-- inferred·unknown prediction 기여 0
-- pair interaction 예측 비활성
-- 실제 후보 공개 금지
-- 실패 seed·시나리오 삭제 금지
+검토 대상:
 
-## 8. 다음 단계
+- field별 sequential evidence weights
+- null-calibrated sparsity·abstention
+- hierarchical partial pooling
+- stable context와 transient context 분리
+- invalid timestamp global veto
+- M3 change detector 재설계
+- 명시적 signal decay·M0 return 계약
+- 신규 모델 버전과 동일 규모 재검증 기준
 
-### Gate 2-3P-3 — 전체 합성 재검증
+사용자 승인 전 수정 구현이나 재검증을 진행하지 않는다.
 
-사용자 승인 후 별도 브랜치에서 실행한다.
+## 10. 현재 차단사항
 
-1. M3 maxT null calibration 10,000
-2. 전체 model null calibration 4,000
-3. independent null validation 5,000
-4. positive scenario·effect size별 500
-5. missingness·misclassification·regime robustness
-6. Log Loss·Brier·calibration·strict detection 평가
-7. 사전기준에 따른 PASS / NOT PASSED 판정
-
-### 통과 후
-
-- Gate P-1 최근 100회 실제 메타데이터 확보 파일럿
-- 이후 Gate 2-4P 실제 Walk-forward
-- 이후 모바일 5세트 MVP
-
-## 9. 현재 차단사항
-
-- Gate 2-3P-3 전체 실행 — 사용자 승인 전 차단
+- 실제 메타데이터 기반 예측 파일럿
 - 실제 1~1230회 Walk-forward
-- 실제 다음 회차 후보 공개
-- 모바일 UI
-- Supabase
+- 실제 미래 번호 5세트 공개
+- 모바일 UI·Supabase
+- M4 가중치 적용
+- Pair interaction 활성화
 
-## 10. 필수 읽기
+## 11. 결과 파일
 
-1. `AGENTS.md`
-2. `docs/GATE2_PHYSICAL_EVIDENCE_SPEC.md`
-3. `docs/GATE2_PHYSICAL_DATA_SCHEMA.md`
-4. `docs/GATE2_PHYSICAL_VALIDATION_PROTOCOL.md`
-5. `docs/GATE2_PHYSICAL_ENGINE_REVIEW.md`
-6. `handoff/GATE2_PHYSICAL_PROGRESS.md`
-7. 본 파일
-8. `handoff/DECISION_LOG_GATE2_PHYSICAL.md`
+- `reports/gate2_3p3_full_summary.md`
+- `reports/gate2_3p3_result_manifest.json`
+- `handoff/GATE2_PHYSICAL_PROGRESS.md`
+- 본 파일
 
-## 11. 링크
+## 12. 링크
 
-- Issue #12: `https://github.com/dpes31/predictive-algorithm/issues/12`
-- Draft PR #13: `https://github.com/dpes31/predictive-algorithm/pull/13`
-- Branch: `feature/gate2p2-engine`
-- Spec PR #11: `https://github.com/dpes31/predictive-algorithm/pull/11`
+- Issue #14: `https://github.com/dpes31/predictive-algorithm/issues/14`
+- Draft PR #15: `https://github.com/dpes31/predictive-algorithm/pull/15`
+- Gate 2-3P-2 PR #13: `https://github.com/dpes31/predictive-algorithm/pull/13`
+- Branch: `feature/gate2p3-validation`
