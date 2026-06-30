@@ -4,18 +4,20 @@
 
 ## 1. 프로젝트 목적
 
-이 프로젝트는 로또 6/45 데이터를 이용해 다음 회차의 6개 번호 조합 5세트를 생성하고, 사전 잠금 후 실제 결과와 비교하는 연구형 확률예측 시스템입니다.
+로또 6/45 다음 회차의 6개 번호 조합 5세트를 출력하는 모바일 예측기를 개발한다. 장기적으로 일반 의사결정 알고리즘으로 확장하지만 현재 제품과 검증대상은 로또번호 예측기다.
 
 핵심 원칙:
 
-- M0 균등 무작위 기준모형을 항상 유지
-- M1 지속, M2 반전, M3 구조변화 가설을 분리 평가
-- 신호가 확인되지 않으면 M0으로 복귀
+- M0 균등 무작위 기준모형 유지
+- M1 지속, M2 반전, M3 구조변화 유지
+- M4 물리·운영 증거모형은 승인 후 추가
+- 신호 미확인 시 M0 복귀
 - 미래 데이터 누출 금지
-- 동일 입력·버전·seed에서 동일 결과 재현
-- 실패와 불확실성을 삭제하거나 은폐하지 않음
+- 동일 입력·버전·seed 재현
+- 실패와 불확실성 보존
+- 최종 출력은 6개 번호 × 5세트
 
-## 2. 작업 전 필수 읽기 순서
+## 2. 작업 전 필수 읽기
 
 1. `docs/ALGORITHM_SPEC.md`
 2. `docs/NON_NEGOTIABLES.md`
@@ -24,125 +26,102 @@
 5. `docs/GATE2_ENGINE_SPEC.md`
 6. `docs/GATE2_FEATURE_CONTRACT.md`
 7. `docs/GATE2_BACKTEST_PROTOCOL.md`
-8. `docs/GATE2_IMPLEMENTATION_PLAN.md`
-9. `docs/GATE2_3R_APPROVAL.md`
-10. `docs/GATE2_3R_MODEL_AMENDMENT.md`
-11. `reports/gate2_3_full_summary.md`
-12. `reports/gate2_3r_full_summary.md`
-13. `reports/gate2_3r_full_summary.json`
+8. `reports/gate2_3_full_summary.md`
+9. `reports/gate2_3r_full_summary.md`
+10. `docs/GATE2_PHYSICAL_EVIDENCE_SPEC.md`
+11. `docs/GATE2_PHYSICAL_DATA_SCHEMA.md`
+12. `docs/GATE2_PHYSICAL_VALIDATION_PROTOCOL.md`
+13. `handoff/GATE2_PHYSICAL_PROGRESS.md`
 14. `handoff/PROJECT_HANDOFF.md`
 15. `handoff/DECISION_LOG.md`
-16. `handoff/GATE2_3R_WORK_LOG.md`
 
-읽지 않고 코드를 변경하지 마십시오.
+## 3. 현재 Gate
 
-## 3. 현재 Gate 상태
-
-- Gate 0: 완료
-- Gate 1: 사용자 승인 완료
-- Gate 2-1: 사용자 승인 완료
-- Gate 2-2: 사용자 승인 완료
 - Gate 2-3: NOT PASSED
-- Gate 2-3R: **NOT PASSED**
-- Gate 2-4: **차단**
-- Gate 2-5: 차단
-- Gate 3: 차단
-- Gate 4: 미진행
-- Gate 5: 미진행
+- Gate 2-3R: NOT PASSED
+- Gate 2-3P-1: 명세 완료, 사용자 검토 대기
+- Gate 2-3P-2: 구현 차단
+- Gate 2-3P-3: 재검증 차단
+- Gate P-1: 실제 메타데이터 파일럿 차단
+- Gate 2-4P: 실제 Walk-forward 차단
+- 모바일 UI: 차단
 
-현재 모델 버전은 `2.1.0-research`, Gate 상태는 `RESEARCH`, 최종 적용분포는 `M0 only`입니다.
+현재 브랜치: `feature/gate2-physical-evidence-spec`
 
-## 4. Gate 2-3R 결과
+## 4. Gate 2-3P-1 제안 변경
 
-- Null proxy false activation: 4/1,000 = 0.4%, 기준 0.1% 초과
-- 지속 과정 M1 엄격 탐지: 100%
-- 반전 과정 M2 엄격 탐지: 71%
-- 고정 번호 편향 2%·5%·10% 엄격 탐지: 0%
-- M3 구조변화·일시 편향 활성화: 0%
-- Pair factor 3.0 사전지정 Pair 탐지: 22%
-- 80% power 최소 fixed-bias 또는 Pair 효과크기: 없음
-- 결과 해시: `ec57a01e7781d5679cc8fc1b1c146055b06b6836740924cfbb0f1bfd6bef15c6`
+사용자 승인 대기:
 
-## 5. M3 구조적 차단
+1. M4 물리·운영 증거모형 추가
+2. M3를 단일 maxT omnibus 검정으로 변경
+3. 모델 버전 `3.0.0-research`
+4. Feature contract `2.0.0`
+5. Physical metadata schema `1.0.0`
 
-현재 계약은 다음과 같습니다.
+승인 전 Python 엔진 코드를 변경하지 않는다.
 
-```text
-Null calibration = 1,000
-최소 plus-one empirical p = 1/1,001
-Holm tests = 4
-최소 adjusted p = 4/1,001 = 0.003996004
-alpha = 0.001
-```
+## 5. M4 입력 원칙
 
-따라서 현재 계약에서는 M3가 수학적으로 활성화될 수 없습니다. 이 문제를 해결하려면 사용자 승인을 받은 새 검정 계약이 필요합니다.
+- target draw 이전에 알 수 있는 데이터만 사용
+- 현재 회차 배출순서는 결과이므로 입력 금지
+- 본추첨 후 공개된 정보를 사전 데이터처럼 사용 금지
+- 출처·observed_at·available_before_draw·confidence 필수
+- 결측·inferred는 기본 기여 0
+- 장비·볼 교체 후 과거 효과 자동 감쇠
+- 데이터 완전성·신뢰도 미달 시 M4 비중 0
 
-## 6. 브랜치 및 PR 원칙
+## 6. M3 maxT 원칙
 
-- `main`에 직접 개발하지 않습니다.
-- 작업별 별도 브랜치와 Draft PR을 사용합니다.
-- 사용자 검토 전 병합하지 않습니다.
-- 검증된 브랜치·태그·모델 버전을 덮어쓰지 않습니다.
-- 현재 브랜치: `feature/gate2-synthetic-validation-r1`
-- 현재 Draft PR: #9
-- Gate 2-3 및 2-3R 실패 결과를 삭제하지 않습니다.
+- 사전등록된 raw shift·CUSUM·entropy deviation만 사용
+- 전체 forecast origin 최대통계량으로 familywise null 보정
+- 별도 Holm 중복 적용 금지
+- calibration 최소 10,000
+- alpha 0.001 유지
 
 ## 7. 변경 금지
 
-사용자 승인 없이 다음을 변경하지 않습니다.
+사용자 승인 없이 다음을 변경하지 않는다.
 
-- M0 제거 또는 비중 하한 완화
+- M0 제거
 - M1·M2·M3 역할 변경
-- temperature grid 변경
-- alpha 0.001 완화
-- positive-control 효과크기·변화시점 삭제 또는 변경
-- 실패 seed 제외
-- pair interaction 예측 활성화
-- 실제 과거번호 Walk-forward 실행
-- 1231회 또는 이후 실제 후보 생성
-- UI·Supabase 개발 진행
-- `통계적 우위 없음` 표시 제거
+- M4 구현
+- M3 maxT 구현
+- 모델 버전 증가
+- 통과 기준 완화
+- 실패 시나리오 삭제
+- 실제 과거번호 Walk-forward
+- 실제 미래후보 공개
+- Pair interaction 예측 활성화
+- 모바일 UI·Supabase 개발
 
-## 8. 다음 변경에 필요한 승인
+## 8. 브랜치와 PR
 
-1. M3 검정 해상도 해결
-   - calibration 최소 3,999개 이상 또는
-   - 사전등록 단일 omnibus/maxT 검정
-2. Gate proxy 오탐 제어 강화
-3. 장기 고정편향 탐지기 분리 여부
-4. 반전 과정 71% 처리 기준
-5. Pair 진단 유지·폐기·재설계 결정
-6. 새 모델 버전
+- main 직접 개발 금지
+- 기능별 별도 브랜치
+- Draft PR
+- 사용자 검토 전 병합 금지
+- 기존 실패 버전과 보고서 덮어쓰기 금지
 
-코드를 먼저 변경하지 말고 변경 사유, 기존 수식 차이, 기대효과, 과적합 위험, 검증방법, 버전안을 문서화하여 사용자 승인을 받습니다.
+## 9. 연구·공개정책
 
-## 9. 데이터 및 공개정책
+- 연구 출력: `research_only: true`
+- 공개 허용: `public_release_allowed: false`
+- 공식 데이터 검증 전 잠금·공개 금지
+- 합성검증 통과는 실제 예측력 증명이 아님
+- 실제 메타데이터 Walk-forward 통과 전 확률 우위 주장 금지
 
-- 공식 확인 전 데이터로 실제 미래예측을 공개하거나 잠그지 않습니다.
-- `auto_checked` 데이터는 승인된 연구 범위에서만 사용합니다.
-- 모든 연구 출력에는 `research_only: true`, `public_release_allowed: false`를 포함합니다.
-- 실제 당첨번호를 HTML·JavaScript·테스트에 중복 하드코딩하지 않습니다.
-- pair positive-control의 사전지정 번호쌍 결과를 실제 데이터 pair 선택 근거로 사용하지 않습니다.
-
-## 10. 실행 투명성
-
-Gate 2-3R 전체 수치 실험은 커밋된 수식을 옮긴 결정론적 standalone mirror에서 실행했습니다. 사용 가능한 GitHub 연결 도구로 Actions workflow를 추가·디스패치할 수 없어 GitHub CI 확인은 미완료입니다. 이를 CI 통과 또는 최종 검증 완료로 표현하지 않습니다.
-
-## 11. 작업 종료 시 필수 업데이트
+## 10. 작업 종료 시 누적
 
 - `handoff/PROJECT_HANDOFF.md`
-- `handoff/DECISION_LOG.md` 또는 승인된 별도 결정 기록
-- 현재 Gate 작업 로그
+- `handoff/GATE2_PHYSICAL_PROGRESS.md`
+- 결정사항 로그
 - Draft PR 설명
-- 실패 결과와 남은 위험
+- 테스트·실패·차단사항
 
-## 12. 비개발자 사용자 보고
+## 11. 사용자 보고
 
-작업 완료 보고에는 다음을 명확히 적습니다.
-
-- 무엇을 변경했는지
-- 무엇이 개선됐는지
-- 무엇이 실패했는지
-- Gate 통과 여부
-- 실제 데이터 작업이 차단됐는지
-- 사용자가 다음으로 승인해야 할 의사결정
+- 현재 단계가 개발인지 검증인지 명시
+- 단계별 진척도 표시
+- 완료·미착수·차단 구분
+- 실제 번호 5세트 출력 구조 유지 여부 명시
+- 다음 승인사항 한 번에 제시
