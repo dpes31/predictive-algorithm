@@ -1,7 +1,7 @@
 {
   "status": "passed",
   "data_version": "draws-2026.06.27-r1",
-  "generated_at": "2026-06-30T05:00:18Z",
+  "generated_at": "2026-06-30T05:00:48Z",
   "record_count": 1230,
   "first_draw": 1,
   "last_draw": 1230,
@@ -21,5 +21,5 @@
     "Official JSON endpoint unavailable; records remain auto_checked."
   ],
   "official_mismatches": [],
-  "dataset_sha256": "67aad37569ef441b6eaa208df5ba6f435c209489d6f19102f40aff971d636b97"
+  "dataset_sha256": "2fca3e519f08818e30c7e414a96b24430d29e9802c1f8ec74201dd43259ca61d"
 }
