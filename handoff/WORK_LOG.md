@@ -86,3 +86,113 @@
 - 문서 9개가 별도 feature 브랜치에 존재
 - main에는 초기 README만 존재하며 개발내용은 병합되지 않음
 - PR은 Draft 상태이며 사용자 승인 전 병합하지 않음
+
+---
+
+## 2026-06-30 — Gate 1 데이터·아카이브 구현
+
+### 작업자
+
+- ChatGPT / GitHub connector
+- GitHub Actions
+
+### 구현 범위
+
+- 예측 엔진은 변경하지 않음
+- 1~1230회 단일 원본 데이터 구축
+- 데이터 스키마·체크섬·검증상태 구현
+- 검색 가능한 과거번호 아카이브 HTML 구현
+- 자동 CI 검증과 재현성 검사 구현
+
+### 추가 파일
+
+- `.gitignore`
+- `requirements.txt`
+- `data/draws.schema.json`
+- `data/draws.json`
+- `data/source_manifest.json`
+- `data/checksums.sha256`
+- `scripts/build_dataset.py`
+- `scripts/validate_draws.py`
+- `scripts/build_archive.py`
+- `app/index.html`
+- `app/archive.html`
+- `app/assets/css/app.css`
+- `app/assets/js/archive.js`
+- `app/data/archive_index.json`
+- `tests/test_data_integrity.py`
+- `tests/test_static_contract.py`
+- `.github/workflows/gate1-build.yml`
+- `reports/data_integrity.json`
+- `reports/gate1_summary.md`
+- `reports/secondary_crosscheck.md`
+- `docs/GATE1_REVIEW_GUIDE.md`
+
+### 데이터 결과
+
+- 데이터 버전: `draws-2026.06.27-r1`
+- 범위: 1~1230회
+- 레코드 수: 1,230개
+- 결측 회차: 0
+- 중복 회차: 0
+- 구조검사: 통과
+- 레코드 체크섬: 통과
+- 데이터셋 SHA-256: `57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1`
+- 동일 입력 재생성 SHA 유지: 통과
+
+### 공식 검증 상태
+
+- 기존 동행복권 JSON 엔드포인트가 자동 요청에 응답하지 않음
+- 공식 exact match: 0
+- `verified`: 0
+- `auto_checked`: 1,230
+- `locked`: 0
+- 공식 대조 전 데이터를 공식 검증 완료로 과장하지 않음
+
+### 보조 교차검증
+
+- 1~1229회 추첨일·본번호 6개를 이전 별도 데이터셋과 비교
+- 불일치: 0건
+- 1230회 본번호·보너스번호를 동행복권 발표 인용 보도와 비교
+- 보너스번호 1~1229회는 별도 공식 전수 대조가 완료되지 않았음을 명시
+
+### UI 기능
+
+- 회차 검색
+- 연도 필터
+- 최신순·오래된순 정렬
+- 30개 단위 더 보기
+- 구간별 원형 번호 색상
+- 보너스번호 표시
+- 검증상태 배지
+- 출처·잠금·체크섬 상세 펼침
+- 전체·최근 52·30·10회 번호 빈도 참고 통계
+- 통계가 미래 예측력이 아니라는 경고 표시
+- Gate 1에서는 예측 버튼 비활성 유지
+
+### 자동 검증
+
+GitHub Actions `Gate 1 data and archive build`에서 다음 단계가 모두 통과함.
+
+- 데이터 생성
+- 오프라인 무결성 검사
+- 아카이브 파생 데이터 생성
+- 동일 입력 재생성 SHA 비교
+- Python 단위 테스트
+- HTML 정적 계약 테스트
+- 리뷰 ZIP 아티팩트 생성
+
+### 수동 UI 확인
+
+- 데스크톱 렌더링 확인
+- 모바일 렌더링 확인
+- 1230 검색 시 1건 표시 확인
+- 오름차순 정렬 시 1회가 첫 카드로 표시됨을 확인
+- 2026년 필터 결과 확인
+- 번호별 통계 45개 행 확인
+
+### 남은 위험 및 다음 판단
+
+- 공식 자동 대조 경로가 현재 차단되어 1,230개 모두 잠금 해제 상태
+- Gate 2 예측 입력으로 사용하기 전에 공식 검증 전략을 확정해야 함
+- 사용자 UI 검토 및 Gate 1 승인 전 Draft PR 병합 금지
