@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Mapping
@@ -50,10 +51,12 @@ def effective_weights(state: GateState, shadow: Mapping[str, float]) -> dict[str
     required = {"M0", "M1", "M2", "M3"}
     if set(shadow) != required:
         raise ValueError("shadow weights must contain M0, M1, M2, and M3")
+    if any(value < 0 or not math.isfinite(value) for value in shadow.values()):
+        raise ValueError("shadow weights must be finite and non-negative")
     total = sum(shadow.values())
     if total <= 0:
         raise ValueError("shadow weights must have positive total")
-    normalized = {name: max(0.0, value) / total for name, value in shadow.items()}
+    normalized = {name: value / total for name, value in shadow.items()}
 
     if state in {GateState.CLOSED, GateState.RESEARCH}:
         return {"M0": 1.0, "M1": 0.0, "M2": 0.0, "M3": 0.0}
