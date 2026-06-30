@@ -218,3 +218,60 @@ GitHub Actions `Gate 1 data and archive build`에서 다음 단계가 모두 통
 - Vercel Deployments에서 `feature/gate1-governance-foundation` 소스의 Preview 배포가 생성되는지 확인
 - Preview URL에서 홈과 `/archive` 접속 확인
 - Production은 사용자 승인 전까지 `main` 초기 상태로 유지
+
+---
+
+## 2026-06-30 — Gate 1 승인 및 Gate 2-1 예측 엔진 명세
+
+### 사용자 승인
+
+- Gate 1 UI와 1230회 표시 확인 완료
+- 현재 `auto_checked` 데이터의 연구용 백테스트 사용 승인
+- 실제 미래예측 공개와 데이터 잠금은 공식 검증 완료 후 진행
+- Gate 2 계획 승인
+- 인수인계 자료 계속 누적 요청
+
+### 작업 브랜치
+
+- `feature/gate2-engine-spec`
+- 기준: `feature/gate1-governance-foundation`
+
+### 생성 항목
+
+- Issue #3 `Gate 2-1 예측 엔진 명세 및 백테스트 계약 고정`
+- `docs/GATE2_ENGINE_SPEC.md`
+- `docs/GATE2_FEATURE_CONTRACT.md`
+- `docs/GATE2_BACKTEST_PROTOCOL.md`
+- `docs/GATE2_IMPLEMENTATION_PLAN.md`
+
+### 고정한 핵심 설계
+
+- 조합확률을 6차 elementary symmetric polynomial로 정확 정규화
+- M0~M3와 sub-expert 구조
+- 지속·반전 가설 분리
+- pair interaction 초기값 0 및 별도 승격조건
+- CLOSED / RESEARCH / CANDIDATE / PROMOTED gate 상태
+- 역사적 백테스트만으로 PROMOTED 금지
+- 외부 Walk-forward 300~1230회
+- Block A 300~609, B 610~919, C 920~1230
+- Joint Log Loss 1차 지표
+- Number-level Brier와 Calibration 보조지표
+- 1,000개 균등 null 시계열
+- 2%·5%·10% planted bias 및 지속·반전·구조변화 positive-control
+- 52회 moving-block bootstrap, 20,000회 반복
+- 4개 사전비교 Holm-Bonferroni
+- 실제 승격은 최소 52회 prospective와 e-value 1000 필요
+- 동일 입력·버전·설정 결정론적 재현
+
+### 현재 상태
+
+- Gate 2-1 문서는 `REVIEW CANDIDATE`
+- Python 예측 엔진은 아직 작성하지 않음
+- 연구용 1231회 후보도 아직 생성하지 않음
+- 사용자 승인 후 Gate 2-2 엔진 골격으로 이동
+
+### 다음 작업
+
+- Gate 2-1 Draft PR 생성
+- 사용자에게 핵심 의사결정과 변경사항 보고
+- 승인 시 별도 구현 브랜치에서 Gate 2-2 시작
