@@ -145,3 +145,36 @@
   - 검증 전 구조변화·불확실성을 과장하지 않음
   - 합성 calibration과 전체 Walk-forward를 독립 Gate로 유지
   - 연구용 smoke 후보를 실제 예측으로 오인하지 않도록 차단
+
+## D-017 — Gate 2-3 합성 검증 실패 및 Gate 2-4 차단
+
+- 결정일: 2026-06-30
+- 근거:
+  - 1,000개 null calibration과 독립 1,000개 null validation 실행
+  - positive-control 시나리오당 100회 실행
+  - Full workflow `28427144563` 성공
+  - 결과 해시 `0a479eb341f2028471483a5b4c6ca7aa2f4065be493bc04af34df25cec62d2d0`
+- 결과:
+  - 관측 Gate proxy 오탐 0.1%, 95% 단측 상한 0.4735%
+  - M3·Pair 진단 관측 오탐 0%, 95% 단측 상한 0.2991%
+  - 고정 번호 +2%·+5% 탐지 0%, +10% proxy 탐지 1%
+  - 지속 과정 M1 양의 점수 0%, 반전 과정 M2 양의 점수 0%
+  - M3 구조변화·일시 변화 진단 0%
+  - Pair factor 1.25~3.0 진단 0%
+  - 80% power 최소 탐지 효과크기 없음
+- 결정:
+  - Gate 2-3을 `NOT PASSED`로 판정
+  - Gate 상태 `RESEARCH` 유지
+  - 최종 사용자 분포 M0=1 유지
+  - Gate 2-4 실제 데이터 Walk-forward 실행 금지
+  - 실패 결과를 삭제하거나 소급 조정하지 않음
+  - 보정안은 Gate 2-3R로 별도 사용자 승인 후 진행
+- 승인 대기 보정안:
+  1. M1·M2 shrinkage/temperature sub-expert
+  2. M3 raw diagnostic 분리
+  3. Pair 진단 비활성 유지 또는 검정체계 보정
+  4. positive-control 승리 판정 오류 수정
+  5. 모델 버전 `2.1.0-research`
+- 영향:
+  - 합성 신호를 탐지하지 못하는 현 모델로 실제 과거번호를 평가하여 우연한 패턴을 정당화하는 것을 차단
+  - 수식·하이퍼파라미터 변경 전 사용자 승인 의무 유지
