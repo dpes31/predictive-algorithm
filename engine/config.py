@@ -39,6 +39,7 @@ class EngineConfig:
     physical_prior_concentration: float = 260.0
     physical_effect_clip: float = 0.35
     physical_candidate_weight_cap: float = 0.10
+    physical_min_context_support: float = 20.0
     physical_required_fields: tuple[str, ...] = (
         "machine.machine_id",
         "ball_set.ball_set_id",
