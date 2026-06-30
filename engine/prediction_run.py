@@ -7,18 +7,68 @@ from collections.abc import Mapping, Sequence
 
 from .candidate_optimizer import optimize_candidates
 from .config import DEFAULT_CONFIG, EngineConfig
-from .contracts import DrawRecord, PredictionResult
+from .contracts import DrawRecord, FeatureSnapshot, PredictionResult
 from .data_loader import records_for_target
 from .distributions import MixtureDistribution
 from .experts import (
     build_persistence_model,
+    build_physical_evidence_model,
     build_regime_change_model,
     build_reversal_model,
     build_uniform_model,
 )
 from .feature_engineering import build_feature_snapshot
 from .hashing import deterministic_seed, sha256_value
+from .maxt_gate import MaxTResult
+from .physical_metadata import PhysicalDrawMetadata
 from .randomness_gate import GateEvidence, effective_weights, evaluate_gate
+
+
+def _snapshot_with_maxt(
+    snapshot: FeatureSnapshot,
+    maxt_result: MaxTResult | None,
+) -> FeatureSnapshot:
+    if maxt_result is None:
+        return snapshot
+    global_features = dict(snapshot.global_features)
+    global_features.update(
+        {
+            "change_gate": 1.0 if maxt_result.active else 0.0,
+            "change_gate_calibrated": maxt_result.full_contract_ready,
+            "change_gate_status": (
+                "active_maxT"
+                if maxt_result.active
+                else (
+                    "calibrated_no_signal"
+                    if maxt_result.full_contract_ready
+                    else "insufficient_maxT_calibration"
+                )
+            ),
+            "maxT_observed": maxt_result.observed_max_t,
+            "maxT_empirical_p": maxt_result.empirical_p_value,
+            "maxT_calibration_series": maxt_result.calibrated_series,
+        }
+    )
+    payload = {
+        "target_draw_no": snapshot.target_draw_no,
+        "input_last_draw": snapshot.input_last_draw,
+        "data_version": snapshot.data_version,
+        "feature_contract_version": snapshot.feature_contract_version,
+        "number_features": {
+            str(number): dict(features)
+            for number, features in sorted(snapshot.number_features.items())
+        },
+        "global_features": global_features,
+    }
+    return FeatureSnapshot(
+        target_draw_no=snapshot.target_draw_no,
+        input_last_draw=snapshot.input_last_draw,
+        data_version=snapshot.data_version,
+        feature_contract_version=snapshot.feature_contract_version,
+        number_features=snapshot.number_features,
+        global_features=global_features,
+        snapshot_hash=sha256_value(payload),
+    )
 
 
 def run_research_prediction(
@@ -29,6 +79,9 @@ def run_research_prediction(
     generated_at: str,
     shadow_weights: Mapping[str, float] | None = None,
     gate_evidence: GateEvidence | None = None,
+    physical_metadata_records: Sequence[PhysicalDrawMetadata] | None = None,
+    target_physical_metadata: PhysicalDrawMetadata | None = None,
+    maxt_result: MaxTResult | None = None,
     config: EngineConfig = DEFAULT_CONFIG,
 ) -> PredictionResult:
     usable = records_for_target(
@@ -43,19 +96,56 @@ def run_research_prediction(
         data_version=data_version,
         config=config,
     )
+    snapshot = _snapshot_with_maxt(snapshot, maxt_result)
+
+    if target_physical_metadata is not None:
+        if target_physical_metadata.draw_no != target_draw_no:
+            raise ValueError("target physical metadata draw_no does not match prediction target")
+        physical_model = build_physical_evidence_model(
+            usable,
+            tuple(physical_metadata_records or ()),
+            target_physical_metadata,
+            config,
+        )
+        m4_distribution = physical_model.distribution
+        physical_diagnostics = physical_model.diagnostics.to_dict()
+        physical_metadata_hash = sha256_value(target_physical_metadata.to_dict())
+    else:
+        m4_distribution = build_uniform_model(config)
+        physical_diagnostics = {
+            "active": False,
+            "reasons": ["target_physical_metadata_not_provided"],
+            "quality": None,
+            "matched_contexts": 0,
+            "weighted_context_support": 0.0,
+            "context_support": {},
+        }
+        physical_metadata_hash = None
 
     models = {
         "M0": build_uniform_model(config),
         "M1": build_persistence_model(snapshot, config),
         "M2": build_reversal_model(snapshot, config),
         "M3": build_regime_change_model(snapshot, config),
+        "M4": m4_distribution,
     }
-    shadow = dict(shadow_weights or {name: 0.25 for name in models})
+    if shadow_weights is None:
+        shadow = {name: 1.0 / len(models) for name in models}
+    else:
+        shadow = {name: float(shadow_weights.get(name, 0.0)) for name in models}
+        if sum(shadow.values()) <= 0:
+            raise ValueError("shadow weights must contain positive mass")
+
     state = evaluate_gate(gate_evidence or GateEvidence())
-    final_weights = effective_weights(state, shadow)
+    final_weights = effective_weights(
+        state,
+        shadow,
+        physical_weight_cap=config.physical_candidate_weight_cap,
+    )
+    model_order = tuple(models)
     final_distribution = MixtureDistribution(
-        tuple(models[name] for name in ("M0", "M1", "M2", "M3")),
-        tuple(final_weights[name] for name in ("M0", "M1", "M2", "M3")),
+        tuple(models[name] for name in model_order),
+        tuple(final_weights[name] for name in model_order),
     )
 
     seed = deterministic_seed(
@@ -63,6 +153,7 @@ def run_research_prediction(
         config.model_version,
         target_draw_no,
         config.config_hash,
+        physical_metadata_hash or "no-physical-metadata",
     )
     uniform_probability = 1.0 / math.comb(config.number_count, config.pick_count)
     candidates = optimize_candidates(
@@ -83,6 +174,9 @@ def run_research_prediction(
         "input_last_draw": usable[-1].draw_no,
         "seed": seed,
         "feature_snapshot_hash": snapshot.snapshot_hash,
+        "physical_metadata_hash": physical_metadata_hash,
+        "physical_diagnostics": physical_diagnostics,
+        "maxt_result": None if maxt_result is None else maxt_result.to_dict(),
         "research_only": True,
         "public_release_allowed": False,
     }
@@ -101,10 +195,14 @@ def run_research_prediction(
         prediction_hash=sha256_value(hash_payload),
         research_only=True,
         public_release_allowed=False,
-        uncertainty_status="pending_gate2_3",
+        uncertainty_status="pending_gate2_3p",
         metadata={
             "feature_snapshot_hash": snapshot.snapshot_hash,
             "change_gate_status": snapshot.global_features["change_gate_status"],
+            "maxT": None if maxt_result is None else maxt_result.to_dict(),
+            "physical_metadata_hash": physical_metadata_hash,
+            "physical_evidence": physical_diagnostics,
+            "physical_data_schema_version": config.physical_data_schema_version,
             "engine_config_hash": config.config_hash,
         },
     )
