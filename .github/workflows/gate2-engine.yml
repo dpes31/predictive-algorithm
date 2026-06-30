@@ -1,0 +1,81 @@
+name: Gate 2 engine core
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/gate2-engine-core
+    paths:
+      - ".github/workflows/gate2-engine.yml"
+      - "engine/**"
+      - "simulation/**"
+      - "scripts/run_gate2_smoke.py"
+      - "tests/**"
+      - "docs/GATE2_*.md"
+      - "handoff/**"
+  pull_request:
+    branches:
+      - feature/gate2-engine-spec
+    paths:
+      - ".github/workflows/gate2-engine.yml"
+      - "engine/**"
+      - "simulation/**"
+      - "scripts/run_gate2_smoke.py"
+      - "tests/**"
+      - "docs/GATE2_*.md"
+      - "handoff/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate2-core-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate Gate 1 canonical data
+        run: python scripts/validate_draws.py data/draws.json
+
+      - name: Run all unit tests
+        run: PYTHONPATH=. python -m unittest discover -s tests -v
+
+      - name: Run deterministic synthetic smoke test twice
+        run: |
+          PYTHONPATH=. python scripts/run_gate2_smoke.py --output /tmp/gate2-smoke-1.json > /tmp/gate2-smoke-1.log
+          PYTHONPATH=. python scripts/run_gate2_smoke.py --output /tmp/gate2-smoke-2.json > /tmp/gate2-smoke-2.log
+          sha256sum /tmp/gate2-smoke-1.json /tmp/gate2-smoke-2.json
+          cmp /tmp/gate2-smoke-1.json /tmp/gate2-smoke-2.json
+
+      - name: Assert research-only safety fields
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/gate2-smoke-1.json').read_text(encoding='utf-8'))
+          assert payload['research_only'] is True
+          assert payload['public_release_allowed'] is False
+          assert payload['gate_state'] == 'RESEARCH'
+          assert payload['model_weights'] == {'M0': 1.0, 'M1': 0.0, 'M2': 0.0, 'M3': 0.0}
+          assert len(payload['candidate_sets']) == 5
+          assert len({tuple(item['numbers']) for item in payload['candidate_sets']}) == 5
+          PY
+
+      - name: Upload Gate 2-2 smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-engine-core-smoke
+          path: /tmp/gate2-smoke-1.json
+          retention-days: 14

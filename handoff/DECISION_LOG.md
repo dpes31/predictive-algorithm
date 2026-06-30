@@ -130,3 +130,18 @@
 - 영향:
   - 다른 AI 에이전트가 이어받아도 수식·평가방식이 변질되지 않음
   - 백테스트 결과를 본 뒤 규칙을 변경하는 과적합 위험을 줄임
+
+## D-016 — Gate 2-2 보수적 엔진 골격
+
+- 결정일: 2026-06-30
+- 결정:
+  - Gate 2-1 고정 명세에 따라 Python 표준 라이브러리로 엔진 골격 구현
+  - 정확히 6개를 선택하는 분포를 elementary symmetric polynomial로 정규화
+  - Gate 2-3 null calibration 전 M3 `change_gate=0`
+  - RESEARCH 상태 최종분포는 M0=1
+  - 95% 구간은 임의 산출하지 않고 `pending_gate2_3` 표시
+  - pair interaction은 비활성화 유지
+- 영향:
+  - 검증 전 구조변화·불확실성을 과장하지 않음
+  - 합성 calibration과 전체 Walk-forward를 독립 Gate로 유지
+  - 연구용 smoke 후보를 실제 예측으로 오인하지 않도록 차단
