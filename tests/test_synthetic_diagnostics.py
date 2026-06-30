@@ -12,7 +12,7 @@ class SyntheticDiagnosticTests(unittest.TestCase):
         self.assertEqual(forecast_origins(360), (299, 351))
         self.assertEqual(forecast_origins(299), ())
 
-    def test_snapshots_are_deterministic_and_bounded(self):
+    def test_snapshots_are_deterministic_and_prediction_features_bounded(self):
         records = generate_uniform_draws(360, seed=123)
         first = build_origin_snapshots(records)
         second = build_origin_snapshots(records)
@@ -23,6 +23,9 @@ class SyntheticDiagnosticTests(unittest.TestCase):
                 self.assertTrue(all(-3.0 <= value <= 3.0 for value in values))
             self.assertGreaterEqual(snapshot.diagnostics["entropy_52"], 0.0)
             self.assertLessEqual(snapshot.diagnostics["entropy_52"], 1.0)
+            self.assertGreaterEqual(snapshot.diagnostics["raw_max_abs_shift_52"], snapshot.diagnostics["clipped_max_abs_shift_52"])
+            self.assertGreaterEqual(snapshot.diagnostics["raw_max_abs_shift_104"], snapshot.diagnostics["clipped_max_abs_shift_104"])
+            self.assertGreaterEqual(snapshot.diagnostics["raw_max_abs_cusum"], snapshot.diagnostics["clipped_max_abs_cusum"])
 
     def test_holm_adjustment_is_monotone(self):
         adjusted = holm_adjust({"a": 0.001, "b": 0.02, "c": 0.04})
@@ -34,13 +37,15 @@ class SyntheticDiagnosticTests(unittest.TestCase):
         self.assertGreater(upper, 0.001)
         self.assertLess(upper, 0.004)
 
-    def test_calibration_evaluates_without_nan(self):
+    def test_calibration_evaluates_raw_and_pair_statistics(self):
         series = [build_origin_snapshots(generate_uniform_draws(360, seed=seed)) for seed in range(5)]
         calibration = NullCalibration.fit(series)
         result = calibration.evaluate(series[0][0])
         self.assertGreaterEqual(result.change_gate, 0.0)
         self.assertLessEqual(result.change_gate, 1.0)
-        self.assertGreater(result.pair_tail_probability, 0.0)
+        self.assertGreater(result.exploratory_pair_tail_probability, 0.0)
+        self.assertGreater(result.target_pair_tail_probability, 0.0)
+        self.assertEqual(result.pair_tail_probability, result.exploratory_pair_tail_probability)
 
 
 if __name__ == "__main__":
