@@ -1,0 +1,74 @@
+name: Gate 2 correction engine
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/gate2p-r2-correction-engine]
+  pull_request:
+    branches: [feature/gate2p3-correction-spec]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate canonical data
+        run: python scripts/validate_draws.py data/draws.json
+      - name: Compile correction modules
+        run: |
+          python -m py_compile \
+            engine/eprocess.py \
+            engine/metadata_veto.py \
+            engine/abstention.py \
+            engine/experts/physical_hierarchy.py \
+            engine/experts/physical_stable.py \
+            engine/experts/physical_transient.py \
+            engine/experts/change_eprocess.py \
+            engine/experts/physical_evidence.py \
+            engine/prediction_run.py \
+            scripts/run_gate2_correction_smoke.py
+      - name: Run unit tests
+        run: |
+          set +e
+          PYTHONPATH=. python -m unittest discover -s tests -v > /tmp/correction-unit-tests.log 2>&1
+          status=$?
+          tail -200 /tmp/correction-unit-tests.log
+          exit $status
+      - name: Upload unit-test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-correction-unit-test-log
+          path: /tmp/correction-unit-tests.log
+          retention-days: 7
+      - name: Run deterministic correction smoke twice
+        run: |
+          PYTHONPATH=. python scripts/run_gate2_correction_smoke.py --output /tmp/correction-a.json
+          PYTHONPATH=. python scripts/run_gate2_correction_smoke.py --output /tmp/correction-b.json
+          cmp /tmp/correction-a.json /tmp/correction-b.json
+      - name: Assert research-only contract
+        run: |
+          python - <<'PY'
+          import json
+          p = json.load(open('/tmp/correction-a.json'))
+          assert p['model_version'] == '4.0.0-research'
+          assert p['feature_contract_version'] == '3.0.0'
+          assert p['candidate_count'] == 5
+          assert all(len(row) == 6 for row in p['candidate_sets'])
+          assert p['model_weights']['M0'] == 1.0
+          assert p['research_only'] is True
+          assert p['public_release_allowed'] is False
+          PY
+      - name: Upload correction smoke artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-correction-smoke
+          path: /tmp/correction-a.json
+          retention-days: 14
