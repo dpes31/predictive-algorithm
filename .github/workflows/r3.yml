@@ -6,14 +6,34 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: PYTHONPATH=. python -m unittest discover -s tests -v
-      - run: PYTHONPATH=. python scripts/r3_dev_runner.py --replicates 200 --draw-count 1230 --output r3-dev.json
-      - uses: actions/upload-artifact@v4
+      - name: Run full unit tests and preserve log
+        id: unit_tests
+        shell: bash
+        run: |
+          set +e
+          PYTHONPATH=. python -m unittest discover -s tests -v > unit-tests.log 2>&1
+          status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          cat unit-tests.log
+          exit 0
+      - name: Run DEV-only R3 evaluation
+        if: steps.unit_tests.outputs.exit_code == '0'
+        run: PYTHONPATH=. python scripts/r3_dev_runner.py --replicates 200 --draw-count 1230 --output r3-dev.json
+      - name: Upload R3 diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: r3-dev-result
-          path: r3-dev.json
+          name: r3-dev-diagnostics
+          path: |
+            unit-tests.log
+            r3-dev.json
+          if-no-files-found: warn
+      - name: Enforce unit-test success
+        if: steps.unit_tests.outputs.exit_code != '0'
+        run: exit 1
