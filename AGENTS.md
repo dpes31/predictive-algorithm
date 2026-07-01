@@ -24,7 +24,7 @@
 6. `reports/gate2_3p_r3m3_predictable_group_dev_lock.json`
 7. `handoff/PROJECT_HANDOFF.md`
 8. `handoff/GATE2_PHYSICAL_PROGRESS.md`
-9. `handoff/DECISION_LOG_GATE2_R3M3_RESULT.md`
+9. `handoff/R3M3_RESULT.md`
 
 ## 현재 상태
 
@@ -57,8 +57,6 @@ Gate state: `RESEARCH`
 Oracle PASS는 true group과 change point를 아는 수학적 상한만 확인한다.
 
 ## Predictable-group 구현
-
-고정 계약 그대로 구현했다.
 
 - outer window `520`
 - half-life `104`
