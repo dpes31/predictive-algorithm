@@ -67,12 +67,12 @@ class PostChangeModelTests(unittest.TestCase):
             correction_activation_e=1.01,
             correction_deactivation_e=0.0001,
             correction_m3_restart_interval=1,
-            correction_change_max_life=5,
+            correction_change_max_life=30,
         )
         detector = ChangeEProcessDetector(config)
         saw_active = False
         saw_expired = False
-        for draw_no in range(1, 80):
+        for draw_no in range(1, 100):
             result = detector.update(record(draw_no))
             if result.active:
                 saw_active = True
