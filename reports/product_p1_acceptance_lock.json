@@ -1,0 +1,16 @@
+{
+  "contract_version": "product-release-candidate-1.0.0",
+  "status": "P1_ASSEMBLED",
+  "report_path": "reports/product_p1_acceptance.json",
+  "report_sha256": "a86049cdd041a92ab9c4f644d607c7212313c464d2fbb333ce1fda24dadaa139",
+  "implementation_lock_commit": "099d917abd1b635c830fee343a47d3bd23e0c052",
+  "workflow_run_id": 28525611462,
+  "workflow_conclusion": "success",
+  "final_distribution": "M0_ONLY",
+  "p2_product_qa": "BLOCKED",
+  "actual_walk_forward": "BLOCKED",
+  "html_mvp": "BLOCKED",
+  "cal": false,
+  "sealed": false,
+  "main_merged": false
+}
