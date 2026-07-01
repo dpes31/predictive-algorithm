@@ -1,16 +1,19 @@
 # Project Handoff
 
 최종 갱신일: 2026-07-01  
-현재 작업: **Product Gate P1 release-candidate 상세 구현 명세 완료·승인 대기**  
-현재 브랜치: `product-p1-release-candidate-spec`  
-기준 브랜치: `docs/minimal-product-completion-roadmap`  
+현재 작업: **Product Gate P1 release-candidate 조립 및 A1~A13 검증 완료**  
+현재 브랜치: `feature/product-p1-release-candidate`  
+기준 브랜치: `product-p1-release-candidate-spec`  
+Draft PR: #42  
 P1 계약: `product-release-candidate-1.0.0`
 
 ## 1. 현재 상태
 
 ```text
-P1 specification = COMPLETE / APPROVAL PENDING
-P1 implementation = NOT STARTED
+P1 specification = APPROVED
+P1 assembly = P1_ASSEMBLED
+implementation lock = 099d917abd1b635c830fee343a47d3bd23e0c052
+workflow = 28525611462 / SUCCESS
 P2 product QA = BLOCKED
 P3 HTML MVP = BLOCKED
 P4 research release lock = BLOCKED
@@ -26,19 +29,10 @@ main merge = NOT PERFORMED
 - `handoff/FULL_HISTORY_AUDIT_GATE1_TO_R3M3.md`
 - `docs/MINIMAL_PRODUCT_COMPLETION_ROADMAP.md`
 - `docs/PRODUCT_GATE_P1_RELEASE_CANDIDATE_SPEC.md`
+- `reports/product_p1_acceptance.json`
+- `reports/product_p1_acceptance_lock.json`
 
-## 2. P1 목적
-
-기존 자산을 새로 개발하지 않고 한 release-candidate 경로로 조립한다.
-
-- Gate 1 1~1230회 canonical data
-- Gate 2-2 exact 6-of-45 engine
-- deterministic 6개 번호 × 5세트 생성기
-- cutoff·hash·research-only 안전장치
-
-P1은 예측력 개선이나 추가 검증 단계가 아니다.
-
-## 3. Source assets
+## 2. 조립된 자산
 
 ### Gate 1 data
 
@@ -52,28 +46,23 @@ verification = auto_checked
 locked = false
 ```
 
-P1은 데이터 상태를 official verified로 승격하지 않는다.
+P1은 official verified 또는 locked 상태로 승격하지 않았다.
 
-### Gate 2-2 engine
+### Gate 2-2 reuse
 
-Reuse:
+실제 재사용 파일:
 
 - `engine/contracts.py`
 - `engine/data_loader.py`
-- `engine/distributions.py`
+- `engine/config.py`
 - `engine/elementary_symmetric.py`
+- `engine/distributions.py`
 - `engine/candidate_optimizer.py`
 - `engine/hashing.py`
-- `engine/prediction_run.py`
-- `engine/config.py`
-- M0~M3 expert modules
-- randomness gate
 
-Historical Draft PR 전체를 merge하지 않고 필요한 reviewed file만 assembly manifest에 기록해 조립한다.
+새 예측 알고리즘이나 하이퍼파라미터는 추가하지 않았다.
 
-## 4. Target draw contract
-
-Future runner:
+## 3. Product runner
 
 ```text
 python -m product.run_prediction
@@ -88,23 +77,23 @@ Required:
 --output optional
 ```
 
-Initial canonical run:
+Initial canonical contract:
 
 ```text
 target_draw_no = 1231
 input_last_draw = 1230
 ```
 
-Invariant:
+Hard barrier:
 
 ```text
-input_last_draw = target_draw_no - 1
 all input draws < target_draw_no
+input_last_draw = target_draw_no - 1
 ```
 
-Target 또는 이후 회차가 포함되면 실패한다. Product runner는 전체 dataset을 받은 뒤 몰래 slice하지 않는다.
+Target 또는 이후 회차가 포함되거나 target-1이 없으면 실패한다. Full dataset을 입력한 뒤 내부에서 target 이후를 조용히 제거하지 않는다.
 
-## 5. Final distribution lock
+## 4. Final distribution lock
 
 ```text
 M0 = 1.0
@@ -114,7 +103,13 @@ M3 = 0.0
 M4 = 0.0
 ```
 
-M1~M4 shadow 값은 diagnostics에만 기록할 수 있다. 후보세트·제품확률·사용자 표시에는 영향을 줄 수 없다.
+Shadow diagnostics는 임의 값이 들어와도 다음을 바꿀 수 없다.
+
+- candidate sets
+- seed
+- prediction hash
+- product weights
+- statistical-edge disclosure
 
 Required flags:
 
@@ -126,24 +121,21 @@ reason = no_validated_nonuniform_signal
 advantage_status = 통계적 우위 없음
 ```
 
-## 6. Five-set contract
+## 5. Five-set output contract
 
 - exactly 5 sets
 - exactly 6 integers per set
 - numbers 1..45
 - ascending numbers
 - no number duplicate within a set
-- no set duplicate
-- rank exactly 1..5
-- deterministic seed
-- each probability `1 / 8,145,060`
+- no duplicate set
+- ranks 1..5
+- each probability `1 / C(45,6)`
 - each `lift_vs_uniform = 1.0`
 
 M0 rank는 확률 우위가 아니라 deterministic display order다.
 
-## 7. Version and hash contract
-
-Versions:
+## 6. Versions and hashes
 
 ```text
 product contract = product-release-candidate-1.0.0
@@ -153,78 +145,24 @@ feature contract = 1.0.0
 candidate contract = 1.0.0
 ```
 
-Required hashes:
+Output includes:
 
 - data hash
 - model hash
 - config hash
 - prediction hash
+- deterministic seed
+- cutoff hash
 
-Seed:
-
-```text
-SHA256(contract version + data hash + model version + config hash + target draw)
-```
-
-`generated_at`, hostname, process ID, OS random state는 seed에 포함하지 않는다.
-
-## 8. Output schema
-
-Future file:
+Seed source:
 
 ```text
-schemas/product_prediction.schema.json
+contract version + data hash + model version + config hash + target draw
 ```
 
-Required constants:
+`generated_at`, machine time, hostname, process ID와 OS random state는 후보세트에 영향을 주지 않는다.
 
-- `statistical_edge=false`
-- `reason=no_validated_nonuniform_signal`
-- `final_distribution=M0_ONLY`
-- M0=1, M1~M4=0
-- `research_only=true`
-- `public_release_allowed=false`
-- exactly 5 candidate objects
-- versions·hashes·seed·limitations
-- `additionalProperties=false`
-
-예시 번호는 schema 설명용이며 prediction fixture로 사용하지 않는다.
-
-## 9. Assembly and rollback
-
-Future implementation branch:
-
-```text
-feature/product-p1-release-candidate
-```
-
-Required files:
-
-```text
-release/assembly_manifest.json
-release/rollback_manifest.json
-```
-
-Assembly manifest는 source ref·blob SHA·destination을 기록한다.
-
-Rollback rules:
-
-- source branches와 frozen reports 수정 금지
-- main 영향 없음
-- artifact 공개 전 branch-local rollback 가능
-- artifact 공개 후 revert commit 사용
-- force history rewrite 금지
-
-Automatic reject:
-
-- data/source hash mismatch
-- M1~M4 product weight nonzero
-- five-set contract violation
-- prediction hash non-reproducible
-- future-data cutoff violation
-- frozen result modification
-
-## 10. Planned implementation files
+## 7. 구현 파일
 
 ```text
 product/__init__.py
@@ -237,44 +175,78 @@ release/rollback_manifest.json
 tests/test_product_contract.py
 tests/test_product_cutoff.py
 tests/test_product_reproducibility.py
+.github/workflows/product-p1.yml
 ```
 
-Existing `engine/` modules are reused without redesign.
-
-## 11. P1 acceptance criteria
+## 8. Assembly and rollback
 
 ```text
-A1 data hash matches manifest
-A2 target contract valid
-A3 input last draw = target-1
-A4 M0=1 and M1~M4=0
-A5 exactly five distinct six-number sets
-A6 exact uniform candidate probability
-A7 lift_vs_uniform=1.0
-A8 statistical_edge=false
-A9 reason=no_validated_nonuniform_signal
-A10 prediction hash reproducible
-A11 frozen source/result unmodified
-A12 rollback manifest complete
-A13 research_only=true and public_release_allowed=false
+spec commit = 84e051ecf81f93309d179a610b6ea543e28c8298
+assembly commit = 365bd35bd31929c75ca6f65cf62d1b816ab2235b
+rollback manifest commit = 396c4fa2a370083365750be5d563b7ffd8e7146e
+implementation lock = 099d917abd1b635c830fee343a47d3bd23e0c052
 ```
 
-Acceptance criteria are fixed but not executed in this specification Gate.
+- `release/assembly_manifest.json` records source ref, blob SHA and destination.
+- `release/rollback_manifest.json` records the pre-assembly and assembled commits.
+- source branches, frozen reports and main were not modified.
+- artifact 이후 force rewrite는 금지하고 revert commit을 사용한다.
 
-## 12. Current exclusions
+## 9. P1 test result
 
-- Python implementation
-- source asset assembly
+Initial run:
+
+```text
+run 28525288118 = FAILURE / preserved
+```
+
+Candidate number tuples를 JSON arrays로 정규화한 correction 후:
+
+```text
+run 28525611462 = SUCCESS
+Python 3.11 = PASS
+Python 3.12 = PASS
+unit tests = 14 PASS
+canonical output generation = PASS
+```
+
+A1~A13:
+
+```text
+A1 data hash matches manifest = PASS
+A2 target contract = PASS
+A3 input last draw = target-1 = PASS
+A4 M0=1 and M1~M4=0 = PASS
+A5 five distinct six-number sets = PASS
+A6 uniform probability = PASS
+A7 lift_vs_uniform=1.0 = PASS
+A8 statistical_edge=false = PASS
+A9 reason fixed = PASS
+A10 prediction hash reproducible = PASS
+A11 frozen sources/results unchanged = PASS
+A12 rollback manifest complete = PASS
+A13 research/public flags fixed = PASS
+```
+
+Report:
+
+- `reports/product_p1_acceptance.json`
+- report SHA-256 `a86049cdd041a92ab9c4f644d607c7212313c464d2fbb333ce1fda24dadaa139`
+
+Vercel check failure is a build-rate-limit status and is outside P1. HTML modification and deployment validation were not performed.
+
+## 10. Current exclusions
+
 - official-result reconciliation execution
-- product QA execution
+- P2 product QA
 - historical/prospective Walk-forward
-- HTML modification
 - M1~M4 activation or tuning
 - physical metadata ingestion
+- HTML modification or deployment
 - CAL·SEALED
 - mobile UI·Supabase
 - main merge
 
-## 13. Next step
+## 11. Next step
 
-User approval is required before Python assembly begins on `feature/product-p1-release-candidate`. P2 QA, actual Walk-forward, and HTML work remain separate later gates.
+The next allowed step is `Product Gate P2 — data/integration QA specification`. P2 QA execution, official data reconciliation and actual Walk-forward require a separate approval.
