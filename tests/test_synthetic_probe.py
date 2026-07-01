@@ -32,20 +32,13 @@ class SyntheticProbeTests(unittest.TestCase):
         self.assertEqual(len(result.final_subexpert_weights["M3"]), 4)
 
     def test_small_experiment_is_reproducible_and_research_only(self):
-        config = ExperimentConfig(
-            draw_count=360,
-            null_calibration_series=3,
-            null_validation_series=2,
-            positive_series_per_scenario=1,
-            seed_base=55,
-            alpha=0.20,
-        )
+        config = ExperimentConfig(draw_count=360, null_calibration_series=3, null_validation_series=2, positive_series_per_scenario=1, seed_base=55, alpha=0.20)
         first = run_gate2_3_experiment(config)
         second = run_gate2_3_experiment(config)
         self.assertEqual(first, second)
         self.assertTrue(first["research_only"])
         self.assertFalse(first["public_release_allowed"])
-        self.assertEqual(first["model_version"], "3.0.0-research")
+        self.assertEqual(first["model_version"], "4.0.0-research")
         self.assertEqual(first["gate_revision"], "2-3R")
         self.assertEqual(first["experiment"]["draw_count"], 360)
         self.assertIn("fixed_bias_2pct", first["positive_controls"])
