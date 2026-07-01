@@ -1,11 +1,10 @@
 # Project Handoff
 
 최종 갱신일: 2026-07-01  
-현재 Gate: **Gate 2-3P-R3M-3-1 predictable-group 상세 명세 완료·승인 대기**  
-현재 브랜치: `feature/r3m3-predictable-group-spec`  
-기준 브랜치: `feature/gate2p-r3m2-oracle-engine`  
-관련 Issue: #30  
-현재 Draft PR: #31
+현재 Gate: **Gate 2-3P-R3M-3-2 PREDICTABLE_GROUP_FAIL**  
+현재 브랜치: `feature/r3m3-predictable-group-engine`  
+기준 브랜치: `feature/r3m3-predictable-group-spec`  
+현재 Draft PR: #32
 
 ## 목적
 
@@ -14,16 +13,16 @@
 ## Gate 상태
 
 - Gate 2-3P-R3: `NO_ELIGIBLE_CONFIG`
-- Gate 2-3P-R4: `BLOCKED`
-- Gate 2-3P-R3M-1: 승인 완료
 - Gate 2-3P-R3M-2: `ORACLE_PASS`
-- Gate 2-3P-R3M-3-1: **상세 명세 완료·승인 대기**
-- Gate 2-3P-R3M-3-2: 미승인·미구현·미실행
-- full M3 DEV, CAL, SEALED, 실제 데이터, 모바일 MVP: 차단
+- Gate 2-3P-R3M-3-1: 승인 완료
+- Gate 2-3P-R3M-3-2: **구현 완료·PREDICTABLE_GROUP_FAIL**
+- full M3 DEV: `BLOCKED`
+- Gate 2-3P-R4: `BLOCKED`
+- CAL·SEALED·실제 데이터·모바일 MVP: `BLOCKED`
 
-현재 모델은 `5.0.0-research`, predictable-group contract는 `1.0.0`, Gate state는 `RESEARCH`, 최종 적용분포는 `M0 only`다.
+현재 모델은 `5.0.0-research`, contract는 `predictable-group-1.0.0`, Gate state는 `RESEARCH`, 최종 적용분포는 `M0 only`다.
 
-## 이전 잠금
+## 이전 잠금 보존
 
 R3 실패:
 
@@ -36,101 +35,73 @@ Oracle PASS:
 
 - implementation `37fd815220ccd363f019f3798366a2060872e073`
 - workflow `28493929179`
-- tests `96 PASS`
-- positive activation `91.85%`
-- null false activation `0.08%`
 - report hash `e347d352b9f80e683c1e86c746c69636d25e4e9e635eaf1f1909122f4a525abb`
 - lock hash `97713f07da87488ed63d22325e350c833d73e551c3669a217135fecee524d47d`
 
-이전 결과와 hash는 변경하지 않는다.
+## R3M-3-2 구현
 
-## R3M-3-1 고정 명세
+- fixed 520-draw past-only learner
+- half-life 104 and prior strength 52
+- 260 warmup plus five 52-draw folds
+- deterministic group size 6, 10, 15 selection
+- 52-draw group freeze
+- exact group LR with lift 1.25
+- DEV-PG and DEV-PG-CI namespace separation
+- positive 2,000 and null 10,000 series
+- 10,000 deterministic bootstrap resamples
+- full unit tests and scope locks
 
-### 학습과 freeze
-
-- global block grid: `521 + 52k`
-- outer learning window: 완료된 과거 520회
-- retraining: 52회 boundary에서만
-- group freeze: 다음 52회 전체
-- missing/invalid window: `ABSTAIN`
-
-### 번호 점수
-
-```text
-p0 = 6/45
-half-life = 104
-prior strength = 52
-w(t) = 2^[-age/104]
-p_hat = [52*p0 + sum(w*x)] / [52 + sum(w)]
-score = logit(p_hat) - logit(p0)
-```
-
-점수 동률 `1e-12` 이내는 낮은 번호 우선이다.
-
-### Group size
-
-- 후보 `{6,10,15}`
-- internal validation: initial 260회 + 52회 fold 5개
-- eligible: cumulative fold log LR > 0 and positive folds >= 3
-- eligible size 중 cumulative log LR 최대
-- 동률은 작은 size 우선
-- eligible size 없음: `ABSTAIN`
-- 선택 후 520회 전체 점수로 final group 생성
-
-### e-process
-
-- exact group LR, lift 1.25
-- evaluation horizon 520회
-- activation threshold 1000
-- post-activation active life 208회
-- abstain LR 1
-
-### DEV 계약
+## DEV-PG 결과
 
 Positive:
 
-- P4 regime reversal
-- series 1230
-- change point 615
-- evaluation 625~1144
-- replicates 2000
+- availability `33.66%` / 80% — FAIL
+- activation `27/2000 = 1.35%` / 80% — FAIL
+- median delay `421` / 520 — PASS
+- direction `5297/6732 = 78.6839%` / 80% — FAIL
+- direction trials `6732` / 16000 — FAIL
+- mean delta Log Loss `-0.0029845604` — FAIL
+- lower delta Log Loss `-0.0031943119` — FAIL
+- mean delta Brier `-0.00001694195` — FAIL
+- lower delta Brier `-0.00001808760` — FAIL
+
+Selected blocks:
+
+- size 6: 3,304
+- size 10: 1,969
+- size 15: 1,459
+- abstain: 13,268
 
 Null:
 
-- exact uniform 6-of-45
-- 동일 evaluation interval
-- replicates 10000
+- false activation `1/10000 = 0.01%` — PASS
+- one-sided 95% upper `0.04743%` — PASS
 
-Seed:
+## 실행 잠금
 
-- `DEV-PG`
-- `DEV-PG-CI`
-- 기존 DEV, CAL, SEALED 금지
+- implementation `156f286db9242f0e8f45c0bda9246e57d22d57da`
+- workflow `28499321746` — success
+- tests `105 PASS`
+- artifact `8002526507`
+- artifact digest `sha256:8ba3958b1dcd45dac6ee436b9911f39281138287cd212fc1591283f985d1c6b1`
+- seed hash `5fa4ab0038468a38f7a06a41928752c1a444ba9a17eef64e10a2d3d64cc69038`
+- report hash `9c604e27684737017120a95f11849c2648394c99525cf53ca262828fd514ec37`
+- lock hash `e150983980c91ca1c29d7fa82523b0195e1502d02191bddea823f74bed611d04`
 
-### PASS 기준
+## 판정
 
-- group availability >= 80%
-- activation rate >= 80%
-- median delay <= 520
-- direction accuracy >= 80%
-- direction trials >= 16000
-- mean delta Log Loss > 0 and one-sided lower > 0
-- mean delta Brier >= 0 and one-sided lower >= 0
-- null false activation <= 0.1%
-- null exact one-sided upper <= 0.2%
+```text
+Gate 2-3P-R3M-3-2 = PREDICTABLE_GROUP_FAIL
+Full M3 DEV = BLOCKED
+Gate 2-3P-R4 = BLOCKED
+Final distribution = M0 only
+```
 
-모두 만족해야 `PREDICTABLE_GROUP_PASS`다. 하나라도 실패하면 `PREDICTABLE_GROUP_FAIL`이며 기준완화나 부분통과는 허용하지 않는다.
-
-## 명세 파일
-
-- `docs/GATE2_PREDICTABLE_GROUP_FEASIBILITY_SPEC.md`
-- `docs/GATE2_PREDICTABLE_GROUP_VALIDATION_PROTOCOL.md`
+Null 안전성은 유지됐지만 과거 번호 이력만으로 favored group을 충분히 예측하지 못했다. 사전 계약대로 기준이나 하이퍼파라미터를 변경하지 않는다.
 
 ## 현재 금지
 
-- predictable-group Python 구현
-- 추가 DEV 실행
-- score/window/half-life/prior/fold/size 후보 수정
+- 추가 DEV 탐색 또는 튜닝
 - full M3 detector 또는 grid
 - R4 CAL·SEALED
 - 실제 Walk-forward
@@ -138,11 +109,10 @@ Seed:
 - 모바일 UI
 - main 병합
 
-## 다음 Gate
+## 다음 단계
 
-사용자 승인 후에만 `Gate 2-3P-R3M-3-2`에서 명세 그대로 Python 구현과 DEV-PG 검증을 진행한다. 결과 통과 전 full M3와 R4는 계속 차단한다.
+다음 단계는 실패 원인 분석과 연구방향 결정 명세다. 과거 번호만 사용하는 M3 경로를 중단할지, 선행 물리·운영변수 M4를 중심으로 별도 Gate를 설계할지 사용자 승인이 필요하다.
 
 ## 링크
 
-- Issue #30: `https://github.com/dpes31/predictive-algorithm/issues/30`
-- Draft PR #31: `https://github.com/dpes31/predictive-algorithm/pull/31`
+- Draft PR #32: `https://github.com/dpes31/predictive-algorithm/pull/32`
