@@ -1,10 +1,10 @@
 # Gate 2 Physical Evidence Progress
 
 최종 갱신: 2026-07-01  
-현재 브랜치: `feature/gate2p-r3-dev-grid`  
-기준 브랜치: `feature/gate2p-r2-correction-engine`  
-관련 이슈: #21  
-현재 Draft PR: #22
+현재 브랜치: `feature/gate2p-r3m-feasibility-spec`  
+기준 브랜치: `feature/gate2p-r3-dev-grid`  
+관련 이슈: #26  
+현재 Draft PR: #27
 
 ## 진행률
 
@@ -16,40 +16,17 @@
 | Gate 2-3P-R1 | 승인 완료 | 100% |
 | Gate 2-3P-R2 | 구현 완료·CI 통과 | 100% |
 | Gate 2-3P-R3 | **완료·NO_ELIGIBLE_CONFIG** | 100% |
-| Gate 2-3P-R4 | BLOCKED | 0% |
+| Gate 2-3P-R4 | **BLOCKED** | 0% |
+| Gate 2-3P-R3M-1 | **수학적 분석·교정 명세 완료, 승인 대기** | 100% |
+| Gate 2-3P-R3M-2 | 미승인·미구현 | 0% |
 | 실제 메타데이터 파일럿 | 차단 | 0% |
 | 실제 Walk-forward | 차단 | 0% |
 | 모바일 MVP | 차단 | 0% |
 
-## R2 기준점
+## R3 잠금 결과
 
 - model `4.0.0-research`
 - feature contract `3.0.0`
-- verified head `d0c2ba9d7d65d5a437236a3d19ea1891877540fd`
-- workflow run `28483871565`: success
-- smoke artifact `7996655664`
-- unit-test artifact `7996653569`
-
-## R3 사전 구현감사
-
-R1 명세 대비 R2 실행경로에서 다음 누락을 확인하고 승인 명세대로 보완했다.
-
-1. M3 trigger draw 기록
-2. trigger 후 208회 active-life 종료
-3. `k_m3` post-change predictor
-4. prediction runner corrected M3 연결
-
-Threshold, effect size, cap, 평가기준은 변경하지 않았다.
-
-## R3 등록 Grid
-
-- M4: `k_global 3 × k_context 3 × effect_clip 3 = 27`
-- M3: `k_m3 = 90 / 260 / 520`
-- 결합 후보: 81개
-
-## R3 DEV 결과
-
-- namespace: DEV only
 - mandatory scenario: P4 regime reversal
 - lift: 1.25
 - deterministic series: 200
@@ -61,20 +38,70 @@ Threshold, effect size, cap, 평가기준은 변경하지 않았다.
 - selected config: `null`
 - pruned combined configurations: `81 / 81`
 - decision: `NO_ELIGIBLE_CONFIG`
-
-M3가 한 번도 활성화되지 않았으므로 post-change `k_m3`와 독립 M4 grid를 임의 선택하지 않았다.
-
-## 실행 무결성과 잠금
-
-- implementation commit `f07ac19c1871498cdc953ee9bd34c31b52e0947b`
-- workflow run `28489870505`: success
-- unit tests: 87 PASS
-- artifact `7998826927`
-- artifact digest `sha256:8f39fabeb249261feeb3f0b5cc054c85a60ea20ef49568135f8164b008337229`
-- DEV report hash `f9947423f47ced82004577c81fab3f85b6d3f668f130e4651a2a3773003c5bf4`
-- lock hash `db8527b145c1368b7500585358e152ea24954ffa80a8bf33949890d53059cfbf`
+- implementation commit: `f07ac19c1871498cdc953ee9bd34c31b52e0947b`
+- workflow run: `28489870505` — success
+- unit tests: `87 PASS`
+- DEV report hash: `f9947423f47ced82004577c81fab3f85b6d3f668f130e4651a2a3773003c5bf4`
+- lock hash: `db8527b145c1368b7500585358e152ea24954ffa80a8bf33949890d53059cfbf`
 - CAL executed: false
 - SEALED executed: false
+
+R3 실패 결과와 hash는 영구 보존한다.
+
+## R3M 수학적 분석
+
+P4 lift 1.25 exact 6-of-45 대안에서:
+
+```text
+oracle KL = 0.024294585890841103 nats/draw
+208 × KL = 5.053273865294949
+log(1000) = 6.907755278982137
+```
+
+Favored group과 change point를 아는 oracle도 208회 기대 evidence가 threshold 1000에 미달한다.
+
+정규근사 기준 80% power 필요기간:
+
+- single oracle: 약 448회
+- 2-way mixture: 약 483회
+- 4-way mixture: 약 518회
+- 8-way mixture: 약 552회
+- 45-way mixture: 약 636회
+
+기존 detector는 최대 약 `45 × 8 × 16 = 5,760` component를 평균해 추가 dilution이 발생했다.
+
+판정:
+
+```text
+threshold 1000
++ evidence life 208
++ lift 1.25
++ 80% power
+= incompatible
+```
+
+## 신규 5.0 제안
+
+제안 모델: `5.0.0-research`
+
+Threshold와 R3 실패결과를 유지하며 시간계약을 분리한다.
+
+```text
+pre-activation evidence horizon = 520 draws
+post-activation active life = 208 draws
+activation / deactivation = 1000 / 100
+```
+
+구조:
+
+- exact 6-of-45 group likelihood-ratio
+- activation primary hypotheses 최대 4개
+- 개별 번호·다중 lambda는 diagnostic-only
+- past-only predict-then-bet group construction
+- oracle feasibility gate 우선
+- oracle 통과 후 predictable-group gate
+- 이후에만 full M3 DEV
+- M4 구조 변경 없음
 
 ## 고정 기준
 
@@ -85,16 +112,19 @@ M3가 한 번도 활성화되지 않았으므로 post-change `k_m3`와 독립 M4
 - one-sided 95% upper 0.2%
 - lift 1.25 strict detection 80%
 - lift 1.50 strict detection 95%
-- 기존 실패 시나리오 유지
+- 기존 실패 시나리오·seed 유지
 - Pair-number interaction 비활성
 - RESEARCH 최종분포 M0-only
+- 208회 post-activation active life 유지
 
 ## 현재 차단
 
+- `5.0.0-research` Python 구현
+- 추가 DEV 탐색
 - R4 CAL·SEALED
 - threshold 완화 또는 실패 seed 제거
 - 실제 데이터·모바일 UI·main 병합
 
 ## 다음 권고 단계
 
-별도 승인 후 M3 detector의 mixture dilution과 threshold 1000, 208회 life, lift 1.25 검출력의 수학적 양립 가능성을 재설계하는 교정 명세를 먼저 작성한다. 명세 승인 전 구현이나 추가 DEV 탐색을 하지 않는다.
+사용자 승인 후 Gate 2-3P-R3M-2에서 exact fixed-size group LR과 520-draw oracle detector만 구현한다. Oracle DEV PASS 전에는 predictable-group learner, full M3 grid, CAL, SEALED를 실행하지 않는다.
