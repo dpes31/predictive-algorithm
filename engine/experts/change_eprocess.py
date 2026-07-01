@@ -135,6 +135,11 @@ class ChangeEProcessDetector:
                 self._active = False
                 self._trigger_draw_no = None
                 self._processes.clear()
+                # A forced expiry ends the active episode but must not leave the
+                # anytime detector dormant until the next scheduled restart.
+                # Seed a fresh zero-wealth restart immediately; the current draw
+                # is not reused, and subsequent draws update this new process.
+                self._start_restart(record.draw_no)
                 expired_now = True
         elif global_e >= self.config.correction_activation_e:
             self._active = True
