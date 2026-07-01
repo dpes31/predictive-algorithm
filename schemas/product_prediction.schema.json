@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/product_prediction.schema.json",
+  "title": "Product Gate P1 M0-only prediction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_version",
+    "target_draw_no",
+    "input_last_draw",
+    "generated_at",
+    "research_only",
+    "public_release_allowed",
+    "statistical_edge",
+    "reason",
+    "advantage_status",
+    "final_distribution",
+    "product_weights",
+    "candidate_sets",
+    "versions",
+    "hashes",
+    "seed",
+    "diagnostics",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "contract_version": {"const": "product-release-candidate-1.0.0"},
+    "target_draw_no": {"type": "integer", "minimum": 2},
+    "input_last_draw": {"type": "integer", "minimum": 1},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "research_only": {"const": true},
+    "public_release_allowed": {"const": false},
+    "statistical_edge": {"const": false},
+    "reason": {"const": "no_validated_nonuniform_signal"},
+    "advantage_status": {"const": "통계적 우위 없음"},
+    "final_distribution": {"const": "M0_ONLY"},
+    "product_weights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["M0", "M1", "M2", "M3", "M4"],
+      "properties": {
+        "M0": {"const": 1.0},
+        "M1": {"const": 0.0},
+        "M2": {"const": 0.0},
+        "M3": {"const": 0.0},
+        "M4": {"const": 0.0}
+      }
+    },
+    "candidate_sets": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rank", "numbers", "joint_probability", "lift_vs_uniform"],
+        "properties": {
+          "rank": {"type": "integer", "minimum": 1, "maximum": 5},
+          "numbers": {
+            "type": "array",
+            "minItems": 6,
+            "maxItems": 6,
+            "uniqueItems": true,
+            "items": {"type": "integer", "minimum": 1, "maximum": 45}
+          },
+          "joint_probability": {"type": "number", "exclusiveMinimum": 0},
+          "lift_vs_uniform": {"const": 1.0}
+        }
+      }
+    },
+    "versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data_version",
+        "model_version",
+        "engine_core_version",
+        "feature_contract_version",
+        "candidate_contract_version"
+      ],
+      "properties": {
+        "data_version": {"const": "draws-2026.06.27-r1"},
+        "model_version": {"const": "5.0.0-research-m0-product"},
+        "engine_core_version": {"const": "2.0.0-research"},
+        "feature_contract_version": {"const": "1.0.0"},
+        "candidate_contract_version": {"const": "1.0.0"}
+      }
+    },
+    "hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["data_hash", "model_hash", "config_hash", "prediction_hash"],
+      "properties": {
+        "data_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "model_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "config_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "prediction_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "seed": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "diagnostics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shadow_enabled", "shadow", "cutoff"],
+      "properties": {
+        "shadow_enabled": {"type": "boolean"},
+        "shadow": {"type": ["object", "null"]},
+        "cutoff": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "target_draw_no",
+            "input_first_draw",
+            "input_last_draw",
+            "input_record_count",
+            "excluded_draws_at_or_after_target",
+            "cutoff_hash"
+          ],
+          "properties": {
+            "target_draw_no": {"type": "integer", "minimum": 2},
+            "input_first_draw": {"type": "integer", "minimum": 1},
+            "input_last_draw": {"type": "integer", "minimum": 1},
+            "input_record_count": {"type": "integer", "minimum": 1},
+            "excluded_draws_at_or_after_target": {"const": 0},
+            "cutoff_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {"type": "string"},
+      "contains": {"const": "no_validated_nonuniform_signal"}
+    }
+  }
+}
