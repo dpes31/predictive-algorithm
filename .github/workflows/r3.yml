@@ -1,12 +1,11 @@
 name: R3 Development
 on:
-  workflow_dispatch:
-  push:
-    branches: [feature/gate2p-r3-dev-grid]
+  pull_request:
+    branches:
+      - validation/gate2-r3-dev-base
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
