@@ -1,0 +1,69 @@
+{
+  "activated_series": 0,
+  "activation_rate": 0.0,
+  "activation_threshold": 1000.0,
+  "artifact_digest": "sha256:8f39fabeb249261feeb3f0b5cc054c85a60ea20ef49568135f8164b008337229",
+  "artifact_id": 7998826927,
+  "calibration_executed": false,
+  "combined_grid_count": 81,
+  "draw_count": 1230,
+  "effect_size": 1.25,
+  "eligible_k_m3": [],
+  "feature_contract_version": "3.0.0",
+  "gate": "Gate 2-3P-R3",
+  "implementation_commit": "f07ac19c1871498cdc953ee9bd34c31b52e0947b",
+  "lock_status": "NO_ELIGIBLE_CONFIG",
+  "m3_configs": [
+    {
+      "direction_accuracy": null,
+      "direction_hits": 0,
+      "direction_trials": 0,
+      "eligible": false,
+      "k_m3": 90.0,
+      "mean_delta_brier": 0.0,
+      "mean_delta_log_loss": 0.0
+    },
+    {
+      "direction_accuracy": null,
+      "direction_hits": 0,
+      "direction_trials": 0,
+      "eligible": false,
+      "k_m3": 260.0,
+      "mean_delta_brier": 0.0,
+      "mean_delta_log_loss": 0.0
+    },
+    {
+      "direction_accuracy": null,
+      "direction_hits": 0,
+      "direction_trials": 0,
+      "eligible": false,
+      "k_m3": 520.0,
+      "mean_delta_brier": 0.0,
+      "mean_delta_log_loss": 0.0
+    }
+  ],
+  "max_e_q50": 1.0587511056557841,
+  "max_e_q95": 1.0885919344118067,
+  "max_e_q99": 1.1362731415280718,
+  "max_e_value": 1.2128703085422197,
+  "model_version": "4.0.0-research",
+  "namespace": "DEV",
+  "pruned_combined_configurations": 81,
+  "public_release_allowed": false,
+  "r4_allowed": false,
+  "registered_m3_grid_count": 3,
+  "registered_m4_grid_count": 27,
+  "replicates": 200,
+  "report_hash": "f9947423f47ced82004577c81fab3f85b6d3f668f130e4651a2a3773003c5bf4",
+  "research_only": true,
+  "scenario": "p4_regime_reversal",
+  "sealed_validation_executed": false,
+  "selected_config": null,
+  "status": "NO_ELIGIBLE_CONFIG",
+  "unit_tests": {
+    "count": 87,
+    "status": "PASS"
+  },
+  "workflow_conclusion": "success",
+  "workflow_run": 28489870505
+}

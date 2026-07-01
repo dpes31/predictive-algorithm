@@ -26,7 +26,7 @@ class ChangeEProcessTests(unittest.TestCase):
         self.assertGreater(first.restart_count, 0)
         self.assertEqual(len(first.direction_scores), 45)
 
-    def test_low_trigger_can_activate_on_repeated_direction(self):
+    def test_low_trigger_activates_and_honors_active_lifetime(self):
         config = replace(
             DEFAULT_CONFIG,
             correction_activation_e=1.01,
@@ -35,12 +35,23 @@ class ChangeEProcessTests(unittest.TestCase):
             correction_change_max_life=30,
         )
         detector = ChangeEProcessDetector(config)
-        result = None
-        for draw_no in range(1, 80):
+        saw_active = False
+        saw_expired = False
+        positive_direction = False
+        for draw_no in range(1, 100):
             result = detector.update(record(draw_no))
-        self.assertIsNotNone(result)
-        self.assertTrue(result.active)
-        self.assertGreater(result.direction_scores[0], 0.0)
+            if result.active:
+                saw_active = True
+                positive_direction = positive_direction or result.direction_scores[0] > 0.0
+                self.assertIsNotNone(result.trigger_draw_no)
+                self.assertLess(result.active_age, config.correction_change_max_life)
+            if result.expired:
+                saw_expired = True
+                self.assertFalse(result.active)
+                self.assertEqual(result.status, "EXPIRED")
+        self.assertTrue(saw_active)
+        self.assertTrue(saw_expired)
+        self.assertTrue(positive_direction)
 
     def test_non_increasing_draws_are_rejected(self):
         detector = ChangeEProcessDetector()

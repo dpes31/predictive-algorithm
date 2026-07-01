@@ -15,6 +15,7 @@ from .experts import (
     ChangeEProcessResult,
     build_persistence_model,
     build_physical_evidence_model,
+    build_post_change_model,
     build_regime_change_model,
     build_reversal_model,
     build_uniform_model,
@@ -36,32 +37,50 @@ def _snapshot_with_change_gate(
         return snapshot
     global_features = dict(snapshot.global_features)
     if change_eprocess_result is not None:
-        global_features.update({
-            "change_gate": 1.0 if change_eprocess_result.active else 0.0,
-            "change_gate_calibrated": True,
-            "change_gate_status": "active_eprocess" if change_eprocess_result.active else "eprocess_abstain",
-            "change_e_value": change_eprocess_result.e_value,
-            "change_log_e_value": change_eprocess_result.log_e_value,
-            "change_restart_count": change_eprocess_result.restart_count,
-        })
+        global_features.update(
+            {
+                "change_gate": 1.0 if change_eprocess_result.active else 0.0,
+                "change_gate_calibrated": True,
+                "change_gate_status": (
+                    "active_eprocess"
+                    if change_eprocess_result.active
+                    else change_eprocess_result.status.lower()
+                ),
+                "change_e_value": change_eprocess_result.e_value,
+                "change_log_e_value": change_eprocess_result.log_e_value,
+                "change_restart_count": change_eprocess_result.restart_count,
+                "change_trigger_draw_no": change_eprocess_result.trigger_draw_no,
+                "change_active_age": change_eprocess_result.active_age,
+            }
+        )
     elif maxt_result is not None:
-        global_features.update({
-            "change_gate": 1.0 if maxt_result.active else 0.0,
-            "change_gate_calibrated": maxt_result.full_contract_ready,
-            "change_gate_status": (
-                "active_legacy_maxT" if maxt_result.active else
-                ("legacy_maxT_no_signal" if maxt_result.full_contract_ready else "insufficient_legacy_maxT_calibration")
-            ),
-            "maxT_observed": maxt_result.observed_max_t,
-            "maxT_empirical_p": maxt_result.empirical_p_value,
-            "maxT_calibration_series": maxt_result.calibrated_series,
-        })
+        global_features.update(
+            {
+                "change_gate": 1.0 if maxt_result.active else 0.0,
+                "change_gate_calibrated": maxt_result.full_contract_ready,
+                "change_gate_status": (
+                    "active_legacy_maxT"
+                    if maxt_result.active
+                    else (
+                        "legacy_maxT_no_signal"
+                        if maxt_result.full_contract_ready
+                        else "insufficient_legacy_maxT_calibration"
+                    )
+                ),
+                "maxT_observed": maxt_result.observed_max_t,
+                "maxT_empirical_p": maxt_result.empirical_p_value,
+                "maxT_calibration_series": maxt_result.calibrated_series,
+            }
+        )
     payload = {
         "target_draw_no": snapshot.target_draw_no,
         "input_last_draw": snapshot.input_last_draw,
         "data_version": snapshot.data_version,
         "feature_contract_version": snapshot.feature_contract_version,
-        "number_features": {str(number): dict(features) for number, features in sorted(snapshot.number_features.items())},
+        "number_features": {
+            str(number): dict(features)
+            for number, features in sorted(snapshot.number_features.items())
+        },
         "global_features": global_features,
     }
     return FeatureSnapshot(
@@ -90,9 +109,23 @@ def run_research_prediction(
     change_eprocess_result: ChangeEProcessResult | None = None,
     config: EngineConfig = DEFAULT_CONFIG,
 ) -> PredictionResult:
-    usable = records_for_target(records, target_draw_no=target_draw_no, research_only=True, minimum_history=config.min_history)
-    snapshot = build_feature_snapshot(usable, target_draw_no=target_draw_no, data_version=data_version, config=config)
-    snapshot = _snapshot_with_change_gate(snapshot, maxt_result=maxt_result, change_eprocess_result=change_eprocess_result)
+    usable = records_for_target(
+        records,
+        target_draw_no=target_draw_no,
+        research_only=True,
+        minimum_history=config.min_history,
+    )
+    snapshot = build_feature_snapshot(
+        usable,
+        target_draw_no=target_draw_no,
+        data_version=data_version,
+        config=config,
+    )
+    snapshot = _snapshot_with_change_gate(
+        snapshot,
+        maxt_result=maxt_result,
+        change_eprocess_result=change_eprocess_result,
+    )
 
     if target_physical_metadata is not None:
         if target_physical_metadata.draw_no != target_draw_no:
@@ -121,11 +154,23 @@ def run_research_prediction(
         }
         physical_metadata_hash = None
 
+    if change_eprocess_result is not None:
+        post_change_model = build_post_change_model(usable, change_eprocess_result, config)
+        m3_distribution = post_change_model.distribution
+        m3_diagnostics = post_change_model.diagnostics.to_dict()
+    else:
+        m3_distribution = build_regime_change_model(snapshot, config)
+        m3_diagnostics = {
+            "active": bool(snapshot.global_features.get("change_gate", 0.0)),
+            "legacy_feature_model": True,
+            "reasons": ["change_eprocess_result_not_provided"],
+        }
+
     models = {
         "M0": build_uniform_model(config),
         "M1": build_persistence_model(snapshot, config),
         "M2": build_reversal_model(snapshot, config),
-        "M3": build_regime_change_model(snapshot, config),
+        "M3": m3_distribution,
         "M4": m4_distribution,
     }
     if shadow_weights is None:
@@ -134,8 +179,13 @@ def run_research_prediction(
         shadow = {name: float(shadow_weights.get(name, 0.0)) for name in models}
         if sum(shadow.values()) <= 0:
             raise ValueError("shadow weights must contain positive mass")
+
     state = evaluate_gate(gate_evidence or GateEvidence())
-    final_weights = effective_weights(state, shadow, physical_weight_cap=config.physical_candidate_weight_cap)
+    final_weights = effective_weights(
+        state,
+        shadow,
+        physical_weight_cap=config.physical_candidate_weight_cap,
+    )
     model_order = tuple(models)
     final_distribution = MixtureDistribution(
         tuple(models[name] for name in model_order),
@@ -155,7 +205,9 @@ def run_research_prediction(
         uniform_probability=uniform_probability,
         config=config,
     )
-    change_payload = change_eprocess_result.to_dict() if change_eprocess_result is not None else None
+    change_payload = (
+        change_eprocess_result.to_dict() if change_eprocess_result is not None else None
+    )
     hash_payload = {
         "target_draw_no": target_draw_no,
         "model_version": config.model_version,
@@ -169,6 +221,7 @@ def run_research_prediction(
         "feature_snapshot_hash": snapshot.snapshot_hash,
         "physical_metadata_hash": physical_metadata_hash,
         "physical_diagnostics": physical_diagnostics,
+        "m3_diagnostics": m3_diagnostics,
         "change_eprocess_result": change_payload,
         "legacy_maxt_result": None if maxt_result is None else maxt_result.to_dict(),
         "research_only": True,
@@ -179,7 +232,9 @@ def run_research_prediction(
         model_version=config.model_version,
         data_version=data_version,
         gate_state=state.value,
-        advantage_status="통계적 우위 없음" if final_weights["M0"] == 1.0 else "연구 후보 신호",
+        advantage_status=(
+            "통계적 우위 없음" if final_weights["M0"] == 1.0 else "연구 후보 신호"
+        ),
         model_weights=final_weights,
         shadow_weights=shadow,
         candidate_sets=candidates,
@@ -194,6 +249,7 @@ def run_research_prediction(
             "feature_snapshot_hash": snapshot.snapshot_hash,
             "change_gate_status": snapshot.global_features["change_gate_status"],
             "change_eprocess": change_payload,
+            "m3_post_change": m3_diagnostics,
             "legacy_maxT": None if maxt_result is None else maxt_result.to_dict(),
             "physical_metadata_hash": physical_metadata_hash,
             "physical_evidence": physical_diagnostics,

@@ -1,4 +1,4 @@
-"""Frozen Gate 2-3P-R2 engine constants."""
+"""Frozen Gate 2-3P-R3 development constants."""
 
 from __future__ import annotations
 
@@ -66,7 +66,7 @@ class EngineConfig:
     physical_min_source_traceability: float = 0.90
     physical_required_pre_draw_rate: float = 1.00
 
-    # Gate 2-3P-R2 locked architecture.
+    # Gate 2-3P-R correction architecture. R3 may select only registered grid values.
     correction_k_global: float = 1040.0
     correction_k_context: float = 520.0
     correction_effect_clip: float = 0.10
@@ -93,6 +93,9 @@ class EngineConfig:
         0.10,
         0.20,
     )
+    correction_k_m3: float = 520.0
+    correction_m3_effect_clip: float = 0.20
+    correction_m3_min_support: int = 20
     correction_m3_candidate_weight_cap: float = 0.10
     correction_stable_fields: tuple[str, ...] = (
         "machine.machine_id",
