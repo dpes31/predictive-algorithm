@@ -1,189 +1,154 @@
 # Project Handoff
 
 최종 갱신일: 2026-07-01  
-현재 Gate: **Gate 2-3P-M4F-1 data feasibility specification 완료·승인 대기**  
-현재 브랜치: `feature/gate2p-m4f1-data-feasibility-spec`  
-기준 브랜치: `feature/r3m3-predictable-group-engine`  
-관련 Issue: #33
+현재 Gate: **Gate 2-3P-M4F-2 source-access specification 완료·승인 대기**  
+현재 브랜치: `feature/gate2p-m4f2-source-access-spec`  
+기준 브랜치: `feature/gate2p-m4f1-data-feasibility-spec`  
+관련 Issue: #34  
+현재 Draft PR: #35
 
-## 목적
+## 프로젝트 상태
 
-로또 6/45의 6개 번호 조합 5세트를 출력하는 연구형 예측기를 개발한다. 장기적으로 일반 의사결정 알고리즘으로 확장하지만 현재 검증대상은 로또 예측기다.
-
-## Gate 상태
-
-- Gate 2-3P-R3: `NO_ELIGIBLE_CONFIG`
-- Gate 2-3P-R3M-2: `ORACLE_PASS`
 - Gate 2-3P-R3M-3-2: `PREDICTABLE_GROUP_FAIL`
-- M3 past-number path: **FROZEN**
-- Gate 2-3P-M4F-1: **명세 완료·승인 대기**
-- Gate 2-3P-M4F-2: 미승인·미실행
-- full M3 DEV: `BLOCKED`
-- Gate 2-3P-R4: `BLOCKED`
-- CAL·SEALED·실제 데이터·모바일 MVP: `BLOCKED`
+- M3 past-number path: `FROZEN`
+- Gate 2-3P-M4F-1: 승인 완료
+- Gate 2-3P-M4F-2: **명세 완료·승인 대기**
+- 실제 source audit: `NOT_EVALUATED`
+- 외부기관 자료 접근: 미실행
+- 데이터 수집·Python·DEV: 미실행
+- Gate 2-3P-M4F-3 이후: `BLOCKED`
+- CAL·SEALED·실제 번호·모바일: `BLOCKED`
+- 최종 적용분포: `M0 only`
 
-현재 모델은 `5.0.0-research`, M4 data feasibility contract는 `1.0.0`, Gate state는 `RESEARCH`, 최종 적용분포는 `M0 only`다.
+현재 모델은 `5.0.0-research`, M4 data feasibility contract는 `1.0.0`, source-access audit contract는 `1.0.0`이다.
 
-## Predictable-group 실패 잠금
+## 이전 실패 잠금
 
 - implementation `156f286db9242f0e8f45c0bda9246e57d22d57da`
 - workflow `28499321746`
-- tests `105 PASS`
-- artifact `8002526507`
 - report hash `9c604e27684737017120a95f11849c2648394c99525cf53ca262828fd514ec37`
 - lock hash `e150983980c91ca1c29d7fa82523b0195e1502d02191bddea823f74bed611d04`
 
-이 결과를 유지하며 M3 past-number learner는 추가 튜닝하지 않는다.
+M3 past-number learner는 추가 튜닝하지 않는다.
 
-## M4F-1 문서
+## M4F-2 산출물
 
-- `docs/GATE2_M4_DATA_FEASIBILITY_SPEC.md`
-- `docs/GATE2_M4_SOURCE_VARIABLE_REGISTRY.md`
-- `docs/GATE2_M4_PILOT_ENTRY_PROTOCOL.md`
-- `reports/gate2_m4f1_public_source_feasibility.md`
+- `docs/GATE2_M4_SOURCE_ACCESS_AUDIT_SPEC.md`
+- `docs/GATE2_M4_SOURCE_ACCESS_DECISION_RULES.md`
+- `docs/GATE2_M4_AUTHORITY_SECURITY_TIMESTAMP_CHECKLIST.md`
+- `docs/templates/M4_FIELD_LEVEL_DATA_DICTIONARY_TEMPLATE.md`
+- `schemas/m4_metadata_sample.schema.json`
+- `schemas/examples/m4_metadata_dummy_record.json`
+- `docs/templates/M4_DATA_REQUEST_DONGHAENG_DRAFT.md`
+- `docs/templates/M4_DATA_REQUEST_MBC_DRAFT.md`
 
-## 시간·누출 계약
+두 기관 문서는 모두 미발송 초안이며 실제 외부행위가 아니다.
 
-각 metadata record는 다음을 분리한다.
-
-- observed_at
-- recorded_at
-- available_at
-- source_published_at
-- ingested_at
-- prediction_lock_at
-- draw_actual_at
-
-Availability:
+## Source-access hard criteria
 
 ```text
-A0_DEPLOYABLE     available_at <= prediction_lock_at
-A1_RESEARCH_ONLY prediction_lock_at < available_at < draw_actual_at
-A2_POST_DRAW      available_at >= draw_actual_at
-A3_OUTCOME_DERIVED
+H1 primary source existence
+H2 historical coverage
+H3 timestamp integrity
+H4 immutable identity and correction history
+H5 outcome separation
+H6 research authorization
+H7 security feasibility
+H8 field-level traceability
 ```
 
-A0만 향후 제품 입력 후보다. A2/A3는 금지하며 required field 혼입 시 global veto다.
+최종 PASS에는 H1~H8 모두 PASS가 필요하다.
 
-## 변수 범위
-
-Primary stable 후보:
-
-- machine identity, model, generation, service age, use count
-- ball-set identity, generation, certification age, use count
-- machine × ball-set context
-- label-preserving certified ball mass, diameter, roundness, wear
-
-Primary transient 후보:
-
-- local indoor temperature, humidity, pressure
-- warmup, mixing duration, airflow
-- power voltage/frequency, vibration
-- pre-draw test count, pass/fail, completion time
-
-Diagnostic-only:
-
-- KMA ASOS/AWS outdoor weather
-- MBC official schedule and schedule-change notices
-- official video double transcription
-
-Excluded:
-
-- 개인 identity
-- 판매·구매·검색량
-- 방송 연출요소
-- 비물리적 달력특성
-- outcome fields와 사후 영상추정
-- 제3자·OCR 단독 추정
-
-## Coverage와 최소 표본
-
-Retrospective pilot hard minimum:
-
-- 520 consecutive linked draws
-- draw linkage 100%
-- machine 또는 ball-set coverage 95% 이상
-- selection timestamp coverage 95% 이상
-- source traceability 99% 이상
-- core stable weighted reliability 0.95 이상
-- stable context level당 104회
-- interaction cell당 52회
-- transient field 260회, retained bin당 52회
-
-26회 shadow phase는 ingestion·timestamp 검증만 수행하며 예측력 검증을 금지한다.
-
-## Source hierarchy
-
-- Grade A: operator/broadcaster signed logs, certified measurements, local sensors
-- Grade B: official MBC, 동행복권, KMA and government public data
-- Grade C: double-reviewed official-video/manual transcription, diagnostic-only
-- Grade D: third-party or inferred sources, rejected
-
-공개 공식원천만으로는 machine, ball-set, ball measurement, pre-draw operations, indoor sensor의 520회 primary archive가 확인되지 않았다. 운영기관 또는 방송사 원기록 접근경로가 없으면 M4 pilot은 `NO_DATA_PATH`다.
-
-## Synthetic controls
-
-Mandatory null:
-
-- exact uniform
-- block permutation
-- time-shift leakage trap
-- irrelevant weather proxy
-- constant/high-cardinality field
-- missing-not-at-random
-
-Null 기준:
-
-- false activation <= 0.1%
-- one-sided 95% upper <= 0.2%
-- post-draw veto 100%
-- outcome contamination acceptance 0
-
-Mandatory positive:
-
-- stable machine lift 1.25/1.50
-- stable ball-set lift 1.25/1.50
-- machine × ball interaction
-- transient environment 104/208회
-- missing/noisy metadata
-- regime replacement
-
-## Actual pilot entry
-
-모든 hard gate를 충족해야 `REAL_METADATA_PILOT_ENTRY_PASS`다.
-
-- lawful source access
-- 520 consecutive draws
-- core coverage and reliability PASS
-- at least two retained context levels, each 104 draws
-- A0 coverage 90% 이상 for deployable analysis
-- outcome contamination 0
-- mandatory null PASS
-- P1 machine 또는 P2 ball-set lift 1.25 PASS
-
-Conditional PASS는 없다.
-
-## Gate sequence
+Evidence level:
 
 ```text
-M4F-1 specification
-M4F-2 source-access audit and data dictionary
-M4F-3 26-draw ingestion-only shadow
-M4F-4 synthetic controls
-M4F-5 retrospective metadata evidence pilot
-M4F-6 future CAL/SEALED specification
+E0_UNVERIFIED
+E1_DOCUMENTED
+E2_SAMPLED
+E3_SYSTEM_VERIFIED
 ```
 
-현재 M4F-1만 완료됐다.
+PASS에는 각 hard criterion 최소 E2, 핵심 timestamp·audit trail에는 E3 또는 이에 준하는 공식 증빙이 필요하다.
+
+## Deterministic decision rules
+
+판정 우선순위:
+
+```text
+1. path-ending evidence confirmed -> NO_DATA_PATH
+2. H1~H8 all PASS             -> SOURCE_ACCESS_PASS
+3. all H known and any FAIL   -> SOURCE_ACCESS_FAIL
+4. otherwise                  -> AUDIT_INCOMPLETE
+```
+
+### SOURCE_ACCESS_PASS
+
+- machine 또는 ball-set stable primary source 존재
+- 최소 520회 연결 가능
+- timestamp 의미·수정이력·outcome 분리 확인
+- 연구권한·보안·field traceability 충족
+
+PASS는 데이터 확보나 예측력 승인이 아니라 M4F-3 ingestion-only shadow 설계 진입자격만 뜻한다.
+
+### SOURCE_ACCESS_FAIL
+
+원천 또는 접근경로는 존재하지만 hard criterion 하나 이상이 미달한 상태다. 기준완화 없이 remediation 가능성만 기록한다.
+
+### NO_DATA_PATH
+
+다음 중 하나가 공식 확인된 상태다.
+
+- primary 원기록 부재
+- 520회 역사범위 복구 불가
+- timestamp·draw linkage 재구성 불가
+- outcome 분리 불가
+- 최종적 연구제공 불가
+- 책임기관 식별 불가
+- 공개 proxy만 존재
+
+무응답만으로 NO_DATA_PATH를 판정하지 않는다.
+
+### AUDIT_INCOMPLETE
+
+회신·증빙·sample·timestamp 정의가 부족한 중간상태다. PASS로 보지 않는다.
+
+## Field dictionary and schema
+
+Field dictionary는 다음을 필수 기록한다.
+
+- 원 field와 canonical field
+- business definition과 causal rationale
+- source system·record ID
+- data type·unit·null meaning
+- observed/recorded/available timestamp 의미
+- correction·retention 규칙
+- 역사적 coverage
+- outcome·personal information 여부
+- evidence level·reliability score·field status
+
+JSON Schema는 outcome field를 포함하지 않으며 `additionalProperties=false`, provenance, availability class, quality status를 필수화한다. Dummy record는 합성 예시다.
+
+## Authority·security·timestamp checklist
+
+- data owner·승인권한·연구사용
+- 520회 원천·ID·coverage
+- outcome 분리
+- observed/recorded/available 시각 의미
+- timezone·clock source·수정 전 timestamp 보존
+- 암호화·최소권한·접근로그·파기
+- immutable ID·version history·checksum
+
+`UNKNOWN`은 PASS가 아니다.
 
 ## 현재 금지
 
-- 자료요청 발송
-- scraping·영상추출·OCR
-- 센서설치·데이터수집
-- Python 구현
-- 추가 DEV·synthetic 실행
-- 실제 metadata import
+- 외부기관 접촉 또는 문서 전달
+- 데이터 수신·열람·다운로드
+- scraping·OCR·영상추출
+- Python 구현·schema 실행
+- ingestion shadow
+- synthetic·실제 metadata 검증
+- 추가 DEV
 - CAL·SEALED
 - 실제 번호 Walk-forward
 - 사용자용 번호 생성
@@ -192,4 +157,4 @@ M4F-6 future CAL/SEALED specification
 
 ## 다음 단계
 
-사용자 승인 후 `Gate 2-3P-M4F-2`에서 source-access audit 상세 명세와 자료요청서 초안만 작성한다. 실제 요청 발송과 데이터 수집은 별도 승인 전 금지한다.
+다음 단계는 `Gate 2-3P-M4F-2A request package finalization`이다. 발신주체·연구주체·보존기간·수신부서·권한조건을 확정하고 최종 문안만 잠근다. 외부 전달은 다시 별도 승인한다.
