@@ -4,6 +4,14 @@ on:
   pull_request:
     branches:
       - feature/gate2p-r3m-feasibility-spec
+    paths:
+      - '.github/workflows/r3m2-oracle.yml'
+      - 'engine/experts/__init__.py'
+      - 'engine/experts/oracle_group_eprocess.py'
+      - 'simulation/oracle_feasibility.py'
+      - 'simulation/run_oracle_gate.py'
+      - 'tests/test_oracle_group_eprocess.py'
+      - 'tests/test_oracle_feasibility.py'
 
 permissions:
   contents: read
