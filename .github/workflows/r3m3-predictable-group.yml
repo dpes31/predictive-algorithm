@@ -1,1 +1,44 @@
 name: R3M3 Predictable Group DEV
+
+on:
+  pull_request:
+    branches:
+      - feature/r3m3-predictable-group-spec
+    paths:
+      - '.github/workflows/r3m3-predictable-group.yml'
+      - 'engine/experts/__init__.py'
+      - 'engine/experts/predictable_group.py'
+      - 'simulation/predictable_group_feasibility.py'
+      - 'simulation/run_predictable_group_gate.py'
+      - 'tests/test_predictable_group.py'
+      - 'tests/test_predictable_group_feasibility.py'
+
+permissions:
+  contents: read
+
+jobs:
+  predictable-group-dev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run full unit tests
+        run: PYTHONPATH=. python -m unittest discover -s tests -v 2>&1 | tee unit-tests.log
+      - name: Run approved DEV-PG gate
+        env:
+          IMPLEMENTATION_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: PYTHONPATH=. python -m simulation.run_predictable_group_gate
+      - name: Upload DEV-PG evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r3m3-predictable-group-dev
+          path: |
+            unit-tests.log
+            r3m3-predictable-group-dev.json
+          if-no-files-found: warn
