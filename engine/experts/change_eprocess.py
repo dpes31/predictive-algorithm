@@ -22,6 +22,9 @@ class ChangeEProcessResult:
     direction_scores: tuple[float, ...]
     trigger: float
     deactivation: float
+    trigger_draw_no: int | None = None
+    active_age: int = 0
+    expired: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -34,6 +37,9 @@ class ChangeEProcessResult:
             "direction_scores": list(self.direction_scores),
             "trigger": self.trigger,
             "deactivation": self.deactivation,
+            "trigger_draw_no": self.trigger_draw_no,
+            "active_age": self.active_age,
+            "expired": self.expired,
         }
 
 
@@ -43,6 +49,7 @@ class ChangeEProcessDetector:
     _processes: dict[tuple[int, int, float], float] = field(default_factory=dict)
     _active: bool = False
     _last_draw_no: int = 0
+    _trigger_draw_no: int | None = None
 
     def _start_restart(self, draw_no: int) -> None:
         for number_index in range(self.config.number_count):
@@ -52,18 +59,50 @@ class ChangeEProcessDetector:
     def _drop_expired(self, draw_no: int) -> None:
         maximum_age = self.config.correction_change_max_life
         self._processes = {
-            key: value for key, value in self._processes.items()
+            key: value
+            for key, value in self._processes.items()
             if draw_no - key[0] < maximum_age
         }
         restart_values = sorted({key[0] for key in self._processes}, reverse=True)
         keep = set(restart_values[: self.config.correction_m3_max_restarts])
-        self._processes = {key: value for key, value in self._processes.items() if key[0] in keep}
+        self._processes = {
+            key: value for key, value in self._processes.items() if key[0] in keep
+        }
+
+    def _direction_scores(self) -> tuple[float, ...]:
+        scores: list[float] = []
+        for number_index in range(self.config.number_count):
+            signed_logs = [
+                (log_value, betting_fraction)
+                for (_, index, betting_fraction), log_value in self._processes.items()
+                if index == number_index
+            ]
+            if not signed_logs:
+                scores.append(0.0)
+                continue
+            maximum = max(log_value for log_value, _ in signed_logs)
+            weights = [math.exp(log_value - maximum) for log_value, _ in signed_logs]
+            denominator = sum(weights)
+            scores.append(
+                sum(
+                    weight * (1.0 if betting_fraction > 0 else -1.0)
+                    for weight, (_, betting_fraction) in zip(
+                        weights, signed_logs, strict=True
+                    )
+                )
+                / denominator
+            )
+        return tuple(scores)
 
     def update(self, record: DrawRecord) -> ChangeEProcessResult:
         if record.draw_no <= self._last_draw_no:
             raise ValueError("change e-process records must be strictly increasing")
-        if not self._processes or (record.draw_no - 1) % self.config.correction_m3_restart_interval == 0:
+        if (
+            not self._processes
+            or (record.draw_no - 1) % self.config.correction_m3_restart_interval == 0
+        ):
             self._start_restart(record.draw_no)
+
         selected = {number - 1 for number in record.numbers}
         p0 = self.config.uniform_number_probability
         updated: dict[tuple[int, int, float], float] = {}
@@ -77,44 +116,49 @@ class ChangeEProcessDetector:
         self._processes = updated
         self._last_draw_no = record.draw_no
         self._drop_expired(record.draw_no)
+
         log_values = tuple(self._processes.values())
         global_log_e = logmeanexp(log_values) if log_values else 0.0
         global_e = e_value_from_log(global_log_e)
+        expired_now = False
+
         if self._active:
+            active_age = (
+                0
+                if self._trigger_draw_no is None
+                else record.draw_no - self._trigger_draw_no
+            )
             if global_e < self.config.correction_deactivation_e:
                 self._active = False
+                self._trigger_draw_no = None
+            elif active_age >= self.config.correction_change_max_life:
+                self._active = False
+                self._trigger_draw_no = None
+                self._processes.clear()
+                expired_now = True
         elif global_e >= self.config.correction_activation_e:
             self._active = True
+            self._trigger_draw_no = record.draw_no
 
-        direction_scores: list[float] = []
-        for number_index in range(self.config.number_count):
-            signed_logs = [
-                (log_value, betting_fraction)
-                for (_, index, betting_fraction), log_value in self._processes.items()
-                if index == number_index
-            ]
-            if not signed_logs:
-                direction_scores.append(0.0)
-                continue
-            maximum = max(log_value for log_value, _ in signed_logs)
-            weights = [math.exp(log_value - maximum) for log_value, _ in signed_logs]
-            denominator = sum(weights)
-            direction_scores.append(
-                sum(
-                    weight * (1.0 if betting_fraction > 0 else -1.0)
-                    for weight, (_, betting_fraction) in zip(weights, signed_logs, strict=True)
-                ) / denominator
-            )
+        active_age = (
+            record.draw_no - self._trigger_draw_no
+            if self._active and self._trigger_draw_no is not None
+            else 0
+        )
+        status = "EXPIRED" if expired_now else ("ACTIVE" if self._active else "ABSTAIN")
         return ChangeEProcessResult(
             draw_no=record.draw_no,
             e_value=global_e,
             log_e_value=global_log_e,
             active=self._active,
-            status="ACTIVE" if self._active else "ABSTAIN",
+            status=status,
             restart_count=len({key[0] for key in self._processes}),
-            direction_scores=tuple(direction_scores),
+            direction_scores=self._direction_scores(),
             trigger=self.config.correction_activation_e,
             deactivation=self.config.correction_deactivation_e,
+            trigger_draw_no=self._trigger_draw_no,
+            active_age=active_age,
+            expired=expired_now,
         )
 
     def replay(self, records: Sequence[DrawRecord]) -> ChangeEProcessResult:
