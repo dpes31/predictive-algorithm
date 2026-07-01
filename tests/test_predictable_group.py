@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 
+import engine.experts.predictable_group as predictable_group
 from engine.experts.predictable_group import (
     OccurrenceIndex,
     numbers_to_mask,
@@ -33,6 +34,28 @@ class PredictableGroupTests(unittest.TestCase):
         index = OccurrenceIndex.build(self.history(519))
         with self.assertRaises(ValueError):
             select_predictable_group(index, block_start=520)
+
+    def test_no_eligible_size_abstains(self):
+        index = OccurrenceIndex.build(self.history())
+        original = predictable_group._validation_log_lr
+        predictable_group._validation_log_lr = lambda *args, **kwargs: -1.0
+        try:
+            decision = select_predictable_group(index, block_start=521)
+        finally:
+            predictable_group._validation_log_lr = original
+        self.assertTrue(decision.abstain)
+        self.assertIsNone(decision.selected_size)
+
+    def test_size_tie_prefers_six(self):
+        index = OccurrenceIndex.build(self.history())
+        original = predictable_group._validation_log_lr
+        predictable_group._validation_log_lr = lambda *args, **kwargs: 1.0
+        try:
+            decision = select_predictable_group(index, block_start=521)
+        finally:
+            predictable_group._validation_log_lr = original
+        self.assertFalse(decision.abstain)
+        self.assertEqual(decision.selected_size, 6)
 
     def test_decision_is_deterministic(self):
         index = OccurrenceIndex.build(self.history())
