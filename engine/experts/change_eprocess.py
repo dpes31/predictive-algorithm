@@ -8,7 +8,6 @@ from typing import Any, Sequence
 
 from ..config import DEFAULT_CONFIG, EngineConfig
 from ..contracts import DrawRecord
-from ..eprocess import e_value_from_log, logmeanexp
 
 
 @dataclass(frozen=True)
@@ -44,82 +43,135 @@ class ChangeEProcessResult:
 
 
 @dataclass
+class _RestartState:
+    start_draw: int
+    scales: list[float]
+    totals: list[float]
+    relatives: list[list[float]]
+
+    @classmethod
+    def create(cls, start_draw: int, lambda_count: int, number_count: int) -> "_RestartState":
+        return cls(
+            start_draw=start_draw,
+            scales=[1.0] * lambda_count,
+            totals=[float(number_count)] * lambda_count,
+            relatives=[[1.0] * number_count for _ in range(lambda_count)],
+        )
+
+
+@dataclass
 class ChangeEProcessDetector:
+    """Registered M3 detector with algebraically exact scaled process state.
+
+    For each restart and betting fraction, all unselected number processes share
+    a common scale. Selected-number processes are stored as relative values.
+    This is exactly the same arithmetic mixture of e-processes as the previous
+    log-dictionary implementation, but is substantially cheaper for DEV runs.
+    """
+
     config: EngineConfig = DEFAULT_CONFIG
-    _processes: dict[tuple[int, int, float], float] = field(default_factory=dict)
+    _restarts: list[_RestartState] = field(default_factory=list)
     _active: bool = False
     _last_draw_no: int = 0
     _trigger_draw_no: int | None = None
 
+    def __post_init__(self) -> None:
+        p0 = self.config.uniform_number_probability
+        selected_factors = tuple(
+            1.0 + value * (1.0 - p0)
+            for value in self.config.correction_m3_lambda_grid
+        )
+        self._unselected_factors = tuple(
+            1.0 - value * p0
+            for value in self.config.correction_m3_lambda_grid
+        )
+        if any(value <= 0.0 for value in self._unselected_factors + selected_factors):
+            raise ValueError("M3 betting factors must remain positive")
+        self._relative_ratios = tuple(
+            selected / unselected
+            for selected, unselected in zip(
+                selected_factors,
+                self._unselected_factors,
+                strict=True,
+            )
+        )
+
     def _start_restart(self, draw_no: int) -> None:
-        for number_index in range(self.config.number_count):
-            for betting_fraction in self.config.correction_m3_lambda_grid:
-                self._processes[(draw_no, number_index, betting_fraction)] = 0.0
+        self._restarts.append(
+            _RestartState.create(
+                draw_no,
+                len(self.config.correction_m3_lambda_grid),
+                self.config.number_count,
+            )
+        )
 
     def _drop_expired(self, draw_no: int) -> None:
-        maximum_age = self.config.correction_change_max_life
-        self._processes = {
-            key: value
-            for key, value in self._processes.items()
-            if draw_no - key[0] < maximum_age
-        }
-        restart_values = sorted({key[0] for key in self._processes}, reverse=True)
-        keep = set(restart_values[: self.config.correction_m3_max_restarts])
-        self._processes = {
-            key: value for key, value in self._processes.items() if key[0] in keep
-        }
+        self._restarts = [
+            restart
+            for restart in self._restarts
+            if draw_no - restart.start_draw < self.config.correction_change_max_life
+        ]
+        if len(self._restarts) > self.config.correction_m3_max_restarts:
+            self._restarts = self._restarts[-self.config.correction_m3_max_restarts :]
+
+    def _global_e_value(self) -> float:
+        process_count = (
+            len(self._restarts)
+            * self.config.number_count
+            * len(self.config.correction_m3_lambda_grid)
+        )
+        if process_count == 0:
+            return 1.0
+        process_sum = sum(
+            scale * total
+            for restart in self._restarts
+            for scale, total in zip(restart.scales, restart.totals, strict=True)
+        )
+        return process_sum / process_count
 
     def _direction_scores(self) -> tuple[float, ...]:
+        if not self._restarts:
+            return tuple(0.0 for _ in range(self.config.number_count))
         scores: list[float] = []
+        lambdas = self.config.correction_m3_lambda_grid
         for number_index in range(self.config.number_count):
-            signed_logs = [
-                (log_value, betting_fraction)
-                for (_, index, betting_fraction), log_value in self._processes.items()
-                if index == number_index
-            ]
-            if not signed_logs:
-                scores.append(0.0)
-                continue
-            maximum = max(log_value for log_value, _ in signed_logs)
-            weights = [math.exp(log_value - maximum) for log_value, _ in signed_logs]
-            denominator = sum(weights)
-            scores.append(
-                sum(
-                    weight * (1.0 if betting_fraction > 0 else -1.0)
-                    for weight, (_, betting_fraction) in zip(
-                        weights, signed_logs, strict=True
-                    )
-                )
-                / denominator
-            )
+            numerator = 0.0
+            denominator = 0.0
+            for restart in self._restarts:
+                for slot, betting_fraction in enumerate(lambdas):
+                    value = restart.scales[slot] * restart.relatives[slot][number_index]
+                    denominator += value
+                    numerator += value * (1.0 if betting_fraction > 0.0 else -1.0)
+            scores.append(numerator / denominator if denominator > 0.0 else 0.0)
         return tuple(scores)
 
     def update(self, record: DrawRecord) -> ChangeEProcessResult:
         if record.draw_no <= self._last_draw_no:
             raise ValueError("change e-process records must be strictly increasing")
         if (
-            not self._processes
+            not self._restarts
             or (record.draw_no - 1) % self.config.correction_m3_restart_interval == 0
         ):
             self._start_restart(record.draw_no)
 
-        selected = {number - 1 for number in record.numbers}
-        p0 = self.config.uniform_number_probability
-        updated: dict[tuple[int, int, float], float] = {}
-        for key, log_value in self._processes.items():
-            _, number_index, betting_fraction = key
-            centered = (1.0 if number_index in selected else 0.0) - p0
-            factor = 1.0 + betting_fraction * centered
-            if factor <= 0.0:
-                raise ValueError("M3 betting factor must remain positive")
-            updated[key] = log_value + math.log(factor)
-        self._processes = updated
+        selected_indexes = tuple(number - 1 for number in record.numbers)
+        for restart in self._restarts:
+            for slot, unselected_factor in enumerate(self._unselected_factors):
+                restart.scales[slot] *= unselected_factor
+                relatives = restart.relatives[slot]
+                total = restart.totals[slot]
+                ratio = self._relative_ratios[slot]
+                for number_index in selected_indexes:
+                    previous = relatives[number_index]
+                    current = previous * ratio
+                    relatives[number_index] = current
+                    total += current - previous
+                restart.totals[slot] = total
+
         self._last_draw_no = record.draw_no
         self._drop_expired(record.draw_no)
-
-        log_values = tuple(self._processes.values())
-        global_log_e = logmeanexp(log_values) if log_values else 0.0
-        global_e = e_value_from_log(global_log_e)
+        global_e = self._global_e_value()
+        global_log_e = math.log(global_e) if global_e > 0.0 else float("-inf")
         expired_now = False
 
         if self._active:
@@ -134,11 +186,7 @@ class ChangeEProcessDetector:
             elif active_age >= self.config.correction_change_max_life:
                 self._active = False
                 self._trigger_draw_no = None
-                self._processes.clear()
-                # A forced expiry ends the active episode but must not leave the
-                # anytime detector dormant until the next scheduled restart.
-                # Seed a fresh zero-wealth restart immediately; the current draw
-                # is not reused, and subsequent draws update this new process.
+                self._restarts.clear()
                 self._start_restart(record.draw_no)
                 expired_now = True
         elif global_e >= self.config.correction_activation_e:
@@ -151,14 +199,19 @@ class ChangeEProcessDetector:
             else 0
         )
         status = "EXPIRED" if expired_now else ("ACTIVE" if self._active else "ABSTAIN")
+        direction_scores = (
+            self._direction_scores()
+            if self._active or expired_now
+            else tuple(0.0 for _ in range(self.config.number_count))
+        )
         return ChangeEProcessResult(
             draw_no=record.draw_no,
             e_value=global_e,
             log_e_value=global_log_e,
             active=self._active,
             status=status,
-            restart_count=len({key[0] for key in self._processes}),
-            direction_scores=self._direction_scores(),
+            restart_count=len(self._restarts),
+            direction_scores=direction_scores,
             trigger=self.config.correction_activation_e,
             deactivation=self.config.correction_deactivation_e,
             trigger_draw_no=self._trigger_draw_no,
