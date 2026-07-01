@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
 
@@ -28,7 +28,13 @@ class ProductCandidate:
             raise ValueError("M0 product lift must equal 1.0")
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        self.validate()
+        return {
+            "rank": self.rank,
+            "numbers": list(self.numbers),
+            "joint_probability": self.joint_probability,
+            "lift_vs_uniform": self.lift_vs_uniform,
+        }
 
 
 @dataclass(frozen=True)
