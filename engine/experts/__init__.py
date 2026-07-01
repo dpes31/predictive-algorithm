@@ -1,6 +1,11 @@
 """M0-M4 expert constructors."""
 
 from .change_eprocess import ChangeEProcessDetector, ChangeEProcessResult
+from .oracle_group_eprocess import (
+    ExactGroupAlternative,
+    OracleGroupEProcess,
+    OracleGroupEProcessResult,
+)
 from .persistence import build_persistence_model
 from .physical_evidence import PhysicalEvidenceModel, build_physical_evidence_model
 from .post_change import PostChangeModel, build_post_change_model
@@ -19,4 +24,7 @@ __all__ = [
     "PhysicalEvidenceModel",
     "ChangeEProcessDetector",
     "ChangeEProcessResult",
+    "ExactGroupAlternative",
+    "OracleGroupEProcess",
+    "OracleGroupEProcessResult",
 ]
