@@ -39,6 +39,8 @@ def compare_results(paths: Sequence[str | pathlib.Path], *, cross_runtime: bool)
     candidate = statuses[0] if status_match else "A4_EVALUATION_FAIL"
     if not reproducibility_pass:
         final_status = "A4_EVALUATION_FAIL"
+    elif not cross_runtime:
+        final_status = candidate
     elif candidate == "A4_EVALUATION_PASS_CANDIDATE":
         final_status = "A4_EVALUATION_PASS"
     elif candidate in {"A4_EVALUATION_FAIL", "A4_EVALUATION_BLOCKED"}:
