@@ -1,75 +1,63 @@
 # Project Handoff
 
-최종 갱신일: 2026-07-03  
-현재 작업: **Product Closeout Gate C2 내부 Product QA 완료**  
-현재 브랜치: `qa/product-closeout-c2-internal`  
+최종 갱신일: 2026-07-04  
+현재 작업: **Product Closeout Gate C4 Research Release Lock 완료**  
+현재 브랜치: `release/product-closeout-c4-research-lock`  
 기준 브랜치: `feature/product-p1-release-candidate`  
-기준 커밋: `2f6d42fad4517b744f33132ad7ad1061678e6340`  
-계약: `product-closeout-qa-1.0.0`  
-Draft PR: `#53`
+기준 커밋: `f60b7278a88635596c502e34c4b56b535db8c1d7`  
+계약: `product-closeout-release-lock-1.0.0`
 
-## 현재 상태
+## 최종 상태
 
 ```text
-P1 = P1_ASSEMBLED
-A1 = A1_SPEC_COMPLETE / MERGED
-A2 = A2_IMPLEMENTATION_PASS / MERGED
-A3 = A3_SPEC_COMPLETE / MERGED
+P1/A1/A2/A3 = MERGED
 A4 = A4_EVALUATION_FAIL / Draft PR #51 preserved
 C1 = PRODUCT_CLOSEOUT_SPEC_COMPLETE / MERGED
-C2 = PRODUCT_CLOSEOUT_QA_PASS / Draft PR #53
+C2 = PRODUCT_CLOSEOUT_QA_PASS / MERGED
+C3 = PRODUCT_CLOSEOUT_HTML_PASS / MERGED
+C4 = PRODUCT_READY_RESEARCH_M0 / LOCKED
 
 CONTROL_M0 = default and rollback
 RESEARCH_ENSEMBLE = research-only / product runtime isolated
-actual user hypothesis entries = 0
+actual hypothesis entries = 0
 actual physical entries = 0
-next Gate = NOT AUTHORIZED
+development complete = true
+next Gate = NONE
 main merge = NOT PERFORMED
+public deployment = NOT PERFORMED
 ```
 
-## C2 기준점
+## 최종 제품
 
-- evaluated implementation: `f14e4fc2fddfc53459a505315db9078cbaf00a28`
-- revalidated head: `0886101fe3e6d3ac78dd4c69f5450e2b77097107`
-- C2 workflow: `28660867695` / run #13
-- Product P1 regression: `28660867693` / run #55
-- Python 3.11 two repeats: PASS
-- Python 3.12 two repeats: PASS
-- cross-runtime reproducibility: PASS
-- canonical result hash: `4e5ba17f8316bcb30a827a9a35d744633121cc2afdebab48535af2cb09265854`
-- decision hash: `0cd12eea4b0c128379e817fabb91071f2a7a7193e1e9286169b04dc47eec92c3`
+- 대상 회차: `1231`
+- 입력 데이터: `1..1230`
+- 출력: 정확히 6개 번호 × 5세트
+- final distribution: `M0_ONLY`
+- statistical edge: `false`
+- reason: `no_validated_nonuniform_signal`
+- prediction hash: `119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32`
+- HTML: `public/index.html`
+- fixture: `public/product-prediction.json`
 
-## 완료 검증
+## 최종 잠금
 
-- data version·range·count·SHA-256
-- draw continuity·duplicates·number validity
-- target-1 cutoff·future-data block
-- JSON Schema positive·11 negative fixtures
-- 정확히 5세트 × 6개 번호
-- M0-only weights와 고정 disclosure
-- RESEARCH_ENSEMBLE runtime isolation
-- prediction·schema·config·data·manifest·rollback hash
-- P1/A1/A2/A3 및 Draft PR #51 evidence preservation
+- final record: `docs/PRODUCT_READY_RESEARCH_M0.md`
+- release manifest: `release/research_release_manifest.json`
+- wording lock: `release/public_wording_lock.json`
+- rollback: `release/product_closeout_c4_rollback_manifest.json`
+- final report: `reports/product_closeout_c4_final.json`
+- release lock: `reports/product_closeout_c4_release_lock.json`
 
-## 필수 읽기
+C1~C12 판정은 모두 PASS다. 이 판정은 deterministic 연구용 번호 생성 제품의 closeout 완료이며 예측력 또는 당첨확률 향상을 의미하지 않는다.
 
-1. `AGENTS.md`
-2. `docs/PRODUCT_CLOSEOUT_M0_SPEC.md`
-3. `handoff/PRODUCT_CLOSEOUT_C2_HANDOFF.md`
-4. `reports/PRODUCT_CLOSEOUT_C2_STATUS.md`
-5. `reports/product_closeout_c2_internal_qa.json`
-6. `reports/product_closeout_c2_internal_qa_lock.json`
-7. `release/product_closeout_c2_rollback_manifest.json`
-8. 기존 P1/A1/A2/A3 및 A4 evidence
+## Known limitations
 
-## 금지 범위
+- A4 evaluation failed.
+- 검증된 비균등 예측우위가 없다.
+- 데이터는 `auto_checked`, `officially_locked=false`다.
+- prospective validation, CAL, SEALED를 수행하지 않았다.
+- 공개배포와 `main` 병합은 승인되지 않았다.
 
-- Product Closeout Gate C3 또는 HTML 구현
-- PR #53 병합
-- A4 재평가·parameter 변경
-- 실제 hypothesis·physical entry 활성화
-- 외부접속·새 데이터 수집
-- CAL·SEALED·모바일
-- `main` 병합
+## 보존
 
-Draft PR #51은 계속 `OPEN / DRAFT / NOT MERGED` 상태로 보존한다.
+Draft PR #51은 `OPEN / DRAFT / NOT MERGED`로 유지한다. A4 report·lock·rollback·canonical hash·workflow history와 P1/A1/A2/A3, C1/C2/C3 evidence를 수정·삭제·재분류하지 않는다.
