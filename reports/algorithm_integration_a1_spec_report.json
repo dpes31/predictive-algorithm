@@ -1,0 +1,65 @@
+{
+  "status": "A1_SPEC_COMPLETE",
+  "date": "2026-07-03",
+  "gate": "Algorithm Integration Gate A1",
+  "contract_version": "research-ensemble-spec-1.0.0",
+  "branch": "docs/algorithm-integration-a1-spec",
+  "base_branch": "feature/product-p1-release-candidate",
+  "base_merge_commit": "9d6766d21e51758cca1840c8098645d0e0ee8042",
+  "documents": {
+    "core_spec": {
+      "path": "docs/ALGORITHM_INTEGRATION_A1_SPEC.md",
+      "blob_sha": "c2c7d3e15fcd64cc282ad554836ccff96b50295e",
+      "commit": "c05e5591747f0b6a137bb894056d3885fce90dce"
+    },
+    "registries": {
+      "path": "docs/ALGORITHM_INTEGRATION_A1_REGISTRIES.md",
+      "blob_sha": "ac94cc9d8075cfa1823950968a9b9bc1df1465ef",
+      "commit": "c92df08e47ee0de0f8962eff2b0d36049bfe7c2b"
+    },
+    "acceptance": {
+      "path": "docs/ALGORITHM_INTEGRATION_A1_ACCEPTANCE.md",
+      "blob_sha": "22b3ef75812aa99fa02dafd8ea9bffc83643ec44",
+      "commit": "8f1f994d1da9086cd1e7c4e4ff7fb19d9aefacb9"
+    }
+  },
+  "spec_acceptance": {
+    "D1_score_45_contract": "PASS",
+    "D2_m1_m2_m3_integration": "PASS",
+    "D3_user_only_physical_adapter": "PASS",
+    "D4_hypothesis_registry": "PASS",
+    "D5_dual_output_modes": "PASS",
+    "D6_uncertainty_and_abstention": "PASS",
+    "D7_contribution_and_ablation": "PASS",
+    "D8_version_hash_rollback": "PASS",
+    "D9_I1_I24_implementation_criteria": "PASS",
+    "D10_scope_and_next_approval_boundary": "PASS"
+  },
+  "key_contracts": {
+    "score_contract": "score-45-1.0.0",
+    "hypothesis_registry": "hypothesis-registry-1.0.0",
+    "user_input_registry": "user-input-registry-1.0.0",
+    "physical_adapter": "user-physical-adapter-1.0.0",
+    "output_schema": "research-ensemble-output-1.0.0",
+    "implementation_candidate_model": "6.0.0-research"
+  },
+  "budgets": {
+    "historical": 0.60,
+    "single_hypothesis": 0.10,
+    "hypothesis_total": 0.25,
+    "single_physical_field": 0.05,
+    "physical_total": 0.15,
+    "final_logit_abs_cap": 0.35
+  },
+  "implementation_authorized": false,
+  "walk_forward_authorized": false,
+  "html_authorized": false,
+  "cal_authorized": false,
+  "sealed_authorized": false,
+  "mobile_authorized": false,
+  "main_merge_performed": false,
+  "external_access_retired": true,
+  "next_gate": "Algorithm Integration Gate A2",
+  "next_gate_scope": "PYTHON_IMPLEMENTATION_AND_UNIT_TESTS_ONLY",
+  "next_gate_authorized": false
+}
