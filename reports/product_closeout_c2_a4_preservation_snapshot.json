@@ -6,8 +6,10 @@
   "draft": true,
   "merged": false,
   "base": "feature/product-p1-release-candidate",
+  "base_sha_at_pr_creation": "09e6b19f0e351e59982e6167335cbe23fada83b0",
   "head": "feature/algorithm-integration-a4-evaluation",
   "head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594",
+  "A4_status": "A4_EVALUATION_FAIL",
   "report_path": "reports/algorithm_integration_a4_evaluation.json",
   "report_blob_sha": "5f1f56379fc51d554ad80e797ccfa3546f25d0c5",
   "lock_path": "reports/algorithm_integration_a4_evaluation_lock.json",
@@ -15,6 +17,7 @@
   "rollback_path": "release/algorithm_integration_a4_rollback_manifest.json",
   "rollback_blob_sha": "7f31ef93f4ce3ff63872a7cb6f491e468e451eee",
   "canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7",
+  "final_decision_hash": "fdccc0fa50e8d81a76cd827c20a0702362f61468e9a2ed665288fd144b8e40d3",
   "preserved_workflow_runs": [
     28652065811,
     28652201671,
