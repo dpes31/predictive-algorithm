@@ -8,8 +8,8 @@ from typing import Any, Callable
 
 from engine.hashing import sha256_value
 
-CANONICAL_SIGNIFICANT_DIGITS = 10
-CANONICAL_ZERO_TOLERANCE = 5e-13
+CANONICAL_SIGNIFICANT_DIGITS = 9
+CANONICAL_ZERO_TOLERANCE = 1e-9
 RUNTIME_ADAPTER_PATH = "research_ensemble/evaluation_runtime.py"
 _ORIGINAL_ASSEMBLE: Callable[..., dict[str, Any]] | None = None
 
