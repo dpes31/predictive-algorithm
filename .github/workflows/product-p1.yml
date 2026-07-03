@@ -35,9 +35,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Run Product P1 and A4 unit tests
+        id: tests
         env:
           A4_ARTIFACT_DIR: artifacts/a4-python-${{ matrix.python-version }}
-        run: python -m unittest discover -s tests -p 'test_product_*.py' -v
+        run: |
+          mkdir -p "$A4_ARTIFACT_DIR"
+          set +e
+          python -m unittest discover -s tests -p 'test_product_*.py' -v > "$A4_ARTIFACT_DIR/unittest.log" 2>&1
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          tail -n 80 "$A4_ARTIFACT_DIR/unittest.log"
+          exit 0
       - name: Generate canonical P1 output
         run: |
           python -m product.run_prediction \
@@ -47,12 +55,16 @@ jobs:
             --output /tmp/product-p1.json
           python -m json.tool /tmp/product-p1.json >/dev/null
       - name: Upload A4 runtime evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: a4-python-${{ matrix.python-version }}
           path: artifacts/a4-python-${{ matrix.python-version }}/
           if-no-files-found: error
           retention-days: 30
+      - name: Propagate unit-test failure
+        if: steps.tests.outputs.exit_code != '0'
+        run: exit 1
 
   a4-compare-runtimes:
     runs-on: ubuntu-latest
