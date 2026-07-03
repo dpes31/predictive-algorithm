@@ -1,0 +1,128 @@
+{
+  "acceptance": {
+    "B1": "PASS",
+    "B10": "PASS",
+    "B11": "PASS",
+    "B12": "PASS",
+    "B13": "PASS",
+    "B14": "PASS",
+    "B15": "PASS",
+    "B16": "PASS",
+    "B17": "PASS",
+    "B18": "PASS",
+    "B2": "BLOCKED",
+    "B3": "BLOCKED",
+    "B4": "BLOCKED",
+    "B5": "BLOCKED",
+    "B6": "PASS",
+    "B7": "PASS",
+    "B8": "PASS",
+    "B9": "PASS"
+  },
+  "canonical_state": {
+    "final": "OFFICIAL_RECONCILIATION_BLOCKED",
+    "initial": "AUTO_CHECKED",
+    "transitions": [
+      "AUTO_CHECKED -> RECONCILIATION_PENDING",
+      "RECONCILIATION_PENDING -> OFFICIAL_RECONCILIATION_BLOCKED"
+    ]
+  },
+  "contract_version": "product-qa-1.0.0",
+  "cutoff": {
+    "negative_cases": [
+      "target_or_later_record",
+      "missing_target_minus_one",
+      "duplicate_draw",
+      "silent_future_truncation_forbidden",
+      "false_cutoff_metadata",
+      "invalid_target"
+    ],
+    "negative_mutations": "PASS",
+    "positive": "PASS"
+  },
+  "excluded_work": [
+    "p3_html_mvp",
+    "historical_or_prospective_walk_forward",
+    "m1_m4_activation_or_tuning",
+    "html_modification",
+    "cal",
+    "sealed",
+    "mobile_ui",
+    "supabase",
+    "main_merge"
+  ],
+  "hash_recomputation": {
+    "config_hash": "a1acfc779eb0f2878f93301aa3ba6dba6249e15c76fd48cbc7f182b3192c6df3",
+    "cutoff_hash": "9db24edd35908a4db3743bddfcccdc61e2c0656dce177e528f36708e5cbd6151",
+    "data_hash": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "model_hash": "d68e1281899177a229733f08cb49f15a6c4c2e8e39f93d805066581bdb13a70d",
+    "prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32",
+    "status": "PASS"
+  },
+  "manifest_and_rollback": {
+    "assembly_manifest": "PASS",
+    "frozen_research_sources_and_results": "PASS",
+    "rollback_manifest": "PASS"
+  },
+  "official_source_inventory": {
+    "authority_policy": "official_operator_only",
+    "selected_source": null,
+    "source_manifest_sha256": "4a5cfe663086995639d2a7046a4e487b5e388302c25b33c269e066cf1c0c5a63",
+    "sources": [
+      {
+        "domain": "www.dhlottery.co.kr",
+        "error": "urlopen timeout",
+        "id": "donghaeng-json-endpoint",
+        "result": "BLOCKED"
+      },
+      {
+        "domain": "www.dhlottery.co.kr",
+        "error": "urlopen timeout",
+        "id": "donghaeng-result-page",
+        "result": "BLOCKED"
+      }
+    ]
+  },
+  "p1_lock_commit": "099d917abd1b635c830fee343a47d3bd23e0c052",
+  "p3_authorized": false,
+  "phase_status": "P2_EXECUTED",
+  "qa_execution_commit": "33390760cb6857fb25944dc6879c184561eeecb5",
+  "reconciliation": {
+    "expected_draws": 1230,
+    "extra": 0,
+    "field_mismatches": 0,
+    "matched": 0,
+    "mismatches": [],
+    "missing": 1230,
+    "report_sha256": "cc57190b898b8593d306c84ded1b3d4a2ab67202230598b7de5b4288cec916c1",
+    "status": "OFFICIAL_RECONCILIATION_BLOCKED",
+    "unresolved": 1230
+  },
+  "reproducibility": {
+    "generated_at_invariant": "PASS",
+    "python_3_11_3_12_product_core_equality": "PASS",
+    "target_change_invalidates_seed": "PASS",
+    "three_repeats_per_runtime": "PASS"
+  },
+  "schema": {
+    "negative_case_count": 16,
+    "negative_mutations": "PASS",
+    "positive": "PASS"
+  },
+  "shadow_isolation": "PASS",
+  "status": "P2_QA_BLOCKED",
+  "workflow": {
+    "conclusion": "success",
+    "python_versions": [
+      "3.11.15",
+      "3.12.13"
+    ],
+    "run_id": 28639851500,
+    "run_number": 1
+  },
+  "workflow_evidence": {
+    "artifact_digest": "sha256:e1343d717ca3ba5ac6e35320b87e4eb5e09c38d93a48a3824c6baef1547c9983",
+    "artifact_id": 8058273810,
+    "artifact_name": "product-p2-qa-run-28639851500"
+  }
+}
