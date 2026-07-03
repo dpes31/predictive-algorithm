@@ -53,3 +53,35 @@ jobs:
           path: artifacts/a4-python-${{ matrix.python-version }}/
           if-no-files-found: error
           retention-days: 30
+
+  a4-compare-runtimes:
+    runs-on: ubuntu-latest
+    needs: p1-unit-tests
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a4-python-*
+          path: artifacts
+      - name: Compare Python 3.11 and 3.12 A4 evidence
+        run: |
+          python -m research_ensemble.compare_evaluation \
+            --cross-runtime \
+            artifacts/a4-python-3.11/run1.json \
+            artifacts/a4-python-3.11/run2.json \
+            artifacts/a4-python-3.12/run1.json \
+            artifacts/a4-python-3.12/run2.json \
+            --output artifacts/a4-final-result.json
+          python -m json.tool artifacts/a4-final-result.json
+      - name: Upload A4 final evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: a4-final-evidence
+          path: artifacts/a4-final-result.json
+          if-no-files-found: error
+          retention-days: 30
