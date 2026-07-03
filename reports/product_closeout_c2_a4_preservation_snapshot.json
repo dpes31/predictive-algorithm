@@ -1,0 +1,28 @@
+{
+  "capture_date": "2026-07-03",
+  "capture_mode": "READ_ONLY_REPOSITORY_INSPECTION",
+  "pr_number": 51,
+  "state": "open",
+  "draft": true,
+  "merged": false,
+  "base": "feature/product-p1-release-candidate",
+  "head": "feature/algorithm-integration-a4-evaluation",
+  "head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594",
+  "report_path": "reports/algorithm_integration_a4_evaluation.json",
+  "report_blob_sha": "5f1f56379fc51d554ad80e797ccfa3546f25d0c5",
+  "lock_path": "reports/algorithm_integration_a4_evaluation_lock.json",
+  "lock_blob_sha": "0a802c23c55f222d8cd6d9c4d2482a1f02332f53",
+  "rollback_path": "release/algorithm_integration_a4_rollback_manifest.json",
+  "rollback_blob_sha": "7f31ef93f4ce3ff63872a7cb6f491e468e451eee",
+  "canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7",
+  "preserved_workflow_runs": [
+    28652065811,
+    28652201671,
+    28652641626,
+    28652841841,
+    28653030201,
+    28653417663
+  ],
+  "mutation_performed": false,
+  "merge_performed": false
+}
