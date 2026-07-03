@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import json
 import pathlib
@@ -10,7 +11,7 @@ from typing import Any
 
 from engine.hashing import sha256_value
 
-from .constants import BASE_COMMIT, IMMUTABLE_BASE_PATHS
+from .constants import BASE_COMMIT, IMMUTABLE_BASE_PATHS, PROHIBITED_NETWORK_IMPORTS
 
 
 def repo_root() -> pathlib.Path:
@@ -104,3 +105,40 @@ def raises_file_not_found(callback: Any) -> bool:
     except FileNotFoundError:
         return True
     return False
+
+
+def module_names(node: ast.AST) -> list[str]:
+    if isinstance(node, ast.Import):
+        return [alias.name for alias in node.names]
+    if isinstance(node, ast.ImportFrom) and node.module:
+        return [node.module]
+    return []
+
+
+def verify_isolation(root: pathlib.Path) -> dict[str, Any]:
+    runtime_files = sorted((root / "product").glob("*.py")) + sorted((root / "engine").glob("*.py"))
+    research_findings: list[dict[str, str]] = []
+    local_imports: list[str] = []
+    for path in runtime_files:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            for module in module_names(node):
+                root_name = module.split(".", 1)[0]
+                if root_name == "research_ensemble":
+                    research_findings.append({"path": str(path.relative_to(root)), "module": module})
+                if root_name in {"product", "engine", "research_ensemble"}:
+                    local_imports.append(module)
+    network_findings: list[dict[str, str]] = []
+    for path in sorted((root / "product_closeout").glob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            for module in module_names(node):
+                if module.split(".", 1)[0] in PROHIBITED_NETWORK_IMPORTS:
+                    network_findings.append({"path": str(path.relative_to(root)), "module": module})
+    return {
+        "pass": not research_findings and not network_findings,
+        "runtime_file_count": len(runtime_files),
+        "product_local_imports": sorted(set(local_imports)),
+        "research_import_findings": research_findings,
+        "QA_network_import_findings": network_findings,
+    }
