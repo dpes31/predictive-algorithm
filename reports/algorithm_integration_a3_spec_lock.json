@@ -1,0 +1,23 @@
+{
+  "status": "LOCKED",
+  "contract_version": "research-ensemble-evaluation-spec-1.0.0",
+  "branch": "docs/algorithm-integration-a3-evaluation-spec",
+  "base_commit": "901ececb1add7f55879b6efb744d435fdbc31ced",
+  "draft_pr": 50,
+  "documents": {
+    "handoff_blob_sha": "d8e27aae07079696197a55e0a59f2be344eb01b1",
+    "spec_blob_sha": "ed702b7886e7e4a94e26f6c9bc7c7e348afee2a0",
+    "metrics_blob_sha": "1bbe106adb6e59e23054c3c5a8e9e9dae703a841",
+    "acceptance_blob_sha": "6c445e9fc7d6c8b84f869c18e0613f334888c7b7",
+    "report_blob_sha": "de2aec2e0612e056f81761b1f8901a35a3bb0e72"
+  },
+  "spec_status": "A3_SPEC_COMPLETE",
+  "P1_implementation_lock": "099d917abd1b635c830fee343a47d3bd23e0c052",
+  "A2_merge_commit": "901ececb1add7f55879b6efb744d435fdbc31ced",
+  "rollback_mode": "CONTROL_M0",
+  "evaluation_authorized": false,
+  "evaluation_executed": false,
+  "next_gate": "Algorithm Integration Gate A4",
+  "next_contract": "research-ensemble-evaluation-implementation-1.0.0",
+  "next_gate_authorized": false
+}
