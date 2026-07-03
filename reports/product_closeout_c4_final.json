@@ -1,0 +1,78 @@
+{
+  "status": "PRODUCT_READY_RESEARCH_M0",
+  "date": "2026-07-04",
+  "gate": "Product Closeout Gate C4",
+  "contract_version": "product-closeout-release-lock-1.0.0",
+  "branch": "release/product-closeout-c4-research-lock",
+  "base_branch": "feature/product-p1-release-candidate",
+  "base_commit": "f60b7278a88635596c502e34c4b56b535db8c1d7",
+  "acceptance": {
+    "C1_CONTROL_M0_single_distribution_locked": "PASS",
+    "C2_exactly_five_distinct_six_number_sets": "PASS",
+    "C3_target_minus_one_and_future_data_block": "PASS",
+    "C4_fixed_flags_and_reason": "PASS",
+    "C5_RESEARCH_ENSEMBLE_runtime_isolation": "PASS",
+    "C6_auto_checked_disclosure_visible": "PASS",
+    "C7_officially_locked_false_visible": "PASS",
+    "C8_internal_Product_QA": "PASS",
+    "C9_HTML_MVP_display_contract": "PASS",
+    "C10_release_manifest_hashes_rollback_locked": "PASS",
+    "C11_A4_failure_evidence_preserved_referenced": "PASS",
+    "C12_public_wording_research_limitations_locked": "PASS"
+  },
+  "artifacts": {
+    "final_record": {"path": "docs/PRODUCT_READY_RESEARCH_M0.md", "blob_sha": "e66b71afb006248b5cb406e60b41157ee6ba882a"},
+    "release_manifest": {"path": "release/research_release_manifest.json", "blob_sha": "3e9960943d3d60e1c76923dbfb3ce74fc46ed5fa"},
+    "public_wording_lock": {"path": "release/public_wording_lock.json", "blob_sha": "cf0868d79a2ff3fc8f46d1f528b75e126a4aff34"},
+    "rollback_manifest": {"path": "release/product_closeout_c4_rollback_manifest.json", "blob_sha": "90b348fbed9971b4d905a5b371a6a51a2613442b"},
+    "runner": {"path": "product/run_prediction.py", "blob_sha": "30f977fe27b902b2d194bc145cb4a3b052a284c7"},
+    "schema": {"path": "schemas/product_prediction.schema.json", "blob_sha": "d8b588d6c3b89a1a7e7586c1bebc5ba78b39c2fc", "sha256": "4f0e768c3a741645d027ade2f78b1df100ded232a0be9c7e552da8b6d9ade920"},
+    "data": {"path": "data/draws.json", "blob_sha": "ae7f38d28e66f56227e2b20c12a5fd627bb42ce3", "sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1"},
+    "html": {"path": "public/index.html", "blob_sha": "87ff221d0d14024249e40c1a8bdbd8649789c300"},
+    "fixture": {"path": "public/product-prediction.json", "blob_sha": "b4db5a048700fc55d800e5e022d4df36ea157ed1"}
+  },
+  "hashes": {
+    "model_hash": "d68e1281899177a229733f08cb49f15a6c4c2e8e39f93d805066581bdb13a70d",
+    "config_hash": "a1acfc779eb0f2878f93301aa3ba6dba6249e15c76fd48cbc7f182b3192c6df3",
+    "prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32",
+    "canonical_prediction_hash": "d185e0fb522a4885beac397b13cedabe797139ba9d0bbb1bacfb92128260c2ab",
+    "C2_canonical_result_hash": "4e5ba17f8316bcb30a827a9a35d744633121cc2afdebab48535af2cb09265854",
+    "A4_canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7"
+  },
+  "known_limitations": [
+    "no_validated_nonuniform_signal",
+    "A4_EVALUATION_FAIL",
+    "auto_checked_not_officially_locked",
+    "no_prospective_validation",
+    "CAL_not_executed",
+    "SEALED_not_executed",
+    "public_release_allowed_false"
+  ],
+  "preservation": {
+    "A4_draft_pr": 51,
+    "A4_state": "OPEN_DRAFT_NOT_MERGED",
+    "A4_head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594",
+    "A4_report_blob_sha": "5f1f56379fc51d554ad80e797ccfa3546f25d0c5",
+    "A4_lock_blob_sha": "0a802c23c55f222d8cd6d9c4d2482a1f02332f53",
+    "A4_rollback_blob_sha": "7f31ef93f4ce3ff63872a7cb6f491e468e451eee",
+    "failure_evidence_mutated": false,
+    "workflow_history_preserved": true
+  },
+  "restrictions": {
+    "algorithm_changed": false,
+    "A4_re_evaluated": false,
+    "parameters_changed": false,
+    "external_access_performed": false,
+    "CAL_executed": false,
+    "SEALED_executed": false,
+    "mobile_work_performed": false,
+    "public_deployment_performed": false,
+    "main_merge_performed": false
+  },
+  "rollback_mode": "CONTROL_M0",
+  "research_only": true,
+  "public_release_allowed": false,
+  "development_complete": true,
+  "next_gate": null,
+  "next_gate_authorized": false
+}
