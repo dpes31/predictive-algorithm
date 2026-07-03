@@ -10,6 +10,7 @@ from typing import Any
 from engine.hashing import sha256_value
 
 from .evaluation import EVALUATION_CONTRACT_VERSION, evaluate_dataset, write_result
+from .evaluation_runtime import install_canonical_serialization, normalize_evaluation_result
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -40,8 +41,11 @@ def _failure_result(exc: BaseException) -> dict[str, Any]:
 
 def main() -> int:
     args = _parser().parse_args()
+    install_canonical_serialization()
     try:
-        result = evaluate_dataset(dataset_path=args.dataset, rows_output=args.rows_output)
+        result = normalize_evaluation_result(
+            evaluate_dataset(dataset_path=args.dataset, rows_output=args.rows_output)
+        )
     except BaseException as exc:  # preserve terminal evidence instead of losing the run
         result = _failure_result(exc)
     write_result(result, pathlib.Path(args.output))
