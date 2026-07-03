@@ -1,0 +1,17 @@
+{
+  "status": "LOCKED",
+  "contract_version": "research-ensemble-evaluation-spec-1.0.0",
+  "base_commit": "901ececb1add7f55879b6efb744d435fdbc31ced",
+  "handoff_blob_sha": "9040c684e8926521ed02404b7c18906af1945cc2",
+  "spec_blob_sha": "ed702b7886e7e4a94e26f6c9bc7c7e348afee2a0",
+  "metrics_blob_sha": "1bbe106adb6e59e23054c3c5a8e9e9dae703a841",
+  "acceptance_blob_sha": "6c445e9fc7d6c8b84f869c18e0613f334888c7b7",
+  "report_blob_sha": "1540ea15e3e49e3977983c677066263d1e2a39c2",
+  "spec_status": "A3_SPEC_COMPLETE",
+  "P1_implementation_lock": "099d917abd1b635c830fee343a47d3bd23e0c052",
+  "A2_merge_commit": "901ececb1add7f55879b6efb744d435fdbc31ced",
+  "rollback_mode": "CONTROL_M0",
+  "evaluation_authorized": false,
+  "next_contract": "research-ensemble-evaluation-implementation-1.0.0",
+  "next_gate_authorized": false
+}
