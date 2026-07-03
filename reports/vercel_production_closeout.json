@@ -1,0 +1,50 @@
+{
+  "status": "VERCEL_DEPLOYMENT_BLOCKED_RATE_LIMIT",
+  "date": "2026-07-04",
+  "branch": "deploy/vercel-production-closeout",
+  "base_commit": "d40642d2ec525909207a9f730d1e6ca3e3281027",
+  "draft_pr": 56,
+  "deployment_config": {
+    "path": "vercel.json",
+    "outputDirectory": "public",
+    "legacy_app_redirects_removed": true
+  },
+  "static_assets": {
+    "index": "public/index.html",
+    "prediction": "public/product-prediction.json",
+    "prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32"
+  },
+  "repository_validation": {
+    "workflow_run": 28676084486,
+    "workflow_run_number": 79,
+    "python_3_11": "PASS",
+    "python_3_12": "PASS",
+    "vercel_config_test": "PASS",
+    "static_asset_test": "PASS",
+    "locked_prediction_contract": "PASS"
+  },
+  "vercel": {
+    "status": "FAILURE",
+    "error_code": "api-deployments-free-per-day",
+    "error": "Resource is limited - try again in 24 hours (more than 100)",
+    "preview_created": false,
+    "production_url_verified": false,
+    "five_sets_verified_on_remote_url": false
+  },
+  "main_merge": {
+    "required_for_production_if_main_is_tracked": true,
+    "authorized": false,
+    "performed": false,
+    "recommendation": "Do not merge until Vercel can create and verify a preview deployment."
+  },
+  "preservation": {
+    "algorithm_modified": false,
+    "numbers_modified": false,
+    "data_modified": false,
+    "schema_modified": false,
+    "prediction_hash_modified": false,
+    "C1_C4_evidence_modified": false,
+    "draft_pr_51_modified": false
+  },
+  "next_action": "Retry the Vercel preview after the daily deployment limit resets or upgrade the Vercel plan, then verify root and product-prediction.json before requesting main merge."
+}
