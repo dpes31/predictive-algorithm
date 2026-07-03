@@ -7,23 +7,27 @@
   "branch": "qa/product-closeout-c2-internal",
   "base_branch": "feature/product-p1-release-candidate",
   "base_commit": "2f6d42fad4517b744f33132ad7ad1061678e6340",
-  "evaluated_commit": "f14e4fc2fddfc53459a505315db9078cbaf00a28",
+  "evaluated_implementation_commit": "f14e4fc2fddfc53459a505315db9078cbaf00a28",
+  "revalidated_head": "0886101fe3e6d3ac78dd4c69f5450e2b77097107",
   "draft_pr": 53,
   "workflow": {
-    "run_id": 28660594719,
-    "run_number": 1,
-    "name": "Product Closeout C2 Internal QA",
-    "conclusion": "success",
+    "initial_run_id": 28660594719,
+    "initial_run_number": 1,
+    "revalidation_run_id": 28660867695,
+    "revalidation_run_number": 13,
+    "product_p1_regression_run_id": 28660867693,
+    "product_p1_regression_run_number": 55,
     "python_3_11": "PASS",
     "python_3_12": "PASS",
     "full_repeats_per_runtime": 2,
-    "cross_runtime_comparison": "PASS"
+    "cross_runtime_comparison": "PASS",
+    "product_p1_regression": "PASS"
   },
   "decision": {
     "status": "PRODUCT_CLOSEOUT_QA_PASS",
     "decision_reasons": [],
-    "canonical_result_hash": "07a3e3986eb888b12963489b6a658f455eb6cd81fd594b5cb7dbb5cf64eb086f",
-    "decision_hash": "308f1650a4f58a7a2fa737a0645bd03d8709fb174cd3566f34ebeb7111e872d8"
+    "canonical_result_hash": "4e5ba17f8316bcb30a827a9a35d744633121cc2afdebab48535af2cb09265854",
+    "decision_hash": "0cd12eea4b0c128379e817fabb91071f2a7a7193e1e9286169b04dc47eec92c3"
   },
   "checks": {
     "Q1_data_identity": "PASS",
@@ -67,20 +71,7 @@
   },
   "schema": {
     "positive_fixture": "PASS",
-    "negative_fixture_count": 11,
-    "negative_fixtures": [
-      "missing_required",
-      "additional_property",
-      "invalid_target_type",
-      "candidate_count",
-      "number_range",
-      "duplicate_number",
-      "wrong_weights",
-      "wrong_reason",
-      "wrong_lift",
-      "candidate_extra_property",
-      "bad_datetime"
-    ]
+    "negative_fixture_count": 11
   },
   "hashes": {
     "canonical_prediction_hash": "d185e0fb522a4885beac397b13cedabe797139ba9d0bbb1bacfb92128260c2ab",
@@ -92,7 +83,7 @@
     "assembly_manifest_hash": "0f7e06725925494e23b50f5f32463747c672db1be004d5a13a43096e7004e5f0",
     "rollback_manifest_hash": "001e57e5773abd6ccb9a171cba75e2b9c7079d516d64c69b9ce646d9a64729d5",
     "immutable_path_manifest_hash": "a440567dcc9d6c8d43759ae7c5026c003f7b71a521ce3949bf7b596bb13f62b1",
-    "A4_preservation_snapshot_hash": "887ec978877b8dae0083419bf8b793f2686b54bb5bf8e0986657b8d605a3e93c"
+    "A4_preservation_snapshot_hash": "5aac11c49c7dc298e9e4297dc3782c2003775e3a853fdddf54f28fee52a93d44"
   },
   "preservation": {
     "immutable_path_count": 40,
@@ -107,12 +98,12 @@
     "A4_workflow_history_preserved": true
   },
   "artifacts": {
-    "final_artifact_id": 8066491451,
-    "final_artifact_digest": "sha256:bb70254f5a408d026efcba1efaf0a1c6492ffa4ccc5623ea60bdacf60286ee3f",
-    "python_3_11_artifact_id": 8066487840,
-    "python_3_11_digest": "sha256:4b77d70074b739c0218335f2f26c2e7baabfe5f99691649137b2b9dffc20a525",
-    "python_3_12_artifact_id": 8066487758,
-    "python_3_12_digest": "sha256:7c64e88013e5612b7592b0e93fe0ca5fe526edf5cf9ed85b3c2aae50520c4c52"
+    "final_artifact_id": 8066601197,
+    "final_artifact_digest": "sha256:79f0e6944a8c53a68c9a4ea2b82640b3f7e56c39667236a21d06701b682190be",
+    "python_3_11_artifact_id": 8066595888,
+    "python_3_11_digest": "sha256:aad4f9dc0c36d1a21c5151b215d8f53a98bdd4b2b8535e59f5a95c68fa32a7b7",
+    "python_3_12_artifact_id": 8066596625,
+    "python_3_12_digest": "sha256:69e7d40bf1afd20a61fb77c3e9fd3657076fe1442f07b0ea6884aa6832f395c7"
   },
   "restrictions": {
     "A4_re_evaluation_executed": false,
