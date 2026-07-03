@@ -4,16 +4,19 @@
 - Base commit: `2f6d42fad4517b744f33132ad7ad1061678e6340`
 - Contract: `product-closeout-qa-1.0.0`
 - Draft PR: `#53`
-- Evaluated commit: `f14e4fc2fddfc53459a505315db9078cbaf00a28`
-- Workflow: `28660594719` / run #1
+- Evaluated implementation: `f14e4fc2fddfc53459a505315db9078cbaf00a28`
+- Revalidated head: `0886101fe3e6d3ac78dd4c69f5450e2b77097107`
+- C2 workflow: `28660867695` / run #13
+- P1 regression: `28660867693` / run #55
 - Result: `PRODUCT_CLOSEOUT_QA_PASS`
 
 ```text
 Python 3.11 two repeats = PASS
 Python 3.12 two repeats = PASS
 cross-runtime reproducibility = PASS
-canonical result hash = 07a3e3986eb888b12963489b6a658f455eb6cd81fd594b5cb7dbb5cf64eb086f
-decision hash = 308f1650a4f58a7a2fa737a0645bd03d8709fb174cd3566f34ebeb7111e872d8
+Product P1 regression = PASS
+canonical result hash = 4e5ba17f8316bcb30a827a9a35d744633121cc2afdebab48535af2cb09265854
+decision hash = 0cd12eea4b0c128379e817fabb91071f2a7a7193e1e9286169b04dc47eec92c3
 ```
 
 Evidence:
