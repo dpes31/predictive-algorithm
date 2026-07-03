@@ -1,0 +1,84 @@
+name: Product Closeout C2 Internal QA
+
+on:
+  pull_request:
+    branches:
+      - feature/product-p1-release-candidate
+    paths:
+      - "product_closeout/**"
+      - "tests/test_closeout_c2.py"
+      - "reports/product_closeout_c2_a4_preservation_snapshot.json"
+      - ".github/workflows/product-closeout-c2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  qa-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run C2 unit tests
+        run: python -m unittest discover -s tests -p 'test_closeout_c2.py' -v
+      - name: Run C2 QA twice
+        run: |
+          mkdir -p artifacts
+          python -m product_closeout.run --output artifacts/run1.json
+          python -m product_closeout.run --output artifacts/run2.json
+          python -m product_closeout.compare \
+            --within-runtime artifacts/run1.json artifacts/run2.json \
+            --output artifacts/runtime-verification.json
+          python -m json.tool artifacts/runtime-verification.json
+      - name: Upload runtime evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: c2-python-${{ matrix.python-version }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+  compare-runtimes:
+    runs-on: ubuntu-latest
+    needs: qa-runtime
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: c2-python-*
+          path: artifacts
+      - name: Compare Python 3.11 and 3.12 evidence
+        run: |
+          python -m product_closeout.compare \
+            --cross-runtime \
+            artifacts/c2-python-3.11/run1.json \
+            artifacts/c2-python-3.11/run2.json \
+            artifacts/c2-python-3.12/run1.json \
+            artifacts/c2-python-3.12/run2.json \
+            --output artifacts/product-closeout-c2-final.json
+          python -m json.tool artifacts/product-closeout-c2-final.json
+      - name: Upload final evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: product-closeout-c2-final
+          path: artifacts/product-closeout-c2-final.json
+          if-no-files-found: error
+          retention-days: 30
