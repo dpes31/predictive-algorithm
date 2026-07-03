@@ -1,4 +1,4 @@
-"""Hash and manifest checks for Product Closeout Gate C2."""
+"""Hash, manifest, rollback, and A4-preservation checks for Closeout C2."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from product.config import (
 )
 
 from .common import file_git_blob, file_sha256, load_json
-from .constants import A4_CANONICAL_RESULT_HASH, EXPECTED_WEIGHTS, MODEL_SOURCE_PATHS
+from .constants import A4_CANONICAL_RESULT_HASH, A4_SNAPSHOT_PATH, EXPECTED_WEIGHTS, MODEL_SOURCE_PATHS
 
 
 def independent_model_hash(root: pathlib.Path) -> str:
@@ -95,4 +95,32 @@ def verify_hashes(root: pathlib.Path, prediction: dict[str, Any]) -> dict[str, A
         "c1_spec_blob_sha": file_git_blob(c1_spec_path),
         "c1_report_blob_sha": file_git_blob(c1_report_path),
         "c1_lock_blob_sha": file_git_blob(c1_lock_path),
+    }
+
+
+def verify_a4_snapshot(root: pathlib.Path) -> dict[str, Any]:
+    snapshot = load_json(root / A4_SNAPSHOT_PATH)
+    expected_runs = [28652065811, 28652201671, 28652641626, 28652841841, 28653030201, 28653417663]
+    conditions = {
+        "pr_number": snapshot.get("pr_number") == 51,
+        "state_open": snapshot.get("state") == "open",
+        "draft_true": snapshot.get("draft") is True,
+        "merged_false": snapshot.get("merged") is False,
+        "head_branch": snapshot.get("head") == "feature/algorithm-integration-a4-evaluation",
+        "head_sha": snapshot.get("head_sha") == "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594",
+        "report_blob": snapshot.get("report_blob_sha") == "5f1f56379fc51d554ad80e797ccfa3546f25d0c5",
+        "lock_blob": snapshot.get("lock_blob_sha") == "0a802c23c55f222d8cd6d9c4d2482a1f02332f53",
+        "rollback_blob": snapshot.get("rollback_blob_sha") == "7f31ef93f4ce3ff63872a7cb6f491e468e451eee",
+        "canonical_hash": snapshot.get("canonical_result_hash") == A4_CANONICAL_RESULT_HASH,
+        "workflow_history": snapshot.get("preserved_workflow_runs") == expected_runs,
+        "read_only_capture": (
+            snapshot.get("capture_mode") == "READ_ONLY_REPOSITORY_INSPECTION"
+            and snapshot.get("mutation_performed") is False
+            and snapshot.get("merge_performed") is False
+        ),
+    }
+    return {
+        "pass": all(conditions.values()),
+        "conditions": conditions,
+        "snapshot_hash": sha256_value(snapshot),
     }
