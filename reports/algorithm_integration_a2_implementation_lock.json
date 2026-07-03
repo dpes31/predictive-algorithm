@@ -1,0 +1,8 @@
+{
+  "status": "LOCKED",
+  "contract": "research-ensemble-implementation-1.0.0",
+  "tested_commit": "15b7eccf6547abc3b12c5d7fc119547768ebda6e",
+  "workflow_run": 28644748154,
+  "rollback_mode": "CONTROL_M0",
+  "next_gate_authorized": false
+}
