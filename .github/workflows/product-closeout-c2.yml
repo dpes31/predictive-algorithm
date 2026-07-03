@@ -8,6 +8,9 @@ on:
       - "product_closeout/**"
       - "tests/test_closeout_c2.py"
       - "reports/product_closeout_c2_a4_preservation_snapshot.json"
+      - "AGENTS.md"
+      - "handoff/PROJECT_HANDOFF.md"
+      - "handoff/PRODUCT_CLOSEOUT_C2_HANDOFF.md"
       - ".github/workflows/product-closeout-c2.yml"
   workflow_dispatch:
 
