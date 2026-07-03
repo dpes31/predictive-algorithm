@@ -1,0 +1,69 @@
+{
+  "authority_policy": "official_operator_only",
+  "canonical_data_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+  "canonical_data_version": "draws-2026.06.27-r1",
+  "contract_version": "product-qa-1.0.0",
+  "draw_range": [
+    1,
+    1230
+  ],
+  "official_records_sha256": null,
+  "response_hashes": [],
+  "retrieved_at": "2026-07-03T05:10:47Z",
+  "selected_source": null,
+  "selection_attempts": [
+    {
+      "preflight": [
+        {
+          "error": "<urlopen error timed out>",
+          "status": "BLOCKED"
+        }
+      ],
+      "selected": false,
+      "source": {
+        "authority": "official_operator",
+        "domain": "www.dhlottery.co.kr",
+        "id": "donghaeng-json-endpoint",
+        "kind": "structured_json_per_draw",
+        "operator": "Donghaeng Lottery",
+        "url_template": "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={draw_no}"
+      }
+    },
+    {
+      "preflight": [
+        {
+          "error": "<urlopen error timed out>",
+          "status": "BLOCKED"
+        }
+      ],
+      "selected": false,
+      "source": {
+        "authority": "official_operator",
+        "domain": "www.dhlottery.co.kr",
+        "id": "donghaeng-result-page",
+        "kind": "official_html_per_draw",
+        "operator": "Donghaeng Lottery",
+        "url_template": "https://www.dhlottery.co.kr/gameResult.do?method=byWin&drwNo={draw_no}"
+      }
+    }
+  ],
+  "source_candidates": [
+    {
+      "authority": "official_operator",
+      "domain": "www.dhlottery.co.kr",
+      "id": "donghaeng-json-endpoint",
+      "kind": "structured_json_per_draw",
+      "operator": "Donghaeng Lottery",
+      "url_template": "https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={draw_no}"
+    },
+    {
+      "authority": "official_operator",
+      "domain": "www.dhlottery.co.kr",
+      "id": "donghaeng-result-page",
+      "kind": "official_html_per_draw",
+      "operator": "Donghaeng Lottery",
+      "url_template": "https://www.dhlottery.co.kr/gameResult.do?method=byWin&drwNo={draw_no}"
+    }
+  ],
+  "status": "OFFICIAL_RECONCILIATION_BLOCKED"
+}
