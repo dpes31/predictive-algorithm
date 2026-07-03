@@ -8,15 +8,18 @@
   "base_branch": "feature/product-p1-release-candidate",
   "base_commit": "2f6d42fad4517b744f33132ad7ad1061678e6340",
   "evaluated_implementation_commit": "f14e4fc2fddfc53459a505315db9078cbaf00a28",
-  "revalidated_head": "0886101fe3e6d3ac78dd4c69f5450e2b77097107",
+  "initial_revalidated_head": "0886101fe3e6d3ac78dd4c69f5450e2b77097107",
+  "final_evidence_head": "7042b20ee9672079a5d67c87040b3f96a4be2655",
   "draft_pr": 53,
   "workflow": {
     "initial_run_id": 28660594719,
     "initial_run_number": 1,
-    "revalidation_run_id": 28660867695,
-    "revalidation_run_number": 13,
-    "product_p1_regression_run_id": 28660867693,
-    "product_p1_regression_run_number": 55,
+    "initial_revalidation_run_id": 28660867695,
+    "initial_revalidation_run_number": 13,
+    "final_revalidation_run_id": 28661107578,
+    "final_revalidation_run_number": 23,
+    "product_p1_regression_run_id": 28661107705,
+    "product_p1_regression_run_number": 65,
     "python_3_11": "PASS",
     "python_3_12": "PASS",
     "full_repeats_per_runtime": 2,
@@ -98,12 +101,12 @@
     "A4_workflow_history_preserved": true
   },
   "artifacts": {
-    "final_artifact_id": 8066601197,
-    "final_artifact_digest": "sha256:79f0e6944a8c53a68c9a4ea2b82640b3f7e56c39667236a21d06701b682190be",
-    "python_3_11_artifact_id": 8066595888,
-    "python_3_11_digest": "sha256:aad4f9dc0c36d1a21c5151b215d8f53a98bdd4b2b8535e59f5a95c68fa32a7b7",
-    "python_3_12_artifact_id": 8066596625,
-    "python_3_12_digest": "sha256:69e7d40bf1afd20a61fb77c3e9fd3657076fe1442f07b0ea6884aa6832f395c7"
+    "final_artifact_id": 8066698805,
+    "final_artifact_digest": "sha256:49b2ddfdfcc28d23e91cb0963ec78fbf3c103a08e845735d2d955e9f6b56123f",
+    "python_3_11_artifact_id": 8066694565,
+    "python_3_11_digest": "sha256:4a76c1482fec81efccd48d152bf1386a1501dd5621946255ebaf3ec8c2366b37",
+    "python_3_12_artifact_id": 8066694883,
+    "python_3_12_digest": "sha256:5451d8040f9507904da7fb296557a36e29dde3247e9390a21a321f18da7c29a1"
   },
   "restrictions": {
     "A4_re_evaluation_executed": false,
