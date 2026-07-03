@@ -1,0 +1,133 @@
+{
+  "status": "A4_EVALUATION_FAIL",
+  "date": "2026-07-03",
+  "gate": "Algorithm Integration Gate A4",
+  "implementation_contract": "research-ensemble-evaluation-implementation-1.0.0",
+  "spec_contract": "research-ensemble-evaluation-spec-1.0.0",
+  "branch": "feature/algorithm-integration-a4-evaluation",
+  "base_branch": "feature/product-p1-release-candidate",
+  "base_commit": "09e6b19f0e351e59982e6167335cbe23fada83b0",
+  "evaluated_commit": "ee10a16b8c6259948bc8b2ed77d555452b9ff3a9",
+  "draft_pr": 51,
+  "workflow": {
+    "run_id": 28653030201,
+    "run_number": 37,
+    "name": "Product P1 Assembly",
+    "conclusion": "success",
+    "python_3_11": "PASS",
+    "python_3_12": "PASS",
+    "cross_runtime_comparison": "PASS",
+    "full_repeats_per_runtime": 2
+  },
+  "preserved_prior_runs": [
+    28652065811,
+    28652201671,
+    28652641626,
+    28652841841
+  ],
+  "evaluation": {
+    "profile_id": "A3-EMPTY-REGISTRY-HISTORICAL-V1",
+    "minimum_history": 299,
+    "warmup_targets": "300..351",
+    "confirmatory_targets": "352..1230",
+    "confirmatory_target_count": 879,
+    "lane_count": 10,
+    "metric_row_count": 8790,
+    "canonical_significant_digits": 9,
+    "canonical_zero_tolerance": 1e-9
+  },
+  "decision": {
+    "status": "A4_EVALUATION_FAIL",
+    "reasons": [
+      "primary_joint_log_score_criterion",
+      "marginal_brier_guardrail",
+      "temporal_stability_guardrail"
+    ],
+    "primary_mean_joint_log_score_delta": -0.0541462386,
+    "primary_lower_95_one_sided": -0.0739087181,
+    "primary_p_value_one_sided": 1.0,
+    "final_cumulative_joint_log_score_delta": -47.5945437,
+    "mean_marginal_brier_gain": -0.000294872446,
+    "positive_quarter_count": 0,
+    "quarter_means": [
+      -0.0367920145,
+      -0.0817553636,
+      -0.0326999736,
+      -0.0653887046
+    ],
+    "calibration_weighted_ece": 0.0136901025
+  },
+  "integrity": {
+    "E1_contract_and_base": "PASS",
+    "E2_dataset": "PASS",
+    "E3_target_sequence": "PASS",
+    "E4_target_minus_one": "PASS",
+    "E5_future_data_access": "PASS",
+    "E6_control_m0_regression": "PASS",
+    "E7_ten_lanes": "PASS",
+    "E8_equivalence": "PASS",
+    "E9_unapproved_entries": "PASS",
+    "E10_probability_validity": "PASS",
+    "E11_python_3_11_3_12_reproducibility": "PASS",
+    "E12_complete_rows": "PASS",
+    "E13_hash_recomputation": "PASS",
+    "E14_network_dependency": "PASS",
+    "E15_prior_evidence_unchanged": "PASS",
+    "E16_fixed_configuration": "PASS"
+  },
+  "equivalence": {
+    "ENSEMBLE_FULL_equals_HISTORICAL_ONLY": true,
+    "ENSEMBLE_FULL_equals_ENSEMBLE_MINUS_M3": true,
+    "ENSEMBLE_FULL_equals_ENSEMBLE_MINUS_HYPOTHESES": true,
+    "ENSEMBLE_FULL_equals_ENSEMBLE_MINUS_PHYSICAL": true,
+    "HYPOTHESIS_ONLY_equals_CONTROL_M0": true,
+    "PHYSICAL_ONLY_equals_CONTROL_M0": true
+  },
+  "multiple_comparison": {
+    "method": "HOLM",
+    "all_lane_adjusted_p_values": 1.0,
+    "component_C1_adjusted_p_value": 0.576542346,
+    "component_C2_adjusted_p_value": 0.576542346
+  },
+  "hashes": {
+    "canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7",
+    "final_decision_hash": "fdccc0fa50e8d81a76cd827c20a0702362f61468e9a2ed665288fd144b8e40d3",
+    "data_hash": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "target_sequence_hash": "b581a2fc4c369c4eccbeb927fdd9c9d13f3d7f6cc80da5c9f4dee5127d75b67b",
+    "lane_manifest_hash": "43905f7c23bf0bbba21c691f96b38ca97e6a52aad2aac84625d369b82fdcd4d1",
+    "A2_model_source_hash": "887af7373bfcde6859ed200e93fa4f4c92886a69f4567551b3a2167ecd876188",
+    "score_config_hash": "95d426fd8fd2a9b4400161df20056f2105e9d2abc533eb09095dccdd30b7c89a",
+    "metric_contract_hash": "f2d38556d016ef9aa35658d1f5d0a0a8734bebcefbeaf84c21425386b616f9df",
+    "evaluation_source_hash": "aa1e081c4ed593479983e1b327849e26a7c2a2ee0db1c5e8ba4be7069995a6f2",
+    "metric_rows_hash": "9eaf72daba409e004cd55b25d71119ffe64f2804f034d79a2071dad2cad52c39",
+    "aggregate_metrics_hash": "801b90f59f7f4c997b2f9267b0fd842a0b0c953d35e4cb448549af123772ed1a",
+    "multiple_comparison_report_hash": "e1c9551f250dd2705034fbe215272b6a8e3819cd121701198090c8b432d19a86",
+    "evaluation_manifest_hash": "d81916cc6e15812f7bd6e2b5b8f83c4858c4620264e59e04eac70f533d12077f",
+    "target_rows_file_sha256_python_3_11": "ed65a215153364f193638be803618bbcc0e24506ae4f7490ec11beb931f79d41"
+  },
+  "artifacts": {
+    "final_evidence_id": 8063490458,
+    "final_evidence_digest": "sha256:455b7dda354d1a11b22e64dd5180016e5fe329fd29c6a14aed27604875fba43e",
+    "python_3_11_artifact_id": 8063483106,
+    "python_3_11_digest": "sha256:02adeaeeeffaeb385771a888240f40951e7862e6555b173e3dd2d2e8f4cd1237",
+    "python_3_12_artifact_id": 8063487254,
+    "python_3_12_digest": "sha256:f469d14ceb1e874cea392e5ed9a605e5365a6fce91f4701af17fd33f6f42aa28"
+  },
+  "restrictions": {
+    "actual_user_hypothesis_entries_active": 0,
+    "actual_physical_entries_active": 0,
+    "hyperparameter_exploration_executed": false,
+    "fixed_parameter_changed": false,
+    "external_access_performed": false,
+    "html_modified": false,
+    "cal_executed": false,
+    "sealed_executed": false,
+    "mobile_work_executed": false,
+    "main_merge_performed": false
+  },
+  "rollback_mode": "CONTROL_M0",
+  "research_only": true,
+  "public_release_allowed": false,
+  "statistical_edge": false,
+  "next_gate_authorized": false
+}
