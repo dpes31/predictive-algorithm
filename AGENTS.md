@@ -29,9 +29,11 @@ C1 = PRODUCT_CLOSEOUT_SPEC_COMPLETE / MERGED
 C2 = PRODUCT_CLOSEOUT_QA_PASS / Draft PR #53
 
 C2 contract = product-closeout-qa-1.0.0
-C2 evaluated commit = f14e4fc2fddfc53459a505315db9078cbaf00a28
-C2 workflow = 28660594719 / run #1
-C2 canonical result hash = 07a3e3986eb888b12963489b6a658f455eb6cd81fd594b5cb7dbb5cf64eb086f
+C2 evaluated implementation = f14e4fc2fddfc53459a505315db9078cbaf00a28
+C2 revalidated head = 0886101fe3e6d3ac78dd4c69f5450e2b77097107
+C2 workflow = 28660867695 / run #13
+P1 regression workflow = 28660867693 / run #55
+C2 canonical result hash = 4e5ba17f8316bcb30a827a9a35d744633121cc2afdebab48535af2cb09265854
 rollback mode = CONTROL_M0
 next Gate authorized = false
 ```
@@ -82,6 +84,7 @@ RESEARCH_ENSEMBLE runtime isolation = PASS
 Python 3.11 two repeats = PASS
 Python 3.12 two repeats = PASS
 cross-runtime reproducibility = PASS
+Product P1 regression = PASS
 hash, manifest, rollback = PASS
 40 immutable paths = PASS
 Draft PR #51 preservation = PASS
