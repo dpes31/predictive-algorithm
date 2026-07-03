@@ -6,6 +6,7 @@ on:
       - "data/**"
       - "engine/**"
       - "product/**"
+      - "research_ensemble/**"
       - "schemas/product_prediction.schema.json"
       - "release/**"
       - "tests/test_product_*.py"
@@ -15,19 +16,27 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONHASHSEED: "0"
+
 jobs:
   p1-unit-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run Product P1 unit tests
+      - name: Run Product P1 and A4 unit tests
+        env:
+          A4_ARTIFACT_DIR: artifacts/a4-python-${{ matrix.python-version }}
         run: python -m unittest discover -s tests -p 'test_product_*.py' -v
       - name: Generate canonical P1 output
         run: |
@@ -37,3 +46,42 @@ jobs:
             --generated-at 2026-07-01T00:00:00Z \
             --output /tmp/product-p1.json
           python -m json.tool /tmp/product-p1.json >/dev/null
+      - name: Upload A4 runtime evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: a4-python-${{ matrix.python-version }}
+          path: artifacts/a4-python-${{ matrix.python-version }}/
+          if-no-files-found: error
+          retention-days: 30
+
+  a4-compare-runtimes:
+    runs-on: ubuntu-latest
+    needs: p1-unit-tests
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: a4-python-*
+          path: artifacts
+      - name: Compare Python 3.11 and 3.12 A4 evidence
+        run: |
+          python -m research_ensemble.compare_evaluation \
+            --cross-runtime \
+            artifacts/a4-python-3.11/run1.json \
+            artifacts/a4-python-3.11/run2.json \
+            artifacts/a4-python-3.12/run1.json \
+            artifacts/a4-python-3.12/run2.json \
+            --output artifacts/a4-final-result.json
+          python -m json.tool artifacts/a4-final-result.json
+      - name: Upload A4 final evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: a4-final-evidence
+          path: artifacts/a4-final-result.json
+          if-no-files-found: error
+          retention-days: 30

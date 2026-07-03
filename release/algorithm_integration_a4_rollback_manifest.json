@@ -1,0 +1,20 @@
+{
+  "manifest_version": "algorithm-integration-a4-rollback-1.0.0",
+  "result": "A4_EVALUATION_FAIL",
+  "rollback_anchor": "09e6b19f0e351e59982e6167335cbe23fada83b0",
+  "implementation_branch": "feature/algorithm-integration-a4-evaluation",
+  "evaluated_commit": "ee10a16b8c6259948bc8b2ed77d555452b9ff3a9",
+  "draft_pr": 51,
+  "rollback_mode": "CONTROL_M0",
+  "control_entrypoint": "python -m product.run_prediction",
+  "research_entrypoint": "python -m research_ensemble.run_evaluation",
+  "failure_report": "reports/algorithm_integration_a4_evaluation.json",
+  "failure_lock": "reports/algorithm_integration_a4_evaluation_lock.json",
+  "workflow_run": 28653030201,
+  "canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7",
+  "preserve_prior_reports_locks_hashes": true,
+  "preserve_failed_workflow_history": true,
+  "pre_merge_action": "Close Draft PR #51 and preserve branch evidence.",
+  "post_merge_action": "Revert only the PR #51 merge commit without history rewrite.",
+  "next_gate_authorized": false
+}
