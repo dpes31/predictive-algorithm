@@ -1,1 +1,4 @@
-{}
+{
+  "status_file": "reports/ALGORITHM_INTEGRATION_A2_STATUS.md",
+  "lock_file": "reports/algorithm_integration_a2_implementation_lock.json"
+}
