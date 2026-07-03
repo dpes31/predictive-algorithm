@@ -6,6 +6,7 @@ on:
       - "data/**"
       - "engine/**"
       - "product/**"
+      - "research_ensemble/**"
       - "schemas/product_prediction.schema.json"
       - "release/**"
       - "tests/test_product_*.py"
@@ -15,19 +16,27 @@ on:
 permissions:
   contents: read
 
+env:
+  PYTHONHASHSEED: "0"
+
 jobs:
   p1-unit-tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Run Product P1 unit tests
+      - name: Run Product P1 and A4 unit tests
+        env:
+          A4_ARTIFACT_DIR: artifacts/a4-python-${{ matrix.python-version }}
         run: python -m unittest discover -s tests -p 'test_product_*.py' -v
       - name: Generate canonical P1 output
         run: |
@@ -37,3 +46,10 @@ jobs:
             --generated-at 2026-07-01T00:00:00Z \
             --output /tmp/product-p1.json
           python -m json.tool /tmp/product-p1.json >/dev/null
+      - name: Upload A4 runtime evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: a4-python-${{ matrix.python-version }}
+          path: artifacts/a4-python-${{ matrix.python-version }}/
+          if-no-files-found: error
+          retention-days: 30
