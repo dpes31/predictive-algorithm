@@ -1,0 +1,106 @@
+name: Product P2 Data and Integration QA
+
+on:
+  pull_request:
+    branches:
+      - feature/product-p1-release-candidate
+    paths:
+      - "qa/**"
+      - "tests/test_p2_qa.py"
+      - ".github/workflows/product-p2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-core:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install P2 QA dependency
+        run: python -m pip install --disable-pip-version-check jsonschema==4.23.0
+      - name: Run P2 unit tests
+        run: python -m unittest discover -s tests -p 'test_p2_qa.py' -v
+      - name: Generate deterministic core snapshot
+        run: |
+          mkdir -p build/p2-core
+          python -m qa.product_p2 core \
+            --dataset data/draws.json \
+            --output build/p2-core/core-${{ matrix.python-version }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p2-core-${{ matrix.python-version }}
+          path: build/p2-core/core-${{ matrix.python-version }}.json
+          if-no-files-found: error
+          retention-days: 30
+
+  official-reconciliation-and-qa:
+    needs: deterministic-core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install P2 QA dependency
+        run: python -m pip install --disable-pip-version-check jsonschema==4.23.0
+      - name: Fetch frozen source refs for manifest verification
+        run: |
+          git fetch --no-tags origin \
+            refs/heads/feature/gate1-governance-foundation:refs/remotes/origin/feature/gate1-governance-foundation \
+            refs/heads/feature/gate2-engine-core:refs/remotes/origin/feature/gate2-engine-core \
+            refs/heads/feature/product-p1-release-candidate:refs/remotes/origin/feature/product-p1-release-candidate
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: p2-core-*
+          path: build/p2-core
+          merge-multiple: true
+      - name: Execute official reconciliation and B1-B18 QA
+        id: execute
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          QA_COMMIT="$PR_HEAD_SHA"
+          if [ -z "$QA_COMMIT" ]; then QA_COMMIT="$GITHUB_SHA"; fi
+          set +e
+          python -m qa.product_p2 full \
+            --dataset data/draws.json \
+            --core-snapshot build/p2-core/core-3.11.json \
+            --core-snapshot build/p2-core/core-3.12.json \
+            --output-dir build/p2-results \
+            --qa-commit "$QA_COMMIT" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --workflow-run-number "$GITHUB_RUN_NUMBER" \
+            --actor "$GITHUB_ACTOR"
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Validate generated artifacts
+        run: |
+          for file in build/p2-results/*.json; do
+            python -m json.tool "$file" >/dev/null
+          done
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: product-p2-qa-run-${{ github.run_id }}
+          path: build/p2-results/*.json
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce evaluated QA failures
+        run: |
+          STATUS=$(python -c 'import json; print(json.load(open("build/p2-results/product_p2_qa.json"))["status"])')
+          echo "Product Gate P2 status: $STATUS"
+          if [ "$STATUS" = "P2_QA_FAIL" ]; then exit 1; fi
