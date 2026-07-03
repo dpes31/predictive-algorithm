@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import pathlib
@@ -8,6 +9,7 @@ import unittest
 from engine.hashing import canonical_json
 from research_ensemble.compare_evaluation import compare_results
 from research_ensemble.evaluation import evaluate_dataset, write_result
+from research_ensemble.evaluation_runtime import install_canonical_serialization, normalize_evaluation_result
 
 
 class A4FullEvaluationTests(unittest.TestCase):
@@ -19,14 +21,13 @@ class A4FullEvaluationTests(unittest.TestCase):
         cls.run2_path = cls.artifact_dir / "run2.json"
         cls.rows_path = cls.artifact_dir / "target-rows.jsonl"
         cls.within_path = cls.artifact_dir / "runtime-verification.json"
-
-        cls.run1 = evaluate_dataset(dataset_path="data/draws.json", rows_output=cls.rows_path)
+        install_canonical_serialization()
+        cls.run1 = normalize_evaluation_result(evaluate_dataset(dataset_path="data/draws.json", rows_output=cls.rows_path))
         write_result(cls.run1, cls.run1_path)
-        cls.run2 = evaluate_dataset(dataset_path="data/draws.json")
+        cls.run2 = normalize_evaluation_result(evaluate_dataset(dataset_path="data/draws.json"))
         write_result(cls.run2, cls.run2_path)
         cls.within = compare_results([cls.run1_path, cls.run2_path], cross_runtime=False)
         cls.within_path.write_text(canonical_json(cls.within) + "\n", encoding="utf-8")
-
         canonical = cls.run1["canonical_result"]
         summary = {
             "runtime": cls.run1["runtime"],
@@ -41,22 +42,16 @@ class A4FullEvaluationTests(unittest.TestCase):
                 "final_cumulative_delta": canonical.get("secondary", {}).get("final_cumulative_delta"),
                 "calibration_ece": canonical.get("secondary", {}).get("calibration", {}).get("weighted_ece"),
             },
-            "integrity": {
-                name: value.get("pass")
-                for name, value in canonical.get("integrity", {}).items()
-            },
+            "integrity": {name: value.get("pass") for name, value in canonical.get("integrity", {}).items()},
             "equivalence": canonical.get("equivalence", {}).get("checks"),
             "hashes": canonical.get("hashes"),
             "within_runtime": cls.within,
-            "target_rows_file_sha256": canonical.get("integrity", {}).get("E13_hash_recomputation", {}).get("rows_file_sha256"),
+            "target_rows_file_sha256": hashlib.sha256(cls.rows_path.read_bytes()).hexdigest(),
         }
         print("A4_RUNTIME_SUMMARY_JSON=" + canonical_json(summary))
 
     def test_evaluation_completed(self) -> None:
-        self.assertIn(
-            self.run1["canonical_result"]["status"],
-            {"A4_EVALUATION_PASS_CANDIDATE", "A4_EVALUATION_FAIL"},
-        )
+        self.assertIn(self.run1["canonical_result"]["status"], {"A4_EVALUATION_PASS_CANDIDATE", "A4_EVALUATION_FAIL"})
         self.assertEqual(self.run1["canonical_result"]["target_sequence"]["target_count"], 879)
 
     def test_two_repeats_are_identical(self) -> None:
