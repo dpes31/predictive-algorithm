@@ -1,88 +1,57 @@
 # AGENTS.md
 
-모든 개발 에이전트는 작업 전에 이 문서를 읽고 실제 브랜치·commit·report·lock 상태와 대조한다.
+모든 작업 전 이 문서와 실제 branch·commit·report·lock 상태를 대조한다.
 
-## 1. 프로젝트 목적
-
-대한민국 로또 6/45 다음 회차에 대해 정확히 6개 번호 조합 5세트를 반환하는 재현 가능한 연구형 제품을 개발한다.
-
-두 실행경로를 엄격히 분리한다.
-
-```text
-CONTROL_M0        = Product P1 exact M0 기본·rollback 경로
-RESEARCH_ENSEMBLE = Algorithm Integration A2 연구 전용 점수경로
-```
-
-공통 원칙:
+## 공통 원칙
 
 - 미래 데이터 누출 금지
-- 동일 data/version/config/seed/registry에서 동일 결과
-- 실패 결과, hash, report, lock, rollback 보존
+- 동일 data/version/config/seed에서 재현 가능한 결과
+- 실패 결과, hash, report, lock, rollback, workflow history 보존
 - 사용자 승인 전 다음 Gate 진행 금지
 - `main` 직접 작업·병합 금지
 - 외부 결과 사이트 접속, 외부기관 문의, 새 출처 탐색 금지
 - 사용자가 제공하지 않은 물리변수 수집·추정 금지
 
-## 2. 현재 기준점
+## 현재 기준점
 
 ```text
-current branch = docs/algorithm-integration-a3-evaluation-spec
+current branch = qa/product-closeout-c2-internal
 base branch = feature/product-p1-release-candidate
-base commit = 901ececb1add7f55879b6efb744d435fdbc31ced
+base commit = 2f6d42fad4517b744f33132ad7ad1061678e6340
+Draft PR = #53
 
-P1 contract = product-release-candidate-1.0.0
-P1 status = P1_ASSEMBLED
-P1 implementation lock = 099d917abd1b635c830fee343a47d3bd23e0c052
+P1 = P1_ASSEMBLED
+A1 = A1_SPEC_COMPLETE / MERGED
+A2 = A2_IMPLEMENTATION_PASS / MERGED
+A3 = A3_SPEC_COMPLETE / MERGED
+A4 = A4_EVALUATION_FAIL / Draft PR #51 preserved
+C1 = PRODUCT_CLOSEOUT_SPEC_COMPLETE / MERGED
+C2 = PRODUCT_CLOSEOUT_QA_PASS / Draft PR #53
 
-A1 contract = research-ensemble-spec-1.0.0
-A1 status = A1_SPEC_COMPLETE / MERGED
-
-A2 contract = research-ensemble-implementation-1.0.0
-A2 status = A2_IMPLEMENTATION_PASS / MERGED
-A2 PR = #48
-A2 merge commit = 901ececb1add7f55879b6efb744d435fdbc31ced
-A2 rollback mode = CONTROL_M0
-
-A3 contract = research-ensemble-evaluation-spec-1.0.0
-A3 status = SPECIFICATION IN PROGRESS
-A4 evaluation implementation/execution = NOT AUTHORIZED
-
-actual user hypothesis entries active = 0
-actual physical entries active = 0
-Walk-forward = NOT RUN
-hyperparameter exploration = NOT RUN
-HTML / CAL / SEALED / mobile = NOT RUN
-main merge = NOT PERFORMED
+C2 contract = product-closeout-qa-1.0.0
+C2 evaluated commit = f14e4fc2fddfc53459a505315db9078cbaf00a28
+C2 workflow = 28660594719 / run #1
+C2 canonical result hash = 07a3e3986eb888b12963489b6a658f455eb6cd81fd594b5cb7dbb5cf64eb086f
+rollback mode = CONTROL_M0
+next Gate authorized = false
 ```
 
-## 3. 작업 전 필수 읽기
+## 필수 읽기
 
 1. `AGENTS.md`
 2. `handoff/PROJECT_HANDOFF.md`
-3. `handoff/ALGORITHM_INTEGRATION_A2_HANDOFF.md`
-4. `reports/algorithm_integration_a2_post_merge_state.json`
-5. 해당 Gate의 `docs/` 명세
-6. 해당 Gate의 report와 lock
-7. `reports/product_p1_acceptance.json`
-8. `reports/product_p1_acceptance_lock.json`
-9. `docs/EXTERNAL_ACCESS_RETIREMENT_POLICY.md`
-10. 기존 실패 report·lock과 rollback manifest
+3. `docs/PRODUCT_CLOSEOUT_M0_SPEC.md`
+4. `reports/product_closeout_spec_report.json`
+5. `reports/product_closeout_spec_lock.json`
+6. `handoff/PRODUCT_CLOSEOUT_C2_HANDOFF.md`
+7. `reports/PRODUCT_CLOSEOUT_C2_STATUS.md`
+8. `reports/product_closeout_c2_internal_qa.json`
+9. `reports/product_closeout_c2_internal_qa_lock.json`
+10. `release/product_closeout_c2_rollback_manifest.json`
+11. Product P1·A1·A2·A3 report, lock, rollback
+12. Draft PR #51과 A4 failure evidence
 
-A3에서는 추가로 다음을 읽는다.
-
-- `docs/ALGORITHM_INTEGRATION_A1_SPEC.md`
-- `docs/ALGORITHM_INTEGRATION_A1_REGISTRIES.md`
-- `docs/ALGORITHM_INTEGRATION_A1_ACCEPTANCE.md`
-- `reports/algorithm_integration_a1_spec_report.json`
-- `reports/algorithm_integration_a1_spec_lock.json`
-- `reports/ALGORITHM_INTEGRATION_A2_STATUS.md`
-- `reports/algorithm_integration_a2_implementation.json`
-- `reports/algorithm_integration_a2_implementation_lock.json`
-- `release/algorithm_integration_a2_rollback_manifest.json`
-
-## 4. 잠긴 제품 기준
-
-Product P1:
+## 잠긴 제품 기준
 
 ```text
 data range = 1..1230
@@ -101,93 +70,42 @@ research_only=true
 public_release_allowed=false
 ```
 
-A2는 Product P1 파일과 잠금을 변경하지 않고 `research_ensemble/`에 격리돼 있다. `CONTROL_M0`는 계속 기본·rollback 경로다.
-
-## 5. A2 구현 기준
+## C2 검증 결과
 
 ```text
-implementation contract = research-ensemble-implementation-1.0.0
-model version = 6.0.0-research
-score contract = score-45-1.0.0
-output schema = research-ensemble-output-1.0.0
-hypothesis registry = hypothesis-registry-1.0.0
-user input registry = user-input-registry-1.0.0
-physical adapter = user-physical-adapter-1.0.0
+data identity and validity = PASS
+target-1 cutoff and future-data block = PASS
+JSON Schema positive and 11 negative fixtures = PASS
+five distinct sets x six numbers = PASS
+M0-only scope and fixed disclosure = PASS
+RESEARCH_ENSEMBLE runtime isolation = PASS
+Python 3.11 two repeats = PASS
+Python 3.12 two repeats = PASS
+cross-runtime reproducibility = PASS
+hash, manifest, rollback = PASS
+40 immutable paths = PASS
+Draft PR #51 preservation = PASS
 ```
 
-고정 상한:
+## 보존 대상
 
-```text
-historical total <= 0.60
-single hypothesis <= 0.10
-hypothesis total <= 0.25
-single physical field <= 0.05
-physical total <= 0.15
-final logit absolute cap = 0.35
-```
+- Product P1, A1, A2, A3 report·lock·rollback
+- C1 spec·report·lock
+- Draft PR #51 and all A4 report·lock·rollback·hash·workflow history
+- 기존 M3/M4 및 predictable-group failure evidence
+- C2 report·lock·rollback·workflow artifacts
 
-A2 검증:
+삭제, 재분류, force push, history rewrite를 금지한다.
 
-- Python 3.11 / 3.12 PASS
-- canonical P1 regression PASS
-- I1~I24 PASS
-- 실제 사용자 entry 0
-- synthetic fixture만 사용
-- prior failure·lock 변경 0
-
-## 6. A3 허용 범위
-
-A3는 평가를 실행하지 않고 평가계약만 고정한다.
-
-허용:
-
-- CONTROL_M0 대비 RESEARCH_ENSEMBLE 평가 정의
-- historical-only와 10개 ablation lane 정의
-- target-1 cutoff와 고정 target sequence 정의
-- joint log-score 중심 metric hierarchy 정의
-- marginal Brier, calibration, stability 보조지표 정의
-- 통계판정, 다중비교, 중단규칙 정의
-- A4 PASS/FAIL/BLOCKED 기준 정의
-- version/hash/report/lock/rollback 요구사항 정의
-- 실제 사용자 hypothesis·physical lane 차단정책 정의
-- 문서 정합화와 Draft PR 생성
-
-## 7. 현재 금지사항
+## 현재 금지사항
 
 사용자 별도 승인 전 다음을 수행하지 않는다.
 
-- 평가 Python harness 구현
-- 실제 historical Walk-forward 또는 prospective 평가
-- hyperparameter·window·threshold·weight 탐색
-- 실제 user hypothesis 또는 physical entry 활성화
-- 외부 사이트 접속·재시도
-- 외부기관 문의·새 출처 탐색
-- canonical data 수정
-- Product P1 또는 A1·A2 report/lock/hash/rollback 수정·삭제
-- HTML 수정·배포
-- CAL·SEALED
-- 모바일 UI·Supabase
+- Product Closeout Gate C3 HTML MVP
+- PR #53 병합
+- A4 재평가 또는 parameter 변경
+- 실제 hypothesis·physical entry 활성화
+- 외부접속 또는 신규 데이터 수집
+- canonical data 또는 product runtime 변경
+- CAL·SEALED·모바일
 - `main` 병합
-
-## 8. 외부접근 및 과거 P2 처리
-
-PR #45의 `P2_QA_BLOCKED` 결과는 역사적 evidence로 보존한다. 외부접근·공식대조 B2~B5는 알고리즘 개발의 차단조건으로 복원하지 않는다. 기존 데이터가 공식 잠금된 것처럼 표현하지 않는다.
-
-## 9. 현재 Gate 판정 경계
-
-A3 문서·report·lock이 모두 일치하면:
-
-```text
-A3_SPEC_COMPLETE
-```
-
-이는 평가 통과나 예측력 입증을 의미하지 않는다.
-
-다음 단계는 별도 사용자 승인 후에만 가능한 `Algorithm Integration Gate A4`다.
-
-```text
-next contract = research-ensemble-evaluation-implementation-1.0.0
-scope = frozen evaluation harness implementation and fixed historical evaluation only
-```
-
-A3 승인 전 A4를 구현하거나 실행하지 않는다.
