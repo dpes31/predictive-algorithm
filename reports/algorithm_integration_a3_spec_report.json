@@ -1,3 +1,8 @@
 {
-  "status": "A3_SPEC_COMPLETE"
+  "status": "A3_SPEC_COMPLETE",
+  "contract_version": "research-ensemble-evaluation-spec-1.0.0",
+  "base_commit": "901ececb1add7f55879b6efb744d435fdbc31ced",
+  "draft_pr": 50,
+  "acceptance_D1_D12": "PASS",
+  "evaluation_authorized": false
 }
