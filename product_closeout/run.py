@@ -1,0 +1,1 @@
+"""Product Closeout command entrypoint."""
