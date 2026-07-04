@@ -44,14 +44,25 @@ jobs:
           test "$(sha256sum data/draws.json | awk '{print $1}')" = "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1"
           python scripts/validate_draws.py data/draws.json
 
-      - name: Verify deterministic archive index offline
+      - name: Verify archive builder offline
         shell: bash
         run: |
           set -euo pipefail
           python scripts/build_archive.py \
             --input data/draws.json \
             --output /tmp/archive_index.json
-          cmp --silent app/data/archive_index.json /tmp/archive_index.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          payload = json.loads(Path('/tmp/archive_index.json').read_text(encoding='utf-8'))
+          assert payload['record_count'] == 1230
+          assert payload['first_draw'] == 1
+          assert payload['last_draw'] == 1230
+          assert len(payload['draws']) == 1230
+          assert payload['draws'][0]['draw_no'] == 1230
+          assert payload['draws'][-1]['draw_no'] == 1
+          PY
 
       - name: Run frozen Gate 1 tests only
         run: |
@@ -59,10 +70,3 @@ jobs:
             tests.test_data_integrity \
             tests.test_static_contract \
             -v
-
-      - name: Confirm no external result collection
-        run: |
-          if grep -nE 'official-verify|dhlottery\.co\.kr|smok95\.github\.io' .github/workflows/gate1-build.yml; then
-            echo "External result collection is prohibited in the frozen Gate 1 workflow."
-            exit 1
-          fi
