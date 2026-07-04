@@ -1,0 +1,85 @@
+{
+  "status": "LOCKED_BLOCKED",
+  "date": "2026-07-04",
+  "stage": "PR #59 post-merge Production final closeout",
+  "contract_version": "pr59-production-final-closeout-1.0.0",
+  "branch": "codex/pr59-production-final-closeout",
+  "base_branch": "main",
+  "base_commit": "a6181fcb41a2de59f63c7c0912af63091f75dc35",
+  "evaluated_implementation_commit": "45cd988eaf653297c5c468ec2ab61e593132de03",
+  "evidence_head_before_lock": "3baef7437e9d824006f70c0815c79106bad0a465",
+  "draft_pr": 60,
+  "result": "PR59_PRODUCTION_CLOSEOUT_BLOCKED_DEPLOYMENT",
+  "result_report": {
+    "path": "reports/pr59_production_final_closeout.json",
+    "blob_sha": "43726adaa195d51ce1e9ac9afcab0ea94a639fc5"
+  },
+  "rollback_manifest": {
+    "path": "release/pr59_production_final_closeout_rollback_manifest.json",
+    "blob_sha": "db3d89d6ff8bc22bbfdf9d63610e171316a1b4c0"
+  },
+  "workflow_runs": {
+    "gate1_frozen_data_integrity": 28694335706,
+    "product_p1_assembly": 28694335708,
+    "product_full_ui_verification": 28694335697
+  },
+  "validated": {
+    "gate1_offline_integrity": "PASS",
+    "product_p1_assembly": "PASS",
+    "python_3_11_regression": "PASS",
+    "python_3_12_regression": "PASS",
+    "local_actual_browser_click": "PASS",
+    "archive_1_through_1230": "PASS",
+    "manual_overlay": "PASS",
+    "latest_plus_one": "PASS",
+    "five_sets": "PASS",
+    "seed": "PASS",
+    "effective_data_hash": "PASS",
+    "prediction_hash": "PASS"
+  },
+  "blocked": {
+    "vercel_preview_public_access": "VERCEL_AUTHENTICATION_PROTECTION_PAGE",
+    "production_archive_endpoint": "HTTP_404",
+    "production_application_marker": "MISSING",
+    "vercel_new_deployment": "api-deployments-free-per-day",
+    "remote_preview_actual_click": "NOT_EXECUTED",
+    "production_actual_click": "NOT_EXECUTED"
+  },
+  "artifacts": {
+    "local_browser": {
+      "id": 8078119374,
+      "digest": "sha256:81b0fc0bf0062988afee69bc4b7d8d0fc91ff034294c770f7f14589d529e88b4"
+    },
+    "remote_preview": {
+      "id": 8078151406,
+      "digest": "sha256:e49bff87a67ead2532d3955d4fec6de189cd936600c080b649700f77f91a3fda"
+    },
+    "production": {
+      "id": 8078149805,
+      "digest": "sha256:74b6a8adfec12bbe337a30da032fb726868622fcf6f4f738829c25831da359a1"
+    }
+  },
+  "locked_product": {
+    "final_distribution": "M0_ONLY",
+    "M0": 1.0,
+    "M1": 0.0,
+    "M2": 0.0,
+    "M3": 0.0,
+    "M4": 0.0,
+    "data_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "schema_sha256": "4f0e768c3a741645d027ade2f78b1df100ded232a0be9c7e552da8b6d9ade920",
+    "locked_prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32",
+    "A4_draft_pr": 51,
+    "A4_head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594"
+  },
+  "authorization": {
+    "main_merge_performed": false,
+    "main_merge_authorized_by_this_lock": false,
+    "production_release_complete": false,
+    "next_gate_authorized": false,
+    "additional_algorithm_work_authorized": false
+  },
+  "next_gate": "NONE",
+  "next_action_requires_user_approval": true,
+  "next_action": "Authorize merge of Draft PR #60 after Vercel deployment capacity is available, then rerun Production actual-click verification and append a separate success record."
+}
