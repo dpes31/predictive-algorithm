@@ -1,63 +1,97 @@
 # Project Handoff
 
 최종 갱신일: 2026-07-04  
-현재 작업: **Product Closeout Gate C4 Research Release Lock 완료**  
-현재 브랜치: `release/product-closeout-c4-research-lock`  
-기준 브랜치: `feature/product-p1-release-candidate`  
-기준 커밋: `f60b7278a88635596c502e34c4b56b535db8c1d7`  
-계약: `product-closeout-release-lock-1.0.0`
+현재 작업: **PR #59 사후 Production Final Closeout**  
+현재 브랜치: `codex/pr59-production-final-closeout`  
+기준 브랜치: `main`  
+기준 커밋: `a6181fcb41a2de59f63c7c0912af63091f75dc35`  
+Draft PR: `#60`  
+계약: `pr59-production-final-closeout-1.0.0`
 
-## 최종 상태
+## 현재 상태
 
 ```text
-P1/A1/A2/A3 = MERGED
-A4 = A4_EVALUATION_FAIL / Draft PR #51 preserved
-C1 = PRODUCT_CLOSEOUT_SPEC_COMPLETE / MERGED
-C2 = PRODUCT_CLOSEOUT_QA_PASS / MERGED
-C3 = PRODUCT_CLOSEOUT_HTML_PASS / MERGED
-C4 = PRODUCT_READY_RESEARCH_M0 / LOCKED
+historical C4 = PRODUCT_READY_RESEARCH_M0 / LOCKED
+PR #59 = MERGED
+PR #60 = OPEN / DRAFT / NOT MERGED
 
-CONTROL_M0 = default and rollback
-RESEARCH_ENSEMBLE = research-only / product runtime isolated
-actual hypothesis entries = 0
-actual physical entries = 0
-development complete = true
+Gate 1 frozen offline integrity = PASS
+Product P1 Assembly = PASS
+Python 3.11 regression = PASS
+Python 3.12 regression = PASS
+local actual browser click = PASS
+
+Vercel Preview = authentication protection page
+Production root = old application response
+Production /api/archive = HTTP 404
+Production actual browser click = NOT COMPLETED
+new Vercel deployment = blocked by api-deployments-free-per-day
+
+current result = PR59_PRODUCTION_CLOSEOUT_BLOCKED_DEPLOYMENT
 next Gate = NONE
-main merge = NOT PERFORMED
-public deployment = NOT PERFORMED
 ```
 
-## 최종 제품
+## 구현 완료 범위
 
-- 대상 회차: `1231`
-- 입력 데이터: `1..1230`
-- 출력: 정확히 6개 번호 × 5세트
-- final distribution: `M0_ONLY`
-- statistical edge: `false`
-- reason: `no_validated_nonuniform_signal`
-- prediction hash: `119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32`
-- HTML: `public/index.html`
-- fixture: `public/product-prediction.json`
+- 홈과 `예측하기` 버튼
+- 과거 당첨번호 `1..1230` 전체 데이터
+- 검색·연도 필터·정렬·추가 로드·45개 번호 통계
+- 사용자 수동 당첨번호 overlay 입력
+- 최신 반영 회차 `+1` 대상 계산
+- CONTROL_M0 5세트 생성
+- seed, effective data hash, prediction hash
+- canonical 원본과 사용자 overlay 분리
 
-## 최종 잠금
+## 잠긴 제품 기준
 
-- final record: `docs/PRODUCT_READY_RESEARCH_M0.md`
-- release manifest: `release/research_release_manifest.json`
-- wording lock: `release/public_wording_lock.json`
-- rollback: `release/product_closeout_c4_rollback_manifest.json`
-- final report: `reports/product_closeout_c4_final.json`
-- release lock: `reports/product_closeout_c4_release_lock.json`
+```text
+data range = 1..1230
+data version = draws-2026.06.27-r1
+data SHA-256 = 57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1
+final distribution = M0_ONLY
+M0=1.0, M1=M2=M3=M4=0.0
+statistical_edge=false
+reason=no_validated_nonuniform_signal
+locked prediction hash=119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32
+Draft PR #51 = OPEN / DRAFT / NOT MERGED
+```
 
-C1~C12 판정은 모두 PASS다. 이 판정은 deterministic 연구용 번호 생성 제품의 closeout 완료이며 예측력 또는 당첨확률 향상을 의미하지 않는다.
+PR #60에서 CONTROL_M0, 가중치, `data/draws.json`, schema, 고정 1231 fixture, PR #51 및 기존 C1~C4/A4 evidence는 변경하지 않았다.
 
-## Known limitations
+## 검증 증거
 
-- A4 evaluation failed.
-- 검증된 비균등 예측우위가 없다.
-- 데이터는 `auto_checked`, `officially_locked=false`다.
-- prospective validation, CAL, SEALED를 수행하지 않았다.
-- 공개배포와 `main` 병합은 승인되지 않았다.
+- Gate 1 frozen data integrity: run `28694335706` / `SUCCESS`
+- Product P1 Assembly: run `28694335708` / `SUCCESS`
+- Product full UI verification: run `28694335697`
+- local browser artifact: `8078119374`
+- remote Preview artifact: `8078151406`
+- Production artifact: `8078149805`
 
-## 보존
+로컬 실제 클릭 결과:
 
-Draft PR #51은 `OPEN / DRAFT / NOT MERGED`로 유지한다. A4 report·lock·rollback·canonical hash·workflow history와 P1/A1/A2/A3, C1/C2/C3 evidence를 수정·삭제·재분류하지 않는다.
+```text
+home initial state = PASS
+click to predict 1231 = PASS
+5 sets x 6 numbers = PASS
+archive search/filter/statistics = PASS
+manual 1231 overlay = PASS
+latest 1231 to target 1232 = PASS
+seed change = PASS
+prediction hash change = PASS
+external API calls = 0 / PASS
+```
+
+- initial dynamic prediction hash: `bbf8b4756d84a7a069aa120f31ff75c9171f62b8367833bb46ab19772134a8ca`
+- overlay dynamic prediction hash: `7856764460e0ecdfeea5bdd67760aea0e7ae66d4874205a8430fb84b02ad6967`
+
+## Append-only 기록
+
+- `reports/pr59_production_final_closeout.json`
+- `reports/pr59_production_final_closeout_lock.json`
+- `release/pr59_production_final_closeout_rollback_manifest.json`
+
+기존 C4·A4 기록과 이번 blocked 결과를 수정하거나 삭제하지 않는다.
+
+## 다음 승인 대기
+
+다음 작업은 Draft PR #60의 `main` 병합과 Vercel Production 재배포 후 실제 클릭 검증이다. 사용자 별도 승인 전 진행하지 않는다. 성공 시 기존 blocked 기록은 유지하고 append-only success report와 lock만 추가하며, 다음 Gate는 진행하지 않는다.

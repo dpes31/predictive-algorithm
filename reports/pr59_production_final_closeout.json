@@ -1,0 +1,166 @@
+{
+  "status": "PR59_PRODUCTION_CLOSEOUT_BLOCKED_DEPLOYMENT",
+  "date": "2026-07-04",
+  "stage": "PR #59 post-merge Production final closeout",
+  "contract_version": "pr59-production-final-closeout-1.0.0",
+  "branch": "codex/pr59-production-final-closeout",
+  "base_branch": "main",
+  "base_commit": "a6181fcb41a2de59f63c7c0912af63091f75dc35",
+  "evaluated_commit": "45cd988eaf653297c5c468ec2ab61e593132de03",
+  "draft_pr": 60,
+  "urls": {
+    "draft_pr": "https://github.com/dpes31/predictive-algorithm/pull/60",
+    "production": "https://predictive-algorithm.vercel.app",
+    "vercel_preview": "https://predictive-algorithm-git-codex-pr59-pro-b24f87-dpes31s-projects.vercel.app"
+  },
+  "implemented_scope": {
+    "home": "PRESENT",
+    "canonical_archive_1_through_1230": "PRESENT",
+    "archive_search_filter_statistics": "PRESENT",
+    "manual_draw_overlay": "PRESENT",
+    "latest_draw_plus_one": "PRESENT",
+    "predict_button": "PRESENT",
+    "five_set_generation": "PRESENT",
+    "seed": "PRESENT",
+    "effective_data_hash": "PRESENT",
+    "prediction_hash": "PRESENT"
+  },
+  "preservation": {
+    "control_m0_algorithm_changed": false,
+    "product_weights_changed": false,
+    "canonical_data_changed": false,
+    "schema_changed": false,
+    "locked_1231_fixture_changed": false,
+    "draft_pr_51_changed": false,
+    "existing_failure_report_lock_rollback_changed": false,
+    "changed_paths": [
+      ".github/workflows/gate1-build.yml",
+      ".github/workflows/product-full-ui.yml",
+      "tests/test_product_production_closeout.py"
+    ],
+    "data": {
+      "path": "data/draws.json",
+      "range": "1..1230",
+      "record_count": 1230,
+      "version": "draws-2026.06.27-r1",
+      "sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+      "blob_sha": "ae7f38d28e66f56227e2b20c12a5fd627bb42ce3"
+    },
+    "schema": {
+      "path": "schemas/product_prediction.schema.json",
+      "sha256": "4f0e768c3a741645d027ade2f78b1df100ded232a0be9c7e552da8b6d9ade920",
+      "blob_sha": "d8b588d6c3b89a1a7e7586c1bebc5ba78b39c2fc"
+    },
+    "locked_fixture": {
+      "path": "public/product-prediction.json",
+      "blob_sha": "b4db5a048700fc55d800e5e022d4df36ea157ed1",
+      "prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32"
+    },
+    "product_runner": {
+      "path": "product/run_prediction.py",
+      "blob_sha": "30f977fe27b902b2d194bc145cb4a3b052a284c7"
+    },
+    "weights": {
+      "M0": 1.0,
+      "M1": 0.0,
+      "M2": 0.0,
+      "M3": 0.0,
+      "M4": 0.0
+    },
+    "A4": {
+      "draft_pr": 51,
+      "state": "OPEN_DRAFT_NOT_MERGED",
+      "head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594",
+      "status": "A4_EVALUATION_FAIL"
+    }
+  },
+  "workflow_validation": {
+    "gate1_frozen_data_integrity": {
+      "run_id": 28694335706,
+      "run_number": 50,
+      "conclusion": "SUCCESS",
+      "external_result_collection": false
+    },
+    "product_p1_assembly": {
+      "run_id": 28694335708,
+      "run_number": 96,
+      "conclusion": "SUCCESS"
+    },
+    "product_full_ui": {
+      "run_id": 28694335697,
+      "run_number": 11,
+      "overall_conclusion": "FAILURE_DUE_TO_REMOTE_DEPLOYMENT",
+      "python_3_11_regression": "PASS",
+      "python_3_12_regression": "PASS",
+      "local_browser_click": "PASS",
+      "remote_preview_click": "BLOCKED_BEFORE_CLICK",
+      "production_click": "BLOCKED_BEFORE_CLICK"
+    }
+  },
+  "local_browser_evidence": {
+    "artifact_id": 8078119374,
+    "artifact_digest": "sha256:81b0fc0bf0062988afee69bc4b7d8d0fc91ff034294c770f7f14589d529e88b4",
+    "status": "FULL_PRODUCT_UI_PREVIEW_PASS",
+    "checks": {
+      "home_initial_state": "PASS",
+      "click_to_predict_1231": "PASS",
+      "archive_search_filter_statistics": "PASS",
+      "manual_update_overlay": "PASS",
+      "latest_plus_one_and_dynamic_hash": "PASS",
+      "external_api_calls": "PASS"
+    },
+    "initial_prediction_hash": "bbf8b4756d84a7a069aa120f31ff75c9171f62b8367833bb46ab19772134a8ca",
+    "overlay_prediction_hash": "7856764460e0ecdfeea5bdd67760aea0e7ae66d4874205a8430fb84b02ad6967"
+  },
+  "remote_preview_evidence": {
+    "artifact_id": 8078151406,
+    "artifact_digest": "sha256:e49bff87a67ead2532d3955d4fec6de189cd936600c080b649700f77f91a3fda",
+    "attempts": 20,
+    "root_http_status": 200,
+    "archive_http_status": 200,
+    "application_marker_found": false,
+    "archive_contract_valid": false,
+    "diagnosis": "VERCEL_AUTHENTICATION_PROTECTION_PAGE",
+    "actual_click_executed": false
+  },
+  "production_evidence": {
+    "artifact_id": 8078149805,
+    "artifact_digest": "sha256:74b6a8adfec12bbe337a30da032fb726868622fcf6f4f738829c25831da359a1",
+    "attempts": 20,
+    "root_http_status": 200,
+    "archive_http_status": 404,
+    "application_marker_found": false,
+    "archive_contract_valid": false,
+    "diagnosis": "PRODUCTION_STILL_SERVES_PRE_PR59_APP_AND_API_ARCHIVE_IS_MISSING",
+    "actual_click_executed": false
+  },
+  "deployment_blocker": {
+    "vercel_commit_status": "FAILURE",
+    "code": "api-deployments-free-per-day",
+    "message": "Resource is limited - try again in 24 hours (more than 100).",
+    "is_application_code_failure": false
+  },
+  "decision": {
+    "implementation_complete": true,
+    "offline_regression_complete": true,
+    "local_actual_click_complete": true,
+    "production_deployed": false,
+    "production_actual_click_complete": false,
+    "final_production_closeout": false,
+    "result": "BLOCKED_BY_VERCEL_DEPLOYMENT_AND_PREVIEW_PROTECTION"
+  },
+  "restrictions": {
+    "external_lottery_validation_performed": false,
+    "external_data_collection_performed": false,
+    "A4_re_evaluation_performed": false,
+    "algorithm_research_performed": false,
+    "parameter_or_weight_changed": false,
+    "new_product_feature_added": false,
+    "main_merge_performed": false,
+    "next_gate_started": false
+  },
+  "next_action": {
+    "requires_user_approval": true,
+    "action": "Merge Draft PR #60 into main after Vercel deployment capacity is available, then rerun the existing Production browser smoke and append a success record without modifying this blocked record."
+  }
+}
