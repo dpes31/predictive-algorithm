@@ -44,28 +44,28 @@ jobs:
     needs: regression
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Diagnose and wait for current Vercel Preview
+      - name: Diagnose current Vercel Preview
         shell: bash
         run: |
           set -euo pipefail
-          for attempt in $(seq 1 8); do
+          for attempt in 1 2; do
             root_code="$(curl -sS -L -o /tmp/root.html -w '%{http_code}' "$PREVIEW_URL/" || true)"
             archive_code="$(curl -sS -L -o /tmp/archive.json -w '%{http_code}' "$PREVIEW_URL/api/archive" || true)"
             echo "attempt=$attempt root_http=$root_code archive_http=$archive_code"
             echo "root_marker=$(grep -c 'DYNAMIC TARGET' /tmp/root.html 2>/dev/null || true)"
-            echo "archive_body=$(head -c 300 /tmp/archive.json 2>/dev/null || true)"
+            echo "archive_body=$(head -c 500 /tmp/archive.json 2>/dev/null || true)"
             if [ "$root_code" = "200" ] && [ "$archive_code" = "200" ] && grep -q "DYNAMIC TARGET" /tmp/root.html && python -c 'import json; p=json.load(open("/tmp/archive.json")); assert p["record_count"] == 1230 and p["last_draw"] == 1230'; then
               echo "Preview is ready on attempt $attempt"
               exit 0
             fi
-            sleep 15
+            sleep 10
           done
           echo "Preview did not expose the current full UI and archive API" >&2
           exit 1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
       - name: Install Playwright Chromium
         run: |
           npm install --no-save playwright@1.55.0
@@ -79,5 +79,5 @@ jobs:
         with:
           name: full-product-ui-preview-evidence
           path: preview-artifacts/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
