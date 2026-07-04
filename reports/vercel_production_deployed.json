@@ -1,0 +1,48 @@
+{
+  "status": "VERCEL_PRODUCTION_DEPLOYED",
+  "date": "2026-07-04",
+  "production_url": "https://predictive-algorithm.vercel.app/",
+  "main_merge": {
+    "pull_request": 57,
+    "merge_commit": "cc559fd786eb075bcf28f20728cc50fe4fb86ec7",
+    "performed": true
+  },
+  "vercel": {
+    "commit_status": "success",
+    "deployment_dashboard": "https://vercel.com/dpes31s-projects/predictive-algorithm/A5xirRBWdhUp2bv5pYXtBvWmKAjJ",
+    "preview_status": "Ready",
+    "preview_url": "https://predictive-algorithm-git-feature-produc-035d0c-dpes31s-projects.vercel.app",
+    "previous_rate_limit_record": "reports/vercel_production_closeout.json",
+    "previous_failure_record_preserved": true
+  },
+  "main_assets": {
+    "vercel_config_path": "vercel.json",
+    "vercel_config_blob_sha": "73383ac0704dc4d5df973956bd5a97b55da4d79c",
+    "output_directory": "public",
+    "html_path": "public/index.html",
+    "html_blob_sha": "87ff221d0d14024249e40c1a8bdbd8649789c300",
+    "prediction_path": "public/product-prediction.json",
+    "prediction_blob_sha": "b4db5a048700fc55d800e5e022d4df36ea157ed1"
+  },
+  "product_contract": {
+    "target_draw_no": 1231,
+    "input_last_draw": 1230,
+    "candidate_set_count": 5,
+    "numbers_per_set": 6,
+    "final_distribution": "M0_ONLY",
+    "statistical_edge": false,
+    "reason": "no_validated_nonuniform_signal",
+    "prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32",
+    "external_api_calls": 0
+  },
+  "preservation": {
+    "algorithm_modified": false,
+    "numbers_modified": false,
+    "data_modified": false,
+    "schema_modified": false,
+    "prediction_hash_modified": false,
+    "C1_C4_evidence_modified": false,
+    "draft_pr_51_modified": false
+  },
+  "verification_note": "Vercel reported a successful deployment for the main merge commit. Main contains the locked HTML, JSON fixture and outputDirectory=public configuration. The earlier rate-limit failure record is preserved and superseded by this success record."
+}
