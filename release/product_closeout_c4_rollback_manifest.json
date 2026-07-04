@@ -1,0 +1,24 @@
+{
+  "manifest_version": "product-closeout-c4-rollback-1.0.0",
+  "date": "2026-07-04",
+  "gate": "Product Closeout Gate C4",
+  "target_status": "PRODUCT_READY_RESEARCH_M0",
+  "base_branch": "feature/product-p1-release-candidate",
+  "rollback_anchor": "f60b7278a88635596c502e34c4b56b535db8c1d7",
+  "implementation_branch": "release/product-closeout-c4-research-lock",
+  "rollback_mode": "CONTROL_M0",
+  "control_entrypoint": "python -m product.run_prediction",
+  "pre_merge_action": "Close the C4 Draft PR and preserve all C4 evidence on its branch.",
+  "post_merge_action": "Create a revert commit for only the C4 merge commit; do not rewrite history.",
+  "preserve": [
+    "Product P1 and A1/A2/A3 evidence",
+    "Draft PR #51 and all A4 failure evidence and workflow history",
+    "C1/C2/C3 reports, locks, rollback records and workflows",
+    "canonical data, runner, schema, HTML and fixture hashes"
+  ],
+  "force_history_rewrite": false,
+  "delete_failure_evidence": false,
+  "main_affected": false,
+  "public_deployment_authorized": false,
+  "next_gate_authorized": false
+}

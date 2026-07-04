@@ -1,0 +1,43 @@
+name: Gate 2 physical evidence engine
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/gate2p3-validation]
+  pull_request:
+    branches: [feature/gate2p2-engine]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate canonical data
+        run: python scripts/validate_draws.py data/draws.json
+      - name: Compile validation modules
+        run: python -m py_compile simulation/physical_validation.py scripts/run_gate2_physical_validation_shard.py scripts/aggregate_gate2_physical_validation.py
+      - name: Run unit tests
+        run: |
+          set +e
+          PYTHONPATH=. python -m unittest discover -s tests -v > /tmp/unit-tests.log 2>&1
+          status=$?
+          tail -160 /tmp/unit-tests.log
+          exit $status
+      - name: Upload unit-test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-3p3-unit-test-log
+          path: /tmp/unit-tests.log
+          retention-days: 7
+      - name: Run small validation shard
+        run: PYTHONPATH=. python scripts/run_gate2_physical_validation_shard.py --shard-index 0 --shard-count 1 --draw-count 360 --maxt-total 2 --model-null-total 2 --null-validation-total 2 --positive-per-cell 1 --robustness-per-scenario 1 --output /tmp/gate2p3-smoke.json
+      - name: Assert research-only contract
+        run: python -c "import json; p=json.load(open('/tmp/gate2p3-smoke.json')); assert p['model_version']=='3.0.0-research'; assert p['research_only'] is True; assert p['public_release_allowed'] is False"

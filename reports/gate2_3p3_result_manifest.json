@@ -1,0 +1,121 @@
+{
+  "gate": "2-3P-3",
+  "decision": "NOT PASSED",
+  "model_version": "3.0.0-research",
+  "feature_contract_version": "2.0.0",
+  "physical_data_schema_version": "1.0.0",
+  "research_only": true,
+  "public_release_allowed": false,
+  "report_hash": "b59cc753eda4058f0b55a685a136da01a327dd6b6b7fc33b10fd4758dfc36948",
+  "workflow": {
+    "run_id": 28451343507,
+    "head_sha": "56f5ace469ee42a1b5743029092585724819796b",
+    "conclusion": "success",
+    "shard_count": 20,
+    "summary_artifact_id": 7983755657,
+    "summary_artifact_digest": "sha256:58526bd3b6f9a178575092f0affdb29d115139bd9dd1210dac04ef768dbe7ca7",
+    "summary_artifact_expires_at": "2026-07-30T14:30:32Z"
+  },
+  "actual_counts": {
+    "maxt_calibration": 10000,
+    "model_null_calibration": 4000,
+    "independent_null_validation": 5000,
+    "positive_control": 12000,
+    "robustness": 6000,
+    "total": 37000
+  },
+  "independent_null_validation": {
+    "trials": 5000,
+    "proxy_false_activation_count": 5,
+    "proxy_false_activation_rate": 0.001,
+    "proxy_one_sided_95_upper": 0.002052876497242305,
+    "m3_false_activation_count": 8,
+    "m3_false_activation_rate": 0.0016,
+    "m3_one_sided_95_upper": 0.0028373104962265572
+  },
+  "positive_controls_lift_1_25": {
+    "p1_ball_set": {
+      "strict_detection_rate": 0.008,
+      "mean_delta_log_loss_m4": -0.0053476,
+      "mean_delta_brier_m4": -0.00002796,
+      "mean_direction_accuracy": 0.795,
+      "m3_activation_rate": 0.0
+    },
+    "p2_machine": {
+      "strict_detection_rate": 0.242,
+      "mean_delta_log_loss_m4": 0.0009208,
+      "mean_delta_brier_m4": 0.00000528,
+      "mean_direction_accuracy": 0.988,
+      "m3_activation_rate": 0.0
+    },
+    "p3_machine_ball_interaction": {
+      "strict_detection_rate": 0.008,
+      "mean_delta_log_loss_m4": -0.0066981,
+      "mean_delta_brier_m4": -0.00003508,
+      "mean_direction_accuracy": 0.755,
+      "m3_activation_rate": 0.0
+    },
+    "p4_regime_reversal": {
+      "strict_detection_rate": 0.0,
+      "mean_delta_log_loss_m4": 0.0005072,
+      "mean_delta_brier_m4": 0.00000322,
+      "mean_direction_accuracy": 0.895,
+      "m3_activation_rate": 0.002
+    },
+    "p5_temporary_environment": {
+      "strict_detection_rate": 0.0,
+      "mean_delta_log_loss_m4": -0.0085172,
+      "mean_delta_brier_m4": -0.00004475,
+      "mean_direction_accuracy": 0.561,
+      "m3_activation_rate": 0.0
+    },
+    "p6_pretest_shared": {
+      "strict_detection_rate": 0.004,
+      "mean_delta_log_loss_m4": -0.0049593,
+      "mean_delta_brier_m4": -0.00002601,
+      "mean_direction_accuracy": 0.791,
+      "m3_activation_rate": 0.0
+    }
+  },
+  "robustness_highlights": {
+    "missingness_does_not_increase_confidence": true,
+    "independent_pretest_not_activated": true,
+    "post_draw_error_proxy_activation_rate": 0.026,
+    "direction_reversal_adapt_within_208_rate": 1.0,
+    "direction_reversal_mean_adaptation_delay": 48.0,
+    "signal_decay_return_within_208_rate": 0.658
+  },
+  "failed_checks": [
+    "irrelevant_metadata_not_activated",
+    "null_m3_rate_le_0_001",
+    "null_proxy_upper_le_0_002",
+    "p1_ball_set_lift_1_25_brier_nonnegative",
+    "p1_ball_set_lift_1_25_direction_ge_0_80",
+    "p1_ball_set_lift_1_25_log_loss_positive",
+    "p1_ball_set_lift_1_25_strict_detection_ge_0_80",
+    "p2_machine_lift_1_25_strict_detection_ge_0_80",
+    "p3_machine_ball_interaction_lift_1_25_brier_nonnegative",
+    "p3_machine_ball_interaction_lift_1_25_direction_ge_0_80",
+    "p3_machine_ball_interaction_lift_1_25_log_loss_positive",
+    "p3_machine_ball_interaction_lift_1_25_strict_detection_ge_0_80",
+    "p4_regime_reversal_lift_1_25_strict_detection_ge_0_80",
+    "p4_regime_reversal_m3_activation_ge_0_80",
+    "p5_temporary_environment_lift_1_25_brier_nonnegative",
+    "p5_temporary_environment_lift_1_25_direction_ge_0_80",
+    "p5_temporary_environment_lift_1_25_log_loss_positive",
+    "p5_temporary_environment_lift_1_25_strict_detection_ge_0_80",
+    "p6_pretest_shared_lift_1_25_brier_nonnegative",
+    "p6_pretest_shared_lift_1_25_direction_ge_0_80",
+    "p6_pretest_shared_lift_1_25_log_loss_positive",
+    "p6_pretest_shared_lift_1_25_strict_detection_ge_0_80",
+    "post_draw_error_not_activated",
+    "temporary_signal_returns_within_208"
+  ],
+  "blocked_after_result": [
+    "real_metadata_prediction_pilot",
+    "historical_real_data_walk_forward",
+    "public_future_number_candidates",
+    "mobile_prediction_product_activation",
+    "nonzero_deployable_M4_weight"
+  ]
+}

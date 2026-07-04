@@ -1,0 +1,43 @@
+name: Gate 2 synthetic full experiment R1
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [feature/gate2-synthetic-validation]
+    paths:
+      - .github/workflows/gate2-synthetic-full.yml
+      - engine/**
+      - simulation/**
+      - scripts/run_gate2_synthetic_r1.py
+      - tests/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gate2-synthetic-full-r1-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-experiment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate canonical data
+        run: python scripts/validate_draws.py data/draws.json
+      - name: Run full Gate 2-3R experiment
+        run: PYTHONPATH=. python scripts/run_gate2_synthetic_r1.py --draw-count 1230 --null-calibration 1000 --null-validation 1000 --positive 100 --alpha 0.001 --json-output reports/gate2_3r_ci_summary.json --markdown-output reports/gate2_3r_ci_summary.md
+      - name: Check report contract
+        run: python -c "import json; p=json.load(open('reports/gate2_3r_ci_summary.json')); assert p['model_version']=='2.1.0-research'; assert p['gate_revision']=='2-3R'; assert p['research_only'] is True; assert p['public_release_allowed'] is False"
+      - name: Upload full reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-3r-full-experiment
+          path: |
+            reports/gate2_3r_ci_summary.json
+            reports/gate2_3r_ci_summary.md
+          retention-days: 30

@@ -1,0 +1,210 @@
+{
+  "experiment": {
+    "draw_count": 1230,
+    "null_calibration_series": 1000,
+    "null_validation_series": 1000,
+    "positive_series_per_scenario": 100,
+    "seed_base": 20260630,
+    "alpha": 0.001
+  },
+  "model_version": "2.1.0-research",
+  "feature_contract_version": "1.1.0",
+  "gate_revision": "2-3R",
+  "research_only": true,
+  "public_release_allowed": false,
+  "temperature_grid": [0.05, 0.1, 0.2, 0.5, 1.0],
+  "execution_provenance": {
+    "method": "deterministic standalone mirror of committed Gate 2-3R formulas",
+    "github_branch": "feature/gate2-synthetic-validation-r1",
+    "github_pr": 9,
+    "github_actions_status": "not executed; available connector could not dispatch or add the required workflow",
+    "independent_historical_data_used": false
+  },
+  "null_calibration": {
+    "calibration_series": 1000,
+    "alpha": 0.001,
+    "familywise_over_origins": true,
+    "raw_m3_diagnostics": true,
+    "pair_diagnostics": {
+      "all_pair_exploratory": true,
+      "preregistered_target_pair_power_only": true
+    },
+    "quantiles": {
+      "raw_max_abs_shift_52_q999": 4.903846153846154,
+      "raw_max_abs_shift_104_q999": 4.8953546389837905,
+      "min_entropy_52_q001": 0.9660253014856541,
+      "raw_max_abs_cusum_q999": 5.945349056255935,
+      "max_abs_pair_104_q999": 9.1706052144883,
+      "max_target_pair_z_104_q999": 5.959677128778868
+    }
+  },
+  "score_calibration": {
+    "calibration_series": 1000,
+    "alpha": 0.001,
+    "familywise_score_threshold": 0.0031902948606996923
+  },
+  "null_validation": {
+    "proxy_false_activation": {
+      "events": 4,
+      "trials": 1000,
+      "rate": 0.004,
+      "one_sided_95_upper": 0.009129952563871467,
+      "point_estimate_le_0_001": false,
+      "upper_bound_le_0_001": false
+    },
+    "m3_diagnostic_false_activation": {
+      "events": 0,
+      "trials": 1000,
+      "rate": 0.0,
+      "one_sided_95_upper": 0.002991249545095295,
+      "point_estimate_le_0_001": true,
+      "upper_bound_le_0_001": false
+    },
+    "exploratory_pair_false_activation": {
+      "events": 0,
+      "trials": 1000,
+      "rate": 0.0,
+      "one_sided_95_upper": 0.002991249545095295,
+      "point_estimate_le_0_001": true,
+      "upper_bound_le_0_001": false
+    },
+    "target_pair_false_activation": {
+      "events": 0,
+      "trials": 1000,
+      "rate": 0.0,
+      "one_sided_95_upper": 0.002991249545095295,
+      "point_estimate_le_0_001": true,
+      "upper_bound_le_0_001": false
+    }
+  },
+  "positive_controls": {
+    "fixed_bias_2pct": {
+      "family": "fixed_bias", "expected_model": "M1", "effect_size": 1.02, "repetitions": 100,
+      "matched_model_win_rate": 0.0, "matched_model_positive_score_rate": 0.0, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": 0.01, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": -0.029147348865412447,
+      "mean_matched_delta_brier": -0.0001380910034141235, "median_detection_delay_draws": 208,
+      "median_return_to_zero_gate_draws": null
+    },
+    "fixed_bias_5pct": {
+      "family": "fixed_bias", "expected_model": "M1", "effect_size": 1.05, "repetitions": 100,
+      "matched_model_win_rate": 0.0, "matched_model_positive_score_rate": 0.0, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": 0.0, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": -0.028901366550170667,
+      "mean_matched_delta_brier": -0.00013644815605234363, "median_detection_delay_draws": 156.0,
+      "median_return_to_zero_gate_draws": null
+    },
+    "fixed_bias_10pct": {
+      "family": "fixed_bias", "expected_model": "M1", "effect_size": 1.1, "repetitions": 100,
+      "matched_model_win_rate": 0.0, "matched_model_positive_score_rate": 0.0, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": 0.03, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": -0.028709067671129285,
+      "mean_matched_delta_brier": -0.00013099370519864772, "median_detection_delay_draws": 182.0,
+      "median_return_to_zero_gate_draws": null
+    },
+    "persistence_recent52": {
+      "family": "persistence", "expected_model": "M1", "effect_size": 0.2, "repetitions": 100,
+      "matched_model_win_rate": 1.0, "matched_model_positive_score_rate": 1.0, "strict_detection_rate": 1.0,
+      "proxy_detection_rate": 1.0, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.05,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": 0.0817852125303771,
+      "mean_matched_delta_brier": 0.0005652620153334481, "median_detection_delay_draws": 0.0,
+      "median_return_to_zero_gate_draws": null
+    },
+    "reversal_recent52": {
+      "family": "reversal", "expected_model": "M2", "effect_size": 0.2, "repetitions": 100,
+      "matched_model_win_rate": 0.79, "matched_model_positive_score_rate": 0.79, "strict_detection_rate": 0.71,
+      "proxy_detection_rate": 0.68, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": 0.005527934157757667,
+      "mean_matched_delta_brier": 0.000046620176433533484, "median_detection_delay_draws": 52.0,
+      "median_return_to_zero_gate_draws": null
+    },
+    "regime_shift_400_800": {
+      "family": "regime_shift", "expected_model": "M3", "effect_size": 1.1, "repetitions": 100,
+      "matched_model_win_rate": 0.0, "matched_model_positive_score_rate": 0.0, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": 0.0, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": 0.0,
+      "mean_matched_delta_brier": 0.0, "median_detection_delay_draws": null,
+      "median_return_to_zero_gate_draws": null
+    },
+    "temporary_52_draw_bias": {
+      "family": "temporary_anomaly", "expected_model": "M3", "effect_size": 1.1, "repetitions": 100,
+      "matched_model_win_rate": 0.0, "matched_model_positive_score_rate": 0.0, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": 0.0, "m3_activation_rate": 0.0, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": 0.0,
+      "mean_matched_delta_brier": 0.0, "median_detection_delay_draws": null,
+      "median_return_to_zero_gate_draws": 12.0
+    },
+    "pair_factor_1_25": {
+      "family": "pair", "expected_model": "PAIR", "effect_size": 1.25, "repetitions": 100,
+      "matched_model_win_rate": null, "matched_model_positive_score_rate": null, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": null, "m3_activation_rate": null, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": null,
+      "mean_matched_delta_brier": null, "median_detection_delay_draws": null,
+      "median_return_to_zero_gate_draws": null
+    },
+    "pair_factor_1_5": {
+      "family": "pair", "expected_model": "PAIR", "effect_size": 1.5, "repetitions": 100,
+      "matched_model_win_rate": null, "matched_model_positive_score_rate": null, "strict_detection_rate": 0.0,
+      "proxy_detection_rate": null, "m3_activation_rate": null, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.0, "mean_matched_delta_log_loss": null,
+      "mean_matched_delta_brier": null, "median_detection_delay_draws": null,
+      "median_return_to_zero_gate_draws": null
+    },
+    "pair_factor_2_0": {
+      "family": "pair", "expected_model": "PAIR", "effect_size": 2.0, "repetitions": 100,
+      "matched_model_win_rate": null, "matched_model_positive_score_rate": null, "strict_detection_rate": 0.01,
+      "proxy_detection_rate": null, "m3_activation_rate": null, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.01, "mean_matched_delta_log_loss": null,
+      "mean_matched_delta_brier": null, "median_detection_delay_draws": 52,
+      "median_return_to_zero_gate_draws": null
+    },
+    "pair_factor_3_0": {
+      "family": "pair", "expected_model": "PAIR", "effect_size": 3.0, "repetitions": 100,
+      "matched_model_win_rate": null, "matched_model_positive_score_rate": null, "strict_detection_rate": 0.22,
+      "proxy_detection_rate": null, "m3_activation_rate": null, "exploratory_pair_activation_rate": 0.0,
+      "target_pair_activation_rate": 0.22, "mean_matched_delta_log_loss": null,
+      "mean_matched_delta_brier": null, "median_detection_delay_draws": 390.0,
+      "median_return_to_zero_gate_draws": null
+    }
+  },
+  "minimum_detectable_effect": {
+    "fixed_number_relative_lift_at_80pct_power": null,
+    "pair_factor_at_80pct_power": null
+  },
+  "gate_assessment": {
+    "status": "NOT_PASSED",
+    "gate_state": "RESEARCH",
+    "final_distribution": "M0_ONLY",
+    "gate2_4_allowed": false,
+    "reasons": [
+      "synthetic proxy false activation rate was 0.4%, above the 0.1% point-estimate limit",
+      "fixed-bias positive controls at 2%, 5%, and 10% had 0% strict detection",
+      "reversal control strict detection was 71%, below 80%",
+      "M3 controls had 0% activation and 0% strict detection",
+      "pair factor 3.0 achieved only 22% target-pair detection",
+      "no preregistered fixed or pair effect reached 80% power"
+    ]
+  },
+  "structural_findings": {
+    "m3_empirical_p_resolution": {
+      "minimum_raw_empirical_p": 0.000999000999000999,
+      "minimum_holm_adjusted_p_for_four_tests": 0.003996003996003996,
+      "alpha": 0.001,
+      "activation_mathematically_possible": false,
+      "explanation": "With 1,000 calibration series, plus-one empirical p-values and Holm correction over four diagnostics, the smallest adjusted p-value is 4/1001, which exceeds 0.001."
+    },
+    "improvement_vs_gate2_3": [
+      "persistence strict detection improved from 0% to 100%",
+      "reversal strict detection improved from 0% to 71%",
+      "M1/M2 proper-score overconfidence was materially reduced for dynamic controls"
+    ]
+  },
+  "interpretation_limits": [
+    "Synthetic detectability does not establish real lottery predictability.",
+    "One thousand validation series cannot prove a 0.1% upper confidence bound when zero events are observed.",
+    "Historical real-data walk-forward remains blocked.",
+    "The preregistered target-pair diagnostic is only a positive-control power test.",
+    "The full run was executed with a deterministic standalone mirror because the available GitHub connector could not dispatch the repository workflow; GitHub CI confirmation remains pending."
+  ],
+  "report_hash": "ec57a01e7781d5679cc8fc1b1c146055b06b6836740924cfbb0f1bfd6bef15c6"
+}

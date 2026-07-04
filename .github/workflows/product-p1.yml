@@ -1,0 +1,39 @@
+name: Product P1 Assembly
+
+on:
+  pull_request:
+    paths:
+      - "data/**"
+      - "engine/**"
+      - "product/**"
+      - "schemas/product_prediction.schema.json"
+      - "release/**"
+      - "tests/test_product_*.py"
+      - ".github/workflows/product-p1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  p1-unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run Product P1 unit tests
+        run: python -m unittest discover -s tests -p 'test_product_*.py' -v
+      - name: Generate canonical P1 output
+        run: |
+          python -m product.run_prediction \
+            --target-draw-no 1231 \
+            --dataset data/draws.json \
+            --generated-at 2026-07-01T00:00:00Z \
+            --output /tmp/product-p1.json
+          python -m json.tool /tmp/product-p1.json >/dev/null

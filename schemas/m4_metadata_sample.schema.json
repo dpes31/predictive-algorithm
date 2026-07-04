@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/m4_metadata_sample.schema.json",
+  "title": "M4 Pre-draw Physical and Operational Metadata Sample",
+  "description": "Schema-only sample for source-access audit. Outcome fields are intentionally excluded.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "draw",
+    "provenance",
+    "availability",
+    "quality"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "draw": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operator_id",
+        "draw_no",
+        "draw_date",
+        "draw_scheduled_at",
+        "draw_actual_at",
+        "prediction_lock_at",
+        "venue_id"
+      ],
+      "properties": {
+        "operator_id": {"type": "string", "minLength": 1},
+        "draw_no": {"type": "integer", "minimum": 1},
+        "draw_date": {"type": "string", "format": "date"},
+        "draw_scheduled_at": {"type": "string", "format": "date-time"},
+        "draw_actual_at": {"type": "string", "format": "date-time"},
+        "prediction_lock_at": {"type": "string", "format": "date-time"},
+        "venue_id": {"type": "string", "minLength": 1},
+        "schedule_delay_sec": {"type": ["integer", "null"]}
+      }
+    },
+    "machine": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "machine_id": {"type": ["string", "null"]},
+        "model_id": {"type": ["string", "null"]},
+        "generation": {"type": ["string", "null"]},
+        "serial_hash": {"type": ["string", "null"]},
+        "commissioned_at": {"type": ["string", "null"], "format": "date-time"},
+        "last_service_at": {"type": ["string", "null"], "format": "date-time"},
+        "draws_since_service": {"type": ["integer", "null"], "minimum": 0},
+        "cumulative_draw_count": {"type": ["integer", "null"], "minimum": 0},
+        "selection_observed_at": {"type": ["string", "null"], "format": "date-time"},
+        "selection_available_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "ball_set": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "ball_set_id": {"type": ["string", "null"]},
+        "generation": {"type": ["string", "null"]},
+        "commissioned_at": {"type": ["string", "null"], "format": "date-time"},
+        "retired_at": {"type": ["string", "null"], "format": "date-time"},
+        "last_certified_at": {"type": ["string", "null"], "format": "date-time"},
+        "draws_since_certification": {"type": ["integer", "null"], "minimum": 0},
+        "cumulative_draw_count": {"type": ["integer", "null"], "minimum": 0},
+        "selection_observed_at": {"type": ["string", "null"], "format": "date-time"},
+        "selection_available_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "pre_draw_tests": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "test_count": {"type": ["integer", "null"], "minimum": 0},
+        "pass_count": {"type": ["integer", "null"], "minimum": 0},
+        "fail_count": {"type": ["integer", "null"], "minimum": 0},
+        "condition_id": {"type": ["string", "null"]},
+        "completed_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "operations": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "warmup_duration_sec": {"type": ["number", "null"], "minimum": 0},
+        "mixing_duration_sec": {"type": ["number", "null"], "minimum": 0},
+        "airflow_setting": {"type": ["number", "string", "null"]},
+        "power_voltage_v": {"type": ["number", "null"]},
+        "power_frequency_hz": {"type": ["number", "null"]},
+        "vibration_rms": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "environment": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "indoor_temperature_c": {"type": ["number", "null"]},
+        "indoor_relative_humidity_pct": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "indoor_air_pressure_hpa": {"type": ["number", "null"], "minimum": 0},
+        "sensor_id": {"type": ["string", "null"]},
+        "window_start_at": {"type": ["string", "null"], "format": "date-time"},
+        "window_end_at": {"type": ["string", "null"], "format": "date-time"},
+        "sensor_calibration_id": {"type": ["string", "null"]}
+      }
+    },
+    "ball_measurements": {
+      "type": ["array", "null"],
+      "minItems": 45,
+      "maxItems": 45,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ball_set_id",
+          "ball_number",
+          "measured_at",
+          "measurement_device_id",
+          "measurement_uncertainty"
+        ],
+        "properties": {
+          "ball_set_id": {"type": "string", "minLength": 1},
+          "ball_number": {"type": "integer", "minimum": 1, "maximum": 45},
+          "mass_mg": {"type": ["number", "null"], "minimum": 0},
+          "diameter_mm": {"type": ["number", "null"], "minimum": 0},
+          "roundness_error_mm": {"type": ["number", "null"], "minimum": 0},
+          "surface_wear_grade": {"type": ["string", "integer", "null"]},
+          "measurement_device_id": {"type": "string", "minLength": 1},
+          "measurement_uncertainty": {"type": "number", "minimum": 0},
+          "measured_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_system",
+        "source_record_id",
+        "recorded_at",
+        "available_at",
+        "ingested_at",
+        "record_hash",
+        "correction_status"
+      ],
+      "properties": {
+        "source_system": {"type": "string", "minLength": 1},
+        "source_record_id": {"type": "string", "minLength": 1},
+        "recorded_at": {"type": "string", "format": "date-time"},
+        "available_at": {"type": "string", "format": "date-time"},
+        "source_published_at": {"type": ["string", "null"], "format": "date-time"},
+        "ingested_at": {"type": "string", "format": "date-time"},
+        "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "correction_status": {
+          "enum": ["ORIGINAL", "CORRECTED", "RETRACTED"]
+        },
+        "correction_id": {"type": ["string", "null"]},
+        "previous_record_hash": {
+          "type": ["string", "null"],
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["classification", "classified_at", "classification_basis"],
+      "properties": {
+        "classification": {
+          "enum": ["A0_DEPLOYABLE", "A1_RESEARCH_ONLY", "A2_POST_DRAW", "A3_OUTCOME_DERIVED"]
+        },
+        "classified_at": {"type": "string", "format": "date-time"},
+        "classification_basis": {"type": "string", "minLength": 1}
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_level",
+        "reliability_score",
+        "join_status",
+        "contains_outcome_information",
+        "contains_personal_information"
+      ],
+      "properties": {
+        "evidence_level": {"enum": ["E0_UNVERIFIED", "E1_DOCUMENTED", "E2_SAMPLED", "E3_SYSTEM_VERIFIED"]},
+        "reliability_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "join_status": {"enum": ["EXACT", "AMBIGUOUS", "REJECTED"]},
+        "contains_outcome_information": {"const": false},
+        "contains_personal_information": {"const": false},
+        "validation_notes": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "not": {
+    "anyOf": [
+      {"required": ["winning_numbers"]},
+      {"required": ["bonus_number"]},
+      {"required": ["draw_order"]}
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+name: Gate 2-3P-3 smoke
+
+on:
+  push:
+    branches:
+      - feature/gate2p3-validation
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile
+        run: python -m py_compile simulation/physical_validation.py scripts/run_gate2_physical_validation_shard.py scripts/aggregate_gate2_physical_validation.py
+      - name: Unit tests
+        run: PYTHONPATH=. python -m unittest discover -s tests -v
+      - name: Small shard A
+        run: PYTHONPATH=. python scripts/run_gate2_physical_validation_shard.py --shard-index 0 --shard-count 1 --draw-count 360 --maxt-total 2 --model-null-total 2 --null-validation-total 2 --positive-per-cell 1 --robustness-per-scenario 1 --output /tmp/a.json
+      - name: Small shard B
+        run: PYTHONPATH=. python scripts/run_gate2_physical_validation_shard.py --shard-index 0 --shard-count 1 --draw-count 360 --maxt-total 2 --model-null-total 2 --null-validation-total 2 --positive-per-cell 1 --robustness-per-scenario 1 --output /tmp/b.json
+      - name: Determinism
+        run: cmp /tmp/a.json /tmp/b.json

@@ -1,0 +1,17 @@
+{
+  "contract_version": "product-release-candidate-1.0.0",
+  "base_ref": "product-p1-release-candidate-spec",
+  "base_commit": "84e051ecf81f93309d179a610b6ea543e28c8298",
+  "implementation_branch": "feature/product-p1-release-candidate",
+  "pre_assembly_commit": "84e051ecf81f93309d179a610b6ea543e28c8298",
+  "assembled_commit": "365bd35bd31929c75ca6f65cf62d1b816ab2235b",
+  "source_asset_hashes": {
+    "data/draws.json": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "data/source_manifest.json": "c465ccdefdd351a8f50b31514ce7099f170716f43d65b7fe03fd91e8f54ba6c0",
+    "reports/data_integrity.json": "63e4458fd5e4d5cacf793fe9a4fb2b73a71a796d97313a89d9c9f862c7c8b1c5"
+  },
+  "rollback_action_before_artifact": "reset implementation branch to pre_assembly_commit",
+  "rollback_action_after_artifact": "create revert commit",
+  "force_history_rewrite_after_artifact": false,
+  "main_affected": false
+}

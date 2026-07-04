@@ -1,0 +1,56 @@
+name: Gate 2-3P-3 full
+
+on:
+  pull_request:
+    branches: [feature/gate2p2-engine]
+    paths-ignore: ["reports/**", "handoff/**", "docs/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run shard
+        env:
+          SHARD_INDEX: ${{ matrix.shard }}
+        run: PYTHONPATH=. python scripts/run_gate2_physical_validation_shard.py --shard-index "$SHARD_INDEX" --shard-count 20 --draw-count 1230 --maxt-total 10000 --model-null-total 4000 --null-validation-total 5000 --positive-per-cell 500 --robustness-per-scenario 500 --output "/tmp/shard-$SHARD_INDEX.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gate2p3-shard-${{ matrix.shard }}
+          path: /tmp/shard-${{ matrix.shard }}.json
+          retention-days: 21
+
+  aggregate:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: gate2p3-shard-*
+          path: /tmp/shards
+          merge-multiple: true
+      - name: Aggregate
+        run: PYTHONPATH=. python scripts/aggregate_gate2_physical_validation.py --input-dir /tmp/shards --json-output /tmp/summary.json --markdown-output /tmp/summary.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gate2p3-full-summary
+          path: |
+            /tmp/summary.json
+            /tmp/summary.md
+          retention-days: 30

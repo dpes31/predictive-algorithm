@@ -1,0 +1,100 @@
+{
+  "contract_version": "product-release-candidate-1.0.0",
+  "status": "P1_ASSEMBLED",
+  "implementation_branch": "feature/product-p1-release-candidate",
+  "spec_commit": "84e051ecf81f93309d179a610b6ea543e28c8298",
+  "assembly_commit": "365bd35bd31929c75ca6f65cf62d1b816ab2235b",
+  "rollback_manifest_commit": "396c4fa2a370083365750be5d563b7ffd8e7146e",
+  "implementation_lock_commit": "099d917abd1b635c830fee343a47d3bd23e0c052",
+  "workflow": {
+    "name": "Product P1 Assembly",
+    "run_id": 28525611462,
+    "run_number": 2,
+    "conclusion": "success",
+    "python_versions": [
+      "3.11",
+      "3.12"
+    ],
+    "unit_test_count": 14,
+    "canonical_output_step": "success"
+  },
+  "initial_failed_run": {
+    "run_id": 28525288118,
+    "conclusion": "failure",
+    "preserved": true,
+    "correction": "candidate JSON numbers normalized to arrays"
+  },
+  "dataset": {
+    "data_version": "draws-2026.06.27-r1",
+    "draw_range": [
+      1,
+      1230
+    ],
+    "record_count": 1230,
+    "sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "verification_status": "auto_checked",
+    "officially_locked": false
+  },
+  "product_lock": {
+    "final_distribution": "M0_ONLY",
+    "product_weights": {
+      "M0": 1.0,
+      "M1": 0.0,
+      "M2": 0.0,
+      "M3": 0.0,
+      "M4": 0.0
+    },
+    "statistical_edge": false,
+    "reason": "no_validated_nonuniform_signal",
+    "research_only": true,
+    "public_release_allowed": false
+  },
+  "acceptance": {
+    "A1_data_hash_matches_manifest": "PASS",
+    "A2_target_draw_contract_validates": "PASS",
+    "A3_input_last_draw_equals_target_minus_one": "PASS",
+    "A4_product_weights_exact_m0_only": "PASS",
+    "A5_exactly_five_distinct_six_number_sets": "PASS",
+    "A6_uniform_candidate_probability": "PASS",
+    "A7_lift_vs_uniform_equals_one": "PASS",
+    "A8_statistical_edge_false": "PASS",
+    "A9_reason_fixed": "PASS",
+    "A10_prediction_hash_reproducible": "PASS",
+    "A11_frozen_sources_and_results_unmodified": "PASS",
+    "A12_rollback_manifest_complete": "PASS",
+    "A13_research_and_public_flags_fixed": "PASS"
+  },
+  "changed_files_review": [
+    ".github/workflows/product-p1.yml",
+    "engine/__init__.py",
+    "engine/config.py",
+    "engine/distributions.py",
+    "engine/elementary_symmetric.py",
+    "product/__init__.py",
+    "product/config.py",
+    "product/contracts.py",
+    "product/run_prediction.py",
+    "release/assembly_manifest.json",
+    "release/rollback_manifest.json",
+    "schemas/product_prediction.schema.json",
+    "tests/test_product_contract.py",
+    "tests/test_product_cutoff.py",
+    "tests/test_product_reproducibility.py"
+  ],
+  "excluded": [
+    "official_result_reconciliation",
+    "p2_product_qa",
+    "actual_walk_forward",
+    "html_modification",
+    "cal",
+    "sealed",
+    "mobile_ui",
+    "main_merge"
+  ],
+  "non_blocking_external_check": {
+    "context": "Vercel",
+    "state": "failure",
+    "reason": "build rate limit",
+    "p1_scope": false
+  }
+}

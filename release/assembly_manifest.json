@@ -1,0 +1,112 @@
+{
+  "contract_version": "product-release-candidate-1.0.0",
+  "spec_ref": "product-p1-release-candidate-spec",
+  "spec_commit": "84e051ecf81f93309d179a610b6ea543e28c8298",
+  "implementation_branch": "feature/product-p1-release-candidate",
+  "final_distribution": "M0_ONLY",
+  "product_weights": {
+    "M0": 1.0,
+    "M1": 0.0,
+    "M2": 0.0,
+    "M3": 0.0,
+    "M4": 0.0
+  },
+  "gate1_source": {
+    "pr": 2,
+    "ref": "feature/gate1-governance-foundation",
+    "commit": "4d81939a470a553a9bac8a5ff0dce409058a0fec"
+  },
+  "engine_source": {
+    "pr": 6,
+    "ref": "feature/gate2-engine-core",
+    "commit": "1340017fa75d0feffd10a78cf62e0edc49ad8689"
+  },
+  "source_assets": [
+    {
+      "source_ref": "feature/gate1-governance-foundation",
+      "source_path": "data/draws.json",
+      "source_blob_sha": "ae7f38d28e66f56227e2b20c12a5fd627bb42ce3",
+      "content_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+      "destination_path": "data/draws.json"
+    },
+    {
+      "source_ref": "feature/gate1-governance-foundation",
+      "source_path": "data/source_manifest.json",
+      "source_blob_sha": "9a2850277e599793dc91c9aa3ce0d30ff5ec70e8",
+      "content_sha256": "c465ccdefdd351a8f50b31514ce7099f170716f43d65b7fe03fd91e8f54ba6c0",
+      "destination_path": "data/source_manifest.json"
+    },
+    {
+      "source_ref": "feature/gate1-governance-foundation",
+      "source_path": "data/checksums.sha256",
+      "source_blob_sha": "44c025278d0dd6dc178bc8fea446e37d22f2d59a",
+      "destination_path": "data/checksums.sha256"
+    },
+    {
+      "source_ref": "feature/gate1-governance-foundation",
+      "source_path": "reports/data_integrity.json",
+      "source_blob_sha": "55921540f55fcfc5ce062f1efe32f7a0758e6cca",
+      "content_sha256": "63e4458fd5e4d5cacf793fe9a4fb2b73a71a796d97313a89d9c9f862c7c8b1c5",
+      "destination_path": "reports/data_integrity.json"
+    },
+    {
+      "source_ref": "feature/gate1-governance-foundation",
+      "source_path": "reports/gate1_summary.md",
+      "source_blob_sha": "673aea34750b11b272f6ef60efbe7196ae3e5471",
+      "destination_path": "reports/gate1_summary.md"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/contracts.py",
+      "source_blob_sha": "b468418b7900dd07c41037e0d91a5622acd2acff",
+      "destination_path": "engine/contracts.py"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/data_loader.py",
+      "source_blob_sha": "a864021aed8b64de68dc5315274e0eaf3e06772b",
+      "destination_path": "engine/data_loader.py"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/config.py",
+      "source_blob_sha": "3af58e7c60b02745f3050f9aa51e40d41dbe2a18",
+      "destination_path": "engine/config.py"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/elementary_symmetric.py",
+      "source_blob_sha": "6c253b0aa3f94f862bdac85bbc8330508ba3ce9d",
+      "destination_path": "engine/elementary_symmetric.py"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/distributions.py",
+      "source_blob_sha": "689c8e4076bb6e2bcf6b56915cee083de2a87df2",
+      "destination_path": "engine/distributions.py"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/candidate_optimizer.py",
+      "source_blob_sha": "5c3ff34d928f4236054605de7736a7b7856bd396",
+      "destination_path": "engine/candidate_optimizer.py"
+    },
+    {
+      "source_ref": "feature/gate2-engine-core",
+      "source_path": "engine/hashing.py",
+      "source_blob_sha": "5a94389b43552f1c5b7d99c6bacd5de2fc18805f",
+      "destination_path": "engine/hashing.py"
+    }
+  ],
+  "frozen_result_prs": [15, 22, 29, 32],
+  "out_of_scope": [
+    "official_result_reconciliation",
+    "p2_product_qa",
+    "actual_walk_forward",
+    "html_modification",
+    "cal",
+    "sealed",
+    "mobile_ui",
+    "main_merge"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "status": "PRODUCT_CLOSEOUT_SPEC_COMPLETE",
+  "date": "2026-07-03",
+  "gate": "Product Closeout Gate C1",
+  "contract_version": "product-closeout-spec-1.0.0",
+  "branch": "docs/product-closeout-m0-spec",
+  "base_branch": "feature/product-p1-release-candidate",
+  "base_commit": "09e6b19f0e351e59982e6167335cbe23fada83b0",
+  "spec_path": "docs/PRODUCT_CLOSEOUT_M0_SPEC.md",
+  "spec_blob_sha": "0a23698e057420a4872870852ff332537df232b9",
+  "requirements": {
+    "S1_algorithm_research_closed_and_A4_failure_fixed": "PASS",
+    "S2_CONTROL_M0_single_product_distribution": "PASS",
+    "S3_exact_six_numbers_times_five_sets_contract": "PASS",
+    "S4_fixed_statistical_edge_and_reason": "PASS",
+    "S5_RESEARCH_ENSEMBLE_product_isolation": "PASS",
+    "S6_auto_checked_and_official_lock_disclosure": "PASS",
+    "S7_offline_internal_product_QA_scope": "PASS",
+    "S8_HTML_MVP_minimum_display_contract": "PASS",
+    "S9_research_release_lock_requirements": "PASS",
+    "S10_PRODUCT_READY_RESEARCH_M0_criteria": "PASS"
+  },
+  "product_identity": {
+    "final_distribution": "M0_ONLY",
+    "weights": {
+      "M0": 1.0,
+      "M1": 0.0,
+      "M2": 0.0,
+      "M3": 0.0,
+      "M4": 0.0
+    },
+    "statistical_edge": false,
+    "reason": "no_validated_nonuniform_signal",
+    "research_only": true,
+    "public_release_allowed": false
+  },
+  "dataset": {
+    "range": "1..1230",
+    "record_count": 1230,
+    "version": "draws-2026.06.27-r1",
+    "sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "verification_status": "auto_checked",
+    "officially_locked": false
+  },
+  "A4_reference": {
+    "draft_pr": 51,
+    "status": "A4_EVALUATION_FAIL",
+    "evaluated_commit": "ee10a16b8c6259948bc8b2ed77d555452b9ff3a9",
+    "canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7",
+    "preservation_required": true,
+    "merged_into_closeout": false
+  },
+  "remaining_gates": [
+    "C2_INTERNAL_PRODUCT_QA",
+    "C3_HTML_MVP",
+    "C4_RESEARCH_RELEASE_LOCK"
+  ],
+  "final_target_status": "PRODUCT_READY_RESEARCH_M0",
+  "implementation_authorized": false,
+  "A4_re_evaluation_authorized": false,
+  "external_access_performed": false,
+  "html_implemented": false,
+  "main_merge_performed": false,
+  "next_gate_authorized": false
+}

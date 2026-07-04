@@ -1,0 +1,91 @@
+{
+  "manifest_version": "product-closeout-release-lock-1.0.0",
+  "status": "PRODUCT_READY_RESEARCH_M0",
+  "date": "2026-07-04",
+  "branch": "release/product-closeout-c4-research-lock",
+  "base_branch": "feature/product-p1-release-candidate",
+  "base_commit": "f60b7278a88635596c502e34c4b56b535db8c1d7",
+  "product": {
+    "contract_version": "product-release-candidate-1.0.0",
+    "distribution": "M0_ONLY",
+    "weights": {"M0": 1.0, "M1": 0.0, "M2": 0.0, "M3": 0.0, "M4": 0.0},
+    "statistical_edge": false,
+    "reason": "no_validated_nonuniform_signal",
+    "research_only": true,
+    "public_release_allowed": false
+  },
+  "runtime": {
+    "path": "product/run_prediction.py",
+    "blob_sha": "30f977fe27b902b2d194bc145cb4a3b052a284c7",
+    "model_hash": "d68e1281899177a229733f08cb49f15a6c4c2e8e39f93d805066581bdb13a70d",
+    "config_hash": "a1acfc779eb0f2878f93301aa3ba6dba6249e15c76fd48cbc7f182b3192c6df3"
+  },
+  "schema": {
+    "path": "schemas/product_prediction.schema.json",
+    "blob_sha": "d8b588d6c3b89a1a7e7586c1bebc5ba78b39c2fc",
+    "sha256": "4f0e768c3a741645d027ade2f78b1df100ded232a0be9c7e552da8b6d9ade920"
+  },
+  "data": {
+    "path": "data/draws.json",
+    "blob_sha": "ae7f38d28e66f56227e2b20c12a5fd627bb42ce3",
+    "version": "draws-2026.06.27-r1",
+    "range": "1..1230",
+    "record_count": 1230,
+    "sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "verification_status": "auto_checked",
+    "officially_locked": false
+  },
+  "canonical_fixture": {
+    "path": "public/product-prediction.json",
+    "blob_sha": "b4db5a048700fc55d800e5e022d4df36ea157ed1",
+    "target_draw_no": 1231,
+    "input_last_draw": 1230,
+    "prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32",
+    "canonical_prediction_hash": "d185e0fb522a4885beac397b13cedabe797139ba9d0bbb1bacfb92128260c2ab"
+  },
+  "html": {
+    "path": "public/index.html",
+    "blob_sha": "87ff221d0d14024249e40c1a8bdbd8649789c300",
+    "display_contract": "PRODUCT_CLOSEOUT_HTML_PASS",
+    "report_blob_sha": "8dd84df4b8405899d33927d1c749dd666ddd0fb9",
+    "lock_blob_sha": "c2ebc653e31b387c5b290080a1dd85a387f805e3",
+    "final_revalidation_workflow": 28674718167
+  },
+  "gates": {
+    "C1": {"status": "PRODUCT_CLOSEOUT_SPEC_COMPLETE", "report_blob_sha": "13f3bf64779b40396f78c2b8027d0292ed6d1fba", "lock_blob_sha": "85fa05bf61423b5822acd451e005d4af98cb7e1e"},
+    "C2": {"status": "PRODUCT_CLOSEOUT_QA_PASS", "report_blob_sha": "ad1416f9cd347a1c4fce622095465f9a489ba8fe", "lock_blob_sha": "b251bbe05b9dc55e2b2d95142460ce132ebee922", "canonical_result_hash": "4e5ba17f8316bcb30a827a9a35d744633121cc2afdebab48535af2cb09265854"},
+    "C3": {"status": "PRODUCT_CLOSEOUT_HTML_PASS", "merge_commit": "f60b7278a88635596c502e34c4b56b535db8c1d7", "report_blob_sha": "8dd84df4b8405899d33927d1c749dd666ddd0fb9", "lock_blob_sha": "c2ebc653e31b387c5b290080a1dd85a387f805e3"}
+  },
+  "A4_failure_reference": {
+    "draft_pr": 51,
+    "state": "OPEN_DRAFT_NOT_MERGED",
+    "head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594",
+    "status": "A4_EVALUATION_FAIL",
+    "report_blob_sha": "5f1f56379fc51d554ad80e797ccfa3546f25d0c5",
+    "lock_blob_sha": "0a802c23c55f222d8cd6d9c4d2482a1f02332f53",
+    "rollback_blob_sha": "7f31ef93f4ce3ff63872a7cb6f491e468e451eee",
+    "canonical_result_hash": "c886f07c2fa7fd01cfa49d2d0e4174d6c9802ac0856aff2fd13d54da44fde3b7"
+  },
+  "known_limitations": [
+    "no validated non-uniform predictive advantage",
+    "A4_EVALUATION_FAIL",
+    "canonical data is auto_checked and officially_locked=false",
+    "no prospective validation",
+    "CAL not executed",
+    "SEALED not executed",
+    "public_release_allowed=false"
+  ],
+  "rollback": {
+    "mode": "CONTROL_M0",
+    "product_anchor": "f60b7278a88635596c502e34c4b56b535db8c1d7",
+    "assembly_manifest_blob_sha": "d4b44748ecf893250b66c0284c7e970321be498f",
+    "base_rollback_blob_sha": "de06497f515f84881923cecf019720efe63191da",
+    "C3_rollback_blob_sha": "b8af290e8e4ee9aff47f877c54f7e8aeccc21570",
+    "force_history_rewrite": false,
+    "main_affected": false
+  },
+  "public_wording_lock": "release/public_wording_lock.json",
+  "public_deployment_authorized": false,
+  "main_merge_authorized": false,
+  "next_gate_authorized": false
+}

@@ -1,0 +1,23 @@
+{
+  "contract_version": "product-closeout-release-lock-1.0.0",
+  "status": "LOCKED",
+  "product_name": "로또 6/45 연구형 번호 생성기",
+  "required_wording": {
+    "advantage": "통계적 우위 없음",
+    "reason": "no_validated_nonuniform_signal",
+    "data_status": "내부 자동검사 완료 (auto_checked)",
+    "official_lock": "공식 전수 대조 잠금 미완료 (officially_locked=false)",
+    "disclaimer": "이 결과는 연구용 번호 생성 결과이며 당첨번호를 예측하거나 당첨확률 향상을 보장하지 않습니다."
+  },
+  "prohibited_claims": [
+    "당첨번호 예측 성공",
+    "당첨확률 향상",
+    "통계적 우위 확보",
+    "AI 추천번호의 우월성",
+    "공식 검증 완료",
+    "public release approved"
+  ],
+  "research_only": true,
+  "public_release_allowed": false,
+  "public_deployment_authorized": false
+}

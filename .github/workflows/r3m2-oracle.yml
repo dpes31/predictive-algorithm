@@ -1,0 +1,44 @@
+name: R3M2 Oracle DEV
+
+on:
+  pull_request:
+    branches:
+      - feature/gate2p-r3m-feasibility-spec
+    paths:
+      - '.github/workflows/r3m2-oracle.yml'
+      - 'engine/experts/__init__.py'
+      - 'engine/experts/oracle_group_eprocess.py'
+      - 'simulation/oracle_feasibility.py'
+      - 'simulation/run_oracle_gate.py'
+      - 'tests/test_oracle_group_eprocess.py'
+      - 'tests/test_oracle_feasibility.py'
+
+permissions:
+  contents: read
+
+jobs:
+  oracle-dev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run full unit tests
+        run: PYTHONPATH=. python -m unittest discover -s tests -v 2>&1 | tee unit-tests.log
+      - name: Run approved Oracle DEV Gate
+        env:
+          IMPLEMENTATION_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: PYTHONPATH=. python -m simulation.run_oracle_gate
+      - name: Upload Oracle DEV evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r3m2-oracle-dev
+          path: |
+            unit-tests.log
+            r3m2-oracle-dev.json
+          if-no-files-found: warn

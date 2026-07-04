@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "data_version": "draws-2026.06.27-r1",
+  "generated_at": "2026-06-30T05:00:48Z",
+  "record_count": 1230,
+  "first_draw": 1,
+  "last_draw": 1230,
+  "last_draw_date": "2026-06-27",
+  "verification_counts": {
+    "auto_checked": 1230
+  },
+  "official_matches": 0,
+  "structural_validation": {
+    "errors": [],
+    "warnings": [],
+    "duplicate_draws": [],
+    "missing_draws": [],
+    "date_gaps": []
+  },
+  "official_warnings": [
+    "Official JSON endpoint unavailable; records remain auto_checked."
+  ],
+  "official_mismatches": [],
+  "dataset_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+  "reproducible_no_change": true
+}
