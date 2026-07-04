@@ -1,133 +1,68 @@
-name: Gate 1 data and archive build
+name: Gate 1 frozen data integrity
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/gate1-governance-foundation
-    paths:
-      - ".github/workflows/gate1-build.yml"
-      - "scripts/**"
-      - "tests/**"
-      - "data/draws.schema.json"
-      - "app/**"
   pull_request:
     branches:
       - main
     paths:
       - ".github/workflows/gate1-build.yml"
-      - "scripts/**"
-      - "tests/**"
+      - "scripts/validate_draws.py"
+      - "scripts/build_archive.py"
+      - "tests/test_data_integrity.py"
+      - "tests/test_static_contract.py"
+      - "data/draws.json"
       - "data/draws.schema.json"
+      - "data/checksums.sha256"
       - "app/**"
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: gate1-${{ github.event.pull_request.number || github.ref }}
+  group: gate1-frozen-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    if: github.actor != 'github-actions[bot]'
+  validate-frozen-archive:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     steps:
-      - name: Checkout feature branch
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Build canonical draw archive
+      - name: Verify locked canonical dataset identity
+        shell: bash
         run: |
-          python scripts/build_dataset.py \
-            --max-draw 1230 \
-            --official-verify all \
-            --output data/draws.json \
-            --report reports/data_integrity.json \
-            --manifest data/source_manifest.json \
-            --checksums data/checksums.sha256
+          set -euo pipefail
+          test "$(sha256sum data/draws.json | awk '{print $1}')" = "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1"
+          python scripts/validate_draws.py data/draws.json
 
-      - name: Validate canonical archive
-        run: python scripts/validate_draws.py data/draws.json
-
-      - name: Build HTML archive index
-        run: python scripts/build_archive.py --input data/draws.json --output app/data/archive_index.json
-
-      - name: Verify deterministic rebuild
+      - name: Verify deterministic archive index offline
+        shell: bash
         run: |
-          sha256sum data/draws.json app/data/archive_index.json > /tmp/gate1-before.sha256
-          python scripts/build_dataset.py \
-            --max-draw 1230 \
-            --official-verify all \
-            --output data/draws.json \
-            --report reports/data_integrity.json \
-            --manifest data/source_manifest.json \
-            --checksums data/checksums.sha256
-          python scripts/build_archive.py --input data/draws.json --output app/data/archive_index.json
-          sha256sum data/draws.json app/data/archive_index.json > /tmp/gate1-after.sha256
-          diff -u /tmp/gate1-before.sha256 /tmp/gate1-after.sha256
+          set -euo pipefail
+          python scripts/build_archive.py \
+            --input data/draws.json \
+            --output /tmp/archive_index.json
+          cmp --silent app/data/archive_index.json /tmp/archive_index.json
 
-      - name: Run Gate 1 tests
-        run: python -m unittest discover -s tests -v
-
-      - name: Build non-developer summary
+      - name: Run frozen Gate 1 tests only
         run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          report = json.loads(Path('reports/data_integrity.json').read_text(encoding='utf-8'))
-          counts = report.get('verification_counts', {})
-          summary = f"""# Gate 1 Data Integrity Summary
+          python -m unittest \
+            tests.test_data_integrity \
+            tests.test_static_contract \
+            -v
 
-          - Status: **{report['status']}**
-          - Data version: `{report['data_version']}`
-          - Draw range: **{report['first_draw']}–{report['last_draw']}**
-          - Total records: **{report['record_count']}**
-          - Official exact matches: **{report['official_matches']}**
-          - Verified records: **{counts.get('verified', 0)}**
-          - Auto-checked records: **{counts.get('auto_checked', 0)}**
-          - Dataset SHA-256: `{report['dataset_sha256']}`
-          - Deterministic no-change rebuild: **{report.get('reproducible_no_change', False)}**
-
-          ## Interpretation
-
-          `verified` means that the official JSON endpoint returned the same draw date,
-          six winning numbers, and bonus number. `auto_checked` means the record passed
-          structural and checksum validation but the official endpoint was unavailable;
-          it is not presented as officially verified or locked.
-          """
-          Path('reports/gate1_summary.md').write_text('\n'.join(line.strip() for line in summary.splitlines()) + '\n', encoding='utf-8')
-          PY
-
-      - name: Upload review artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: gate1-archive-preview
-          path: |
-            app
-            data
-            reports
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Commit generated immutable data
-        if: github.event_name == 'push'
+      - name: Confirm no external result collection
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/draws.json data/source_manifest.json data/checksums.sha256 \
-                  app/data/archive_index.json reports/data_integrity.json reports/gate1_summary.md
-          if git diff --cached --quiet; then
-            echo "No generated changes to commit."
-          else
-            git commit -m "data: generate Gate 1 archive and integrity report [skip ci]"
-            git push
+          if grep -nE 'official-verify|dhlottery\.co\.kr|smok95\.github\.io' .github/workflows/gate1-build.yml; then
+            echo "External result collection is prohibited in the frozen Gate 1 workflow."
+            exit 1
           fi
