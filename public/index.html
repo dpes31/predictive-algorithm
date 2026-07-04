@@ -10,50 +10,27 @@
 <body>
   <main class="shell">
     <header class="topbar">
-      <a class="brand" href="./index.html" aria-label="Predictive Algorithm 홈">
-        <span class="brand-mark">PA</span>
-        <span><strong>Predictive Algorithm</strong><small>확률예측·검증 연구</small></span>
-      </a>
-      <nav class="nav" aria-label="주요 메뉴">
-        <a href="./index.html" aria-current="page">예측</a>
-        <a href="./archive.html">과거 데이터</a>
-        <a href="./update.html">당첨번호 입력</a>
-      </nav>
+      <a class="brand" href="./index.html" aria-label="Predictive Algorithm 홈"><span class="brand-mark">PA</span><span><strong>Predictive Algorithm</strong><small>확률예측·검증 연구</small></span></a>
+      <nav class="nav" aria-label="주요 메뉴"><a href="./index.html" aria-current="page">예측</a><a href="./archive.html">과거 데이터</a><a href="./update.html">당첨번호 입력</a></nav>
     </header>
 
     <section class="hero-card" aria-labelledby="hero-title">
       <p class="eyebrow">CONTROL_M0 · DYNAMIC TARGET</p>
       <h1 id="hero-title">다음 회차 예측하기</h1>
-      <div class="hero-meta">
-        <span>최신 반영 회차 <strong id="latest-draw">—</strong></span>
-        <span>예측 대상 <strong id="target-draw">—</strong></span>
-        <span>사용자 입력 <strong id="overlay-count">—</strong></span>
-      </div>
-      <p class="hero-copy">
-        canonical 당첨번호와 이 브라우저에 저장한 사용자 입력을 합쳐 최신 회차를 계산합니다.
-        아래 버튼을 눌러야 최신 회차 + 1을 대상으로 CONTROL_M0 번호 5세트가 생성됩니다.
-      </p>
-      <div class="hero-actions">
-        <button class="primary-button" id="predict-button" type="button" disabled>예측하기</button>
-        <a class="secondary-button" href="./update.html">최신 당첨번호 입력</a>
-      </div>
+      <div class="hero-meta"><span>최신 반영 회차 <strong id="latest-draw">—</strong></span><span>예측 대상 <strong id="target-draw">—</strong></span><span>사용자 입력 <strong id="overlay-count">—</strong></span></div>
+      <p class="hero-copy">canonical 당첨번호와 이 브라우저에 저장한 사용자 입력을 합쳐 최신 회차를 계산합니다. 아래 버튼을 눌러야 최신 회차 + 1을 대상으로 CONTROL_M0 번호 5세트가 생성됩니다.</p>
+      <div class="hero-actions"><button class="primary-button" id="predict-button" type="button" disabled>예측하기</button><a class="secondary-button" href="./update.html">최신 당첨번호 입력</a></div>
     </section>
 
     <section class="status-strip" id="app-status" aria-live="polite">
-      <div class="status-main">
-        <span class="status-dot"></span>
-        <div class="status-copy"><strong id="status-title">준비 중</strong><span id="status-detail">데이터를 확인하고 있습니다.</span></div>
-      </div>
+      <div class="status-main"><span class="status-dot"></span><div class="status-copy"><strong id="status-title">준비 중</strong><span id="status-detail">데이터를 확인하고 있습니다.</span></div></div>
       <div class="status-side">외부 데이터 자동수집 없음 · 사용자 입력은 이 브라우저에만 저장</div>
     </section>
 
     <div class="error-box hidden" id="prediction-error" role="alert"></div>
 
     <section class="panel hidden" id="result-panel" aria-labelledby="result-title">
-      <div class="panel-head">
-        <div><p class="eyebrow">GENERATED ON CLICK</p><h2 id="result-title">CONTROL_M0 후보세트</h2><p id="result-target"></p></div>
-        <span class="panel-label">통계적 우위 없음</span>
-      </div>
+      <div class="panel-head"><div><p class="eyebrow">GENERATED ON CLICK</p><h2 id="result-title">CONTROL_M0 후보세트</h2><p id="result-target"></p></div><span class="panel-label">통계적 우위 없음</span></div>
       <div class="result-grid" id="result-sets"></div>
       <div class="meta-grid">
         <div class="meta-item"><span>생성시각</span><strong id="result-generated-at"></strong></div>
@@ -62,10 +39,7 @@
         <div class="meta-item"><span>Effective Data Hash</span><strong class="hash" id="result-data-hash"></strong></div>
         <div class="meta-item" style="grid-column:1/-1"><span>Prediction Hash</span><strong class="hash" id="result-hash"></strong></div>
       </div>
-      <div class="notice">
-        이 결과는 균등확률 CONTROL_M0의 연구용 번호 생성 결과입니다. 당첨번호 예측 또는 당첨확률 향상을 보장하지 않습니다.
-        사용자 입력 회차는 공식 검증 데이터가 아니며 canonical 1~1230회 원본을 변경하지 않습니다.
-      </div>
+      <div class="notice">이 결과는 균등확률 CONTROL_M0의 연구용 번호 생성 결과입니다. 당첨번호 예측 또는 당첨확률 향상을 보장하지 않습니다. 사용자 입력 회차는 공식 검증 데이터가 아니며 canonical 1~1230회 원본을 변경하지 않습니다.<br>reason=no_validated_nonuniform_signal · public_release_allowed=false</div>
     </section>
 
     <section class="summary-grid" style="margin-top:18px" aria-label="제품 기능">
