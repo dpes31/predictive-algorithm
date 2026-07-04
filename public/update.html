@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="로또 당첨번호 사용자 입력 overlay">
+  <title>당첨번호 입력 · Predictive Algorithm</title>
+  <link rel="stylesheet" href="./assets/css/app.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span class="brand-mark">PA</span><span><strong>Predictive Algorithm</strong><small>확률예측·검증 연구</small></span></a>
+      <nav class="nav" aria-label="주요 메뉴"><a href="./index.html">예측</a><a href="./archive.html">과거 데이터</a><a href="./update.html" aria-current="page">당첨번호 입력</a></nav>
+    </header>
+
+    <section class="page-header">
+      <div><p class="eyebrow">LOCAL USER OVERLAY</p><h1>회차별 당첨번호 입력</h1><p>canonical 1~1230회 원본은 수정하지 않고, 이 브라우저의 별도 overlay에 연속 회차로 저장합니다.</p></div>
+    </section>
+
+    <section class="summary-grid" aria-label="입력 상태">
+      <article class="summary-card"><span>canonical 최신</span><strong id="latest-canonical">—</strong></article>
+      <article class="summary-card"><span>현재 최신 반영</span><strong id="latest-effective">—</strong></article>
+      <article class="summary-card"><span>다음 예측 대상</span><strong id="next-target">—</strong></article>
+      <article class="summary-card"><span>저장된 overlay</span><strong id="overlay-count">—</strong></article>
+    </section>
+
+    <section class="status-strip" id="update-status" aria-live="polite">
+      <div class="status-main"><span class="status-dot"></span><div class="status-copy"><strong>데이터 확인 중</strong><span>입력 가능한 다음 회차를 계산하고 있습니다.</span></div></div>
+      <div class="status-side">localStorage 저장 · 외부 자동수집 없음</div>
+    </section>
+
+    <section class="form-panel" style="margin-top:18px">
+      <div class="panel-head"><div><p class="eyebrow">DRAW ENTRY</p><h2>새 당첨번호</h2><p>회차 연속성, 번호 범위, 중복, 보너스번호를 저장 전에 검증합니다.</p></div></div>
+      <form id="draw-form" novalidate>
+        <div class="form-grid">
+          <label class="field"><span>회차</span><input id="draw-no" type="number" readonly required></label>
+          <label class="field"><span>추첨일</span><input id="draw-date" type="date" required></label>
+        </div>
+        <div class="field" style="margin-top:14px"><span>당첨번호 6개</span><div class="number-inputs">
+          <input data-winning-number type="number" min="1" max="45" inputmode="numeric" aria-label="당첨번호 1" required>
+          <input data-winning-number type="number" min="1" max="45" inputmode="numeric" aria-label="당첨번호 2" required>
+          <input data-winning-number type="number" min="1" max="45" inputmode="numeric" aria-label="당첨번호 3" required>
+          <input data-winning-number type="number" min="1" max="45" inputmode="numeric" aria-label="당첨번호 4" required>
+          <input data-winning-number type="number" min="1" max="45" inputmode="numeric" aria-label="당첨번호 5" required>
+          <input data-winning-number type="number" min="1" max="45" inputmode="numeric" aria-label="당첨번호 6" required>
+        </div></div>
+        <label class="field" style="margin-top:14px;max-width:220px"><span>보너스번호</span><input id="bonus-number" type="number" min="1" max="45" inputmode="numeric" required></label>
+        <div class="form-actions"><button class="primary-button" type="submit">사용자 overlay에 저장</button><a class="ghost-button" href="./index.html" style="display:inline-flex;align-items:center;text-decoration:none">예측 화면으로</a></div>
+      </form>
+      <div id="form-message" class="hidden" role="status"></div>
+      <div class="notice">사용자 입력은 공식 검증 데이터가 아니며 현재 브라우저에만 저장됩니다. 다른 기기나 브라우저에는 자동 동기화되지 않습니다.</div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><p class="eyebrow">SAVED OVERLAY</p><h2>사용자 입력 이력</h2><p>연속성을 보호하기 위해 마지막 입력부터 삭제할 수 있습니다.</p></div><div class="form-actions" style="margin:0"><button id="remove-last" class="ghost-button" type="button">마지막 입력 삭제</button><button id="clear-all" class="danger-button" type="button">전체 삭제</button></div></div>
+      <div class="overlay-list" id="overlay-list"></div>
+    </section>
+  </main>
+  <script src="./assets/js/data-store.js"></script>
+  <script src="./assets/js/update.js"></script>
+</body>
+</html>

@@ -1,4 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "outputDirectory": "public"
+  "outputDirectory": "public",
+  "functions": {
+    "api/archive.py": {
+      "includeFiles": "data/draws.json"
+    },
+    "api/predict.py": {
+      "includeFiles": "data/draws.json"
+    }
+  }
 }

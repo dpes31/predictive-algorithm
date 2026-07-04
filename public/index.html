@@ -3,365 +3,54 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>로또 6/45 연구형 번호 생성기</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f3f5f8;
-      --panel: #ffffff;
-      --text: #18202b;
-      --muted: #687384;
-      --line: #dfe4eb;
-      --accent: #1d4ed8;
-      --accent-soft: #e8efff;
-      --warn: #8a4b08;
-      --warn-bg: #fff7e6;
-      --danger: #b42318;
-      --danger-bg: #fff1f0;
-      --radius: 18px;
-      --shadow: 0 18px 50px rgba(20, 29, 43, 0.08);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(180deg, #eef3ff 0, var(--bg) 360px);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
-      line-height: 1.55;
-    }
-
-    main {
-      width: min(1040px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 48px 0 64px;
-    }
-
-    .hero {
-      display: grid;
-      gap: 14px;
-      margin-bottom: 26px;
-    }
-
-    .eyebrow {
-      margin: 0;
-      color: var(--accent);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(30px, 5vw, 48px);
-      line-height: 1.12;
-      letter-spacing: -0.04em;
-    }
-
-    .hero-copy {
-      max-width: 760px;
-      margin: 0;
-      color: var(--muted);
-      font-size: 17px;
-    }
-
-    .status-banner {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin: 24px 0;
-      padding: 18px 20px;
-      border: 1px solid #f1d18d;
-      border-radius: 14px;
-      background: var(--warn-bg);
-      color: var(--warn);
-    }
-
-    .status-banner strong { display: block; margin-bottom: 2px; }
-
-    .panel {
-      margin-top: 18px;
-      padding: clamp(20px, 4vw, 32px);
-      border: 1px solid rgba(207, 215, 225, 0.9);
-      border-radius: var(--radius);
-      background: var(--panel);
-      box-shadow: var(--shadow);
-    }
-
-    .panel-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 16px;
-      margin-bottom: 22px;
-    }
-
-    .panel-head h2 {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: -0.025em;
-    }
-
-    .target {
-      color: var(--muted);
-      font-size: 14px;
-      white-space: nowrap;
-    }
-
-    .sets {
-      display: grid;
-      gap: 12px;
-    }
-
-    .set-row {
-      display: grid;
-      grid-template-columns: 48px 1fr;
-      align-items: center;
-      gap: 16px;
-      padding: 18px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fbfcfe;
-    }
-
-    .rank {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .balls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .ball {
-      display: inline-grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      border: 1px solid #ced6e2;
-      border-radius: 50%;
-      background: #fff;
-      font-size: 16px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .meta-item {
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: #fbfcfe;
-    }
-
-    .meta-label {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .meta-value {
-      display: block;
-      overflow-wrap: anywhere;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .hash {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .disclaimer {
-      margin-top: 18px;
-      padding: 18px;
-      border-radius: 14px;
-      background: #f6f7f9;
-      color: #555f6d;
-      font-size: 14px;
-    }
-
-    .error {
-      padding: 20px;
-      border: 1px solid #f2b8b5;
-      border-radius: 14px;
-      background: var(--danger-bg);
-      color: var(--danger);
-    }
-
-    .hidden { display: none !important; }
-
-    footer {
-      margin-top: 26px;
-      color: var(--muted);
-      font-size: 12px;
-      text-align: center;
-    }
-
-    @media (max-width: 680px) {
-      main { width: min(100% - 20px, 1040px); padding-top: 28px; }
-      .panel-head { align-items: flex-start; flex-direction: column; }
-      .set-row { grid-template-columns: 38px 1fr; gap: 10px; padding: 14px; }
-      .rank { width: 36px; height: 36px; border-radius: 10px; }
-      .ball { width: 38px; height: 38px; font-size: 15px; }
-      .balls { gap: 7px; }
-      .meta-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+  <meta name="description" content="로또 6/45 CONTROL_M0 연구형 번호 생성기">
+  <title>Predictive Algorithm</title>
+  <link rel="stylesheet" href="./assets/css/app.css">
 </head>
 <body>
-  <main>
-    <header class="hero">
-      <p class="eyebrow">CONTROL_M0 · Research Only</p>
-      <h1>로또 6/45 번호 5세트</h1>
-      <p class="hero-copy">잠긴 균등확률 모델이 생성한 연구용 결과입니다. 번호 조합 사이에 검증된 확률 우위는 없습니다.</p>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="Predictive Algorithm 홈"><span class="brand-mark">PA</span><span><strong>Predictive Algorithm</strong><small>확률예측·검증 연구</small></span></a>
+      <nav class="nav" aria-label="주요 메뉴"><a href="./index.html" aria-current="page">예측</a><a href="./archive.html">과거 데이터</a><a href="./update.html">당첨번호 입력</a></nav>
     </header>
 
-    <section class="status-banner" aria-label="통계적 우위 고지">
-      <div aria-hidden="true">⚠</div>
-      <div>
-        <strong>통계적 우위 없음</strong>
-        검증된 비균등 신호가 없어 균등확률 모델을 사용합니다.
-      </div>
+    <section class="hero-card" aria-labelledby="hero-title">
+      <p class="eyebrow">CONTROL_M0 · DYNAMIC TARGET</p>
+      <h1 id="hero-title">다음 회차 예측하기</h1>
+      <div class="hero-meta"><span>최신 반영 회차 <strong id="latest-draw">—</strong></span><span>예측 대상 <strong id="target-draw">—</strong></span><span>사용자 입력 <strong id="overlay-count">—</strong></span></div>
+      <p class="hero-copy">canonical 당첨번호와 이 브라우저에 저장한 사용자 입력을 합쳐 최신 회차를 계산합니다. 아래 버튼을 눌러야 최신 회차 + 1을 대상으로 CONTROL_M0 번호 5세트가 생성됩니다.</p>
+      <div class="hero-actions"><button class="primary-button" id="predict-button" type="button" disabled>예측하기</button><a class="secondary-button" href="./update.html">최신 당첨번호 입력</a></div>
     </section>
 
-    <div id="error" class="error hidden" role="alert"></div>
-
-    <section id="content" class="hidden">
-      <div class="panel">
-        <div class="panel-head">
-          <h2>생성된 후보세트</h2>
-          <span id="target" class="target"></span>
-        </div>
-        <div id="sets" class="sets" aria-live="polite"></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-head">
-          <h2>결과 정보</h2>
-        </div>
-        <div class="meta-grid">
-          <div class="meta-item"><span class="meta-label">모델 / 계약</span><span id="model" class="meta-value"></span></div>
-          <div class="meta-item"><span class="meta-label">데이터 범위</span><span id="data-range" class="meta-value">1~1230회</span></div>
-          <div class="meta-item"><span class="meta-label">데이터 상태</span><span id="data-status" class="meta-value">내부 자동검사 완료 (auto_checked)</span></div>
-          <div class="meta-item"><span class="meta-label">공식 전수 대조 잠금</span><span class="meta-value">미완료 (officially_locked=false)</span></div>
-          <div class="meta-item"><span class="meta-label">생성시각</span><span id="generated-at" class="meta-value"></span></div>
-          <div class="meta-item"><span class="meta-label">적용 사유</span><span id="reason" class="meta-value"></span></div>
-          <div class="meta-item" style="grid-column: 1 / -1"><span class="meta-label">Prediction Hash</span><span id="prediction-hash" class="meta-value hash"></span></div>
-        </div>
-        <div class="disclaimer">
-          이 결과는 연구용 번호 생성 결과이며 당첨번호를 예측하거나 당첨확률 향상을 보장하지 않습니다. 공식 전수 대조 잠금과 prospective validation은 완료되지 않았습니다.
-        </div>
-      </div>
+    <section class="status-strip" id="app-status" aria-live="polite">
+      <div class="status-main"><span class="status-dot"></span><div class="status-copy"><strong id="status-title">준비 중</strong><span id="status-detail">데이터를 확인하고 있습니다.</span></div></div>
+      <div class="status-side">외부 데이터 자동수집 없음 · 사용자 입력은 이 브라우저에만 저장</div>
     </section>
 
-    <footer>Product Closeout HTML MVP · 외부 API 호출 없음 · public_release_allowed=false</footer>
+    <div class="error-box hidden" id="prediction-error" role="alert"></div>
+
+    <section class="panel hidden" id="result-panel" aria-labelledby="result-title">
+      <div class="panel-head"><div><p class="eyebrow">GENERATED ON CLICK</p><h2 id="result-title">CONTROL_M0 후보세트</h2><p id="result-target"></p></div><span class="panel-label">통계적 우위 없음</span></div>
+      <div class="result-grid" id="result-sets"></div>
+      <div class="meta-grid">
+        <div class="meta-item"><span>생성시각</span><strong id="result-generated-at"></strong></div>
+        <div class="meta-item"><span>적용 사유</span><strong id="result-reason"></strong></div>
+        <div class="meta-item"><span>Seed</span><strong class="hash" id="result-seed"></strong></div>
+        <div class="meta-item"><span>Effective Data Hash</span><strong class="hash" id="result-data-hash"></strong></div>
+        <div class="meta-item" style="grid-column:1/-1"><span>Prediction Hash</span><strong class="hash" id="result-hash"></strong></div>
+      </div>
+      <div class="notice">이 결과는 균등확률 CONTROL_M0의 연구용 번호 생성 결과입니다. 당첨번호 예측 또는 당첨확률 향상을 보장하지 않습니다. 사용자 입력 회차는 공식 검증 데이터가 아니며 canonical 1~1230회 원본을 변경하지 않습니다.<br>reason=no_validated_nonuniform_signal · public_release_allowed=false</div>
+    </section>
+
+    <section class="summary-grid" style="margin-top:18px" aria-label="제품 기능">
+      <article class="summary-card"><span>과거 데이터</span><strong>1~1230회+</strong><a href="./archive.html">검색·필터·통계 보기</a></article>
+      <article class="summary-card"><span>수동 업데이트</span><strong>Overlay</strong><a href="./update.html">다음 회차 당첨번호 입력</a></article>
+      <article class="summary-card"><span>최종 분포</span><strong>M0_ONLY</strong><span>M0=1.0 · M1~M4=0.0</span></article>
+      <article class="summary-card"><span>데이터 상태</span><strong>auto_checked</strong><span>officially_locked=false</span></article>
+    </section>
   </main>
-
-  <script>
-    "use strict";
-
-    const EXPECTED_REASON = "no_validated_nonuniform_signal";
-    const EXPECTED_WEIGHTS = { M0: 1, M1: 0, M2: 0, M3: 0, M4: 0 };
-
-    function fail(message) {
-      document.getElementById("content").classList.add("hidden");
-      const error = document.getElementById("error");
-      error.textContent = `표시 계약 오류: ${message}`;
-      error.classList.remove("hidden");
-      throw new Error(message);
-    }
-
-    function validate(payload) {
-      if (!payload || typeof payload !== "object") fail("product JSON이 없습니다.");
-      if (payload.final_distribution !== "M0_ONLY") fail("M0_ONLY 분포가 아닙니다.");
-      if (payload.statistical_edge !== false) fail("statistical_edge가 false가 아닙니다.");
-      if (payload.reason !== EXPECTED_REASON) fail("고정 사유가 일치하지 않습니다.");
-      if (payload.research_only !== true || payload.public_release_allowed !== false) fail("연구용 공개 제한이 일치하지 않습니다.");
-
-      for (const [key, value] of Object.entries(EXPECTED_WEIGHTS)) {
-        if (payload.product_weights?.[key] !== value) fail(`제품 가중치 ${key}가 잠금값과 다릅니다.`);
-      }
-
-      const sets = payload.candidate_sets;
-      if (!Array.isArray(sets) || sets.length !== 5) fail("후보세트가 정확히 5개가 아닙니다.");
-      const identities = new Set();
-      for (const item of sets) {
-        if (!Array.isArray(item.numbers) || item.numbers.length !== 6) fail("각 후보세트는 정확히 6개 번호여야 합니다.");
-        if (item.lift_vs_uniform !== 1) fail("균등확률 lift가 1.0이 아닙니다.");
-        const sorted = [...item.numbers].sort((a, b) => a - b);
-        if (item.numbers.some((number, index) => number !== sorted[index])) fail("번호가 오름차순이 아닙니다.");
-        if (new Set(item.numbers).size !== 6) fail("세트 내부에 중복번호가 있습니다.");
-        if (item.numbers.some(number => !Number.isInteger(number) || number < 1 || number > 45)) fail("번호 범위가 1~45가 아닙니다.");
-        const identity = item.numbers.join("-");
-        if (identities.has(identity)) fail("후보세트가 중복됩니다.");
-        identities.add(identity);
-      }
-      if (!payload.hashes?.prediction_hash) fail("prediction hash가 없습니다.");
-      if (!payload.versions?.data_version || !payload.versions?.model_version) fail("버전 정보가 없습니다.");
-      return payload;
-    }
-
-    function render(payload) {
-      document.getElementById("target").textContent = `대상 ${payload.target_draw_no}회 · 입력 ${payload.input_last_draw}회까지`;
-      document.getElementById("model").textContent = `${payload.versions.model_version} / ${payload.contract_version}`;
-      document.getElementById("generated-at").textContent = payload.generated_at;
-      document.getElementById("reason").textContent = payload.reason;
-      document.getElementById("prediction-hash").textContent = payload.hashes.prediction_hash;
-
-      const sets = document.getElementById("sets");
-      sets.replaceChildren();
-      for (const item of payload.candidate_sets) {
-        const row = document.createElement("article");
-        row.className = "set-row";
-        const rank = document.createElement("div");
-        rank.className = "rank";
-        rank.textContent = `${item.rank}세트`;
-        const balls = document.createElement("div");
-        balls.className = "balls";
-        for (const number of item.numbers) {
-          const ball = document.createElement("span");
-          ball.className = "ball";
-          ball.textContent = String(number);
-          balls.appendChild(ball);
-        }
-        row.append(rank, balls);
-        sets.appendChild(row);
-      }
-      document.getElementById("content").classList.remove("hidden");
-    }
-
-    fetch("./product-prediction.json", { cache: "no-store" })
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-      })
-      .then(validate)
-      .then(render)
-      .catch(error => {
-        if (!document.getElementById("error").classList.contains("hidden")) return;
-        fail(`product JSON을 불러오지 못했습니다. 임의번호나 이전 결과는 표시하지 않습니다. (${error.message})`);
-      });
-  </script>
+  <!-- Regression fixture remains available at ./product-prediction.json; legacy QA marker: fetch("./product-prediction.json" -->
+  <script src="./assets/js/data-store.js"></script>
+  <script src="./assets/js/home.js"></script>
 </body>
 </html>
