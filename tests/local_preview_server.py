@@ -6,12 +6,16 @@ import argparse
 import hashlib
 import json
 import pathlib
+import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from product.config import EXPECTED_DATA_HASH
 from product.dynamic_prediction import run_dynamic_prediction
 
-ROOT = pathlib.Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "public"
 
 
