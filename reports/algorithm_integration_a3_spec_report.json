@@ -1,0 +1,28 @@
+{
+  "status": "A3_SPEC_COMPLETE",
+  "contract_version": "research-ensemble-evaluation-spec-1.0.0",
+  "branch": "docs/algorithm-integration-a3-evaluation-spec",
+  "base_commit": "901ececb1add7f55879b6efb744d435fdbc31ced",
+  "draft_pr": 50,
+  "document_blobs": {
+    "handoff": "9040c684e8926521ed02404b7c18906af1945cc2",
+    "spec": "ed702b7886e7e4a94e26f6c9bc7c7e348afee2a0",
+    "metrics": "1bbe106adb6e59e23054c3c5a8e9e9dae703a841",
+    "acceptance": "6c445e9fc7d6c8b84f869c18e0613f334888c7b7"
+  },
+  "acceptance_D1_D12": "PASS",
+  "fixed_evaluation": {
+    "minimum_history": 299,
+    "warmup_targets": "300..351",
+    "confirmatory_targets": "352..1230",
+    "confirmatory_count": 879,
+    "primary_metric": "JOINT_LOG_SCORE_DIFFERENCE",
+    "bootstrap": "CIRCULAR_MOVING_BLOCK_52_X_10000",
+    "multiple_comparison": "HOLM"
+  },
+  "actual_user_entries_active": 0,
+  "evaluation_authorized": false,
+  "evaluation_executed": false,
+  "next_contract": "research-ensemble-evaluation-implementation-1.0.0",
+  "next_gate_authorized": false
+}

@@ -5,7 +5,6 @@ from __future__ import annotations
 import heapq
 import math
 from dataclasses import dataclass
-from functools import cached_property
 from typing import Mapping, Protocol, Sequence
 
 from .elementary_symmetric import elementary_symmetric, inclusion_probabilities
@@ -38,36 +37,28 @@ class FixedSizeDistribution:
             raise ValueError("labels must be unique and match logits")
         object.__setattr__(self, "labels", labels)
 
-    @cached_property
+    @property
     def shifted_weights(self) -> tuple[float, ...]:
         maximum = max(self.logits)
         return tuple(math.exp(logit - maximum) for logit in self.logits)
 
-    @cached_property
+    @property
     def log_normalizer(self) -> float:
         maximum = max(self.logits)
         normalizer = elementary_symmetric(self.shifted_weights, self.pick_count)
         return self.pick_count * maximum + math.log(normalizer)
 
-    @cached_property
+    @property
     def is_uniform(self) -> bool:
         return max(self.logits) - min(self.logits) <= 1e-15
-
-    @cached_property
-    def _label_to_index(self) -> Mapping[int, int]:
-        return {label: index for index, label in enumerate(self.labels or ())}
-
-    @cached_property
-    def _marginal_items(self) -> tuple[tuple[int, float], ...]:
-        probabilities = inclusion_probabilities(self.shifted_weights, self.pick_count)
-        return tuple(zip(self.labels or (), probabilities, strict=True))
 
     def _indices(self, numbers: Sequence[int]) -> tuple[int, ...]:
         values = tuple(int(number) for number in numbers)
         if len(values) != self.pick_count or len(set(values)) != self.pick_count:
             raise ValueError("combination must have pick_count unique labels")
+        label_to_index = {label: index for index, label in enumerate(self.labels or ())}
         try:
-            return tuple(self._label_to_index[number] for number in values)
+            return tuple(label_to_index[number] for number in values)
         except KeyError as exc:
             raise ValueError(f"unknown label: {exc.args[0]}") from exc
 
@@ -78,7 +69,8 @@ class FixedSizeDistribution:
         return math.exp(self.joint_log_probability(numbers))
 
     def marginal_probabilities(self) -> Mapping[int, float]:
-        return dict(self._marginal_items)
+        probabilities = inclusion_probabilities(self.shifted_weights, self.pick_count)
+        return {label: probability for label, probability in zip(self.labels or (), probabilities, strict=True)}
 
     def top_combinations(self, limit: int) -> list[tuple[int, ...]]:
         if limit <= 0:

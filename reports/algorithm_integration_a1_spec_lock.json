@@ -1,0 +1,40 @@
+{
+  "status": "LOCKED",
+  "date": "2026-07-03",
+  "gate": "Algorithm Integration Gate A1",
+  "contract_version": "research-ensemble-spec-1.0.0",
+  "branch": "docs/algorithm-integration-a1-spec",
+  "base_branch": "feature/product-p1-release-candidate",
+  "base_merge_commit": "9d6766d21e51758cca1840c8098645d0e0ee8042",
+  "P1_implementation_lock": "099d917abd1b635c830fee343a47d3bd23e0c052",
+  "P1_acceptance_sha256": "a86049cdd041a92ab9c4f644d607c7212313c464d2fbb333ce1fda24dadaa139",
+  "documents": {
+    "core_spec_blob_sha": "c2c7d3e15fcd64cc282ad554836ccff96b50295e",
+    "registries_blob_sha": "ac94cc9d8075cfa1823950968a9b9bc1df1465ef",
+    "acceptance_blob_sha": "22b3ef75812aa99fa02dafd8ea9bffc83643ec44",
+    "spec_report_blob_sha": "cf8879086ec1cbeff4a3e9bf361c4ff9344c5d43"
+  },
+  "commits": {
+    "core_spec": "c05e5591747f0b6a137bb894056d3885fce90dce",
+    "registries": "c92df08e47ee0de0f8962eff2b0d36049bfe7c2b",
+    "acceptance": "8f1f994d1da9086cd1e7c4e4ff7fb19d9aefacb9",
+    "spec_report": "64eb551fa7e99bf633a2cee78f19c50a6813146e"
+  },
+  "spec_status": "A1_SPEC_COMPLETE",
+  "spec_approved_by_user": false,
+  "implementation_authorized": false,
+  "walk_forward_authorized": false,
+  "html_authorized": false,
+  "cal_authorized": false,
+  "sealed_authorized": false,
+  "mobile_authorized": false,
+  "main_merge_performed": false,
+  "external_site_access_allowed": false,
+  "external_institution_contact_allowed": false,
+  "new_source_discovery_allowed": false,
+  "unprovided_physical_collection_allowed": false,
+  "rollback_mode": "CONTROL_M0",
+  "next_gate": "Algorithm Integration Gate A2",
+  "next_contract": "research-ensemble-implementation-1.0.0",
+  "next_gate_authorized": false
+}

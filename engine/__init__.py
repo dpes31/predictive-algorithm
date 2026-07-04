@@ -1,15 +1,6 @@
-"""Gate 2 research prediction engine."""
+"""Exact Gate 2 engine components reused by the Product Gate P1 wrapper."""
 
 from .config import DEFAULT_CONFIG, EngineConfig
-from .maxt_gate import MaxTCalibration, MaxTResult
-from .physical_metadata import PhysicalDrawMetadata
-from .prediction_run import run_research_prediction
+from .distributions import FixedSizeDistribution, MixtureDistribution
 
-__all__ = [
-    "DEFAULT_CONFIG",
-    "EngineConfig",
-    "PhysicalDrawMetadata",
-    "MaxTCalibration",
-    "MaxTResult",
-    "run_research_prediction",
-]
+__all__ = ["DEFAULT_CONFIG", "EngineConfig", "FixedSizeDistribution", "MixtureDistribution"]
