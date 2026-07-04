@@ -1,0 +1,56 @@
+{
+  "status": "READY",
+  "date": "2026-07-04",
+  "contract_version": "pr59-production-final-closeout-rollback-1.0.0",
+  "branch": "codex/pr59-production-final-closeout",
+  "base_branch": "main",
+  "pre_closeout_main_commit": "a6181fcb41a2de59f63c7c0912af63091f75dc35",
+  "evaluated_implementation_commit": "45cd988eaf653297c5c468ec2ab61e593132de03",
+  "draft_pr": 60,
+  "result_report": {
+    "path": "reports/pr59_production_final_closeout.json",
+    "blob_sha": "43726adaa195d51ce1e9ac9afcab0ea94a639fc5",
+    "status": "PR59_PRODUCTION_CLOSEOUT_BLOCKED_DEPLOYMENT"
+  },
+  "rollback_mode": "WORKFLOW_AND_TEST_ONLY",
+  "main_affected": false,
+  "rollback_conditions": [
+    "The closeout workflow causes an unintended regression after a future authorized merge.",
+    "The frozen Gate 1 integrity workflow does not match the approved no-external-access policy.",
+    "The Production verification workflow produces false-positive deployment evidence."
+  ],
+  "rollback_actions_before_merge": [
+    "Close Draft PR #60 without merge.",
+    "Leave main at a6181fcb41a2de59f63c7c0912af63091f75dc35.",
+    "Preserve this rollback manifest and all blocked evidence in branch history."
+  ],
+  "rollback_actions_after_authorized_merge": [
+    "Create a new rollback branch from the affected main commit.",
+    "Restore .github/workflows/gate1-build.yml to base blob 224f96fd29e7ecf709e92f59b5871647714a0c37.",
+    "Restore .github/workflows/product-full-ui.yml to base blob 7bd0769fae9692fc297b442c9e762277a657ae60.",
+    "Remove tests/test_product_production_closeout.py only if the test itself is proven defective.",
+    "Do not delete or rewrite reports/pr59_production_final_closeout.json, its lock, this rollback manifest, or any prior C1-C4/A4 evidence.",
+    "Open a separate Draft PR and rerun Python 3.11/3.12 regression before any merge."
+  ],
+  "protected_paths_unchanged": [
+    "data/draws.json",
+    "schemas/product_prediction.schema.json",
+    "public/product-prediction.json",
+    "product/config.py",
+    "product/run_prediction.py",
+    "product/dynamic_prediction.py",
+    "reports/product_closeout_c4_final.json",
+    "reports/product_closeout_c4_release_lock.json",
+    "release/product_closeout_c4_rollback_manifest.json"
+  ],
+  "protected_references": {
+    "data_sha256": "57bb04ef188b5b06298b8a97fc73174d746de0568e33423f50029de31efa5cf1",
+    "schema_sha256": "4f0e768c3a741645d027ade2f78b1df100ded232a0be9c7e552da8b6d9ade920",
+    "locked_prediction_hash": "119f28875355952fa5c80e2095e70c096aee081ee56c750fa4caf2e373c5fe32",
+    "A4_draft_pr": 51,
+    "A4_head_sha": "11b8a807f4abe6b3b3eb68c31a7c927afaa9a594"
+  },
+  "force_push_allowed": false,
+  "history_rewrite_allowed": false,
+  "failure_evidence_deletion_allowed": false
+}
