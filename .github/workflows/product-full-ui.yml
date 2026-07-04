@@ -1,7 +1,20 @@
-name: Product full UI Preview
+name: Product full UI verification
 
 on:
   pull_request:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - "product/dynamic_prediction.py"
+      - "public/**"
+      - "tests/test_product_full_ui.py"
+      - "tests/local_preview_server.py"
+      - "tests/preview_smoke.mjs"
+      - "vercel.json"
+      - ".python-version"
+      - ".github/workflows/product-full-ui.yml"
+  push:
     branches:
       - main
     paths:
@@ -21,7 +34,6 @@ permissions:
 
 env:
   PYTHONHASHSEED: "0"
-  PREVIEW_URL: "https://predictive-algorithm-git-fix-restore-fu-b8fb58-dpes31s-projects.vercel.app"
 
 jobs:
   regression:
@@ -41,6 +53,7 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_product_*.py' -v
 
   local-browser-smoke:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     needs: regression
     timeout-minutes: 15
@@ -81,41 +94,44 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  remote-preview-smoke:
+  production-browser-smoke:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: regression
-    timeout-minutes: 15
+    timeout-minutes: 20
+    env:
+      PREVIEW_URL: "https://predictive-algorithm.vercel.app"
     steps:
-      - name: Check Vercel Preview accessibility
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p preview-artifacts
-          root_code="$(curl -sS -L -o /tmp/root.html -w '%{http_code}' "$PREVIEW_URL/" || true)"
-          archive_code="$(curl -sS -L -o /tmp/archive.json -w '%{http_code}' "$PREVIEW_URL/api/archive" || true)"
-          root_marker="$(grep -c 'DYNAMIC TARGET' /tmp/root.html 2>/dev/null || true)"
-          printf '{"root_http":"%s","archive_http":"%s","root_marker":%s}\n' "$root_code" "$archive_code" "$root_marker" > preview-artifacts/remote-access.json
-          echo "root_http=$root_code archive_http=$archive_code root_marker=$root_marker"
-          echo "archive_body=$(head -c 500 /tmp/archive.json 2>/dev/null || true)"
-          if [ "$root_code" != "200" ] || [ "$archive_code" != "200" ] || [ "$root_marker" != "1" ]; then
-            echo "Vercel Preview is protected by Vercel Authentication; remote browser verification cannot proceed without a bypass or public Preview access." >&2
-            exit 1
-          fi
-          python -c 'import json; p=json.load(open("/tmp/archive.json")); assert p["record_count"] == 1230 and p["last_draw"] == 1230'
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+      - name: Wait for Production deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p preview-artifacts
+          for attempt in $(seq 1 40); do
+            root_code="$(curl -sS -L -o /tmp/root.html -w '%{http_code}' "$PREVIEW_URL/" || true)"
+            archive_code="$(curl -sS -L -o /tmp/archive.json -w '%{http_code}' "$PREVIEW_URL/api/archive" || true)"
+            if [ "$root_code" = "200" ] && [ "$archive_code" = "200" ] && grep -q 'DYNAMIC TARGET' /tmp/root.html && python -c 'import json; p=json.load(open("/tmp/archive.json")); assert p["record_count"] == 1230 and p["last_draw"] == 1230'; then
+              echo "Production is ready on attempt $attempt"
+              exit 0
+            fi
+            echo "Production not ready: attempt=$attempt root=$root_code archive=$archive_code"
+            sleep 15
+          done
+          exit 1
       - name: Install Playwright Chromium
         run: |
           npm install --no-save playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Run actual browser click verification on Vercel Preview
+      - name: Run actual browser click verification on Production
         run: node tests/preview_smoke.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: full-product-ui-remote-preview-evidence
+          name: full-product-ui-production-evidence
           path: preview-artifacts/
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
