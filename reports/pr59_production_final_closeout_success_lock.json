@@ -1,0 +1,50 @@
+{
+  "status": "LOCKED_SUCCESS",
+  "date": "2026-07-04",
+  "stage": "PR #59 post-merge Production final closeout",
+  "contract_version": "pr59-production-final-closeout-1.0.0",
+  "base_branch": "main",
+  "main_commit_after_merges": "cdc29a5c2654f3509b3bbd76742d61bb4235da4a",
+  "merges": {
+    "pr_60_merge_commit": "b6b7391ac31c445d0c8670dd6c93c797fb98ae98",
+    "golden_vector_pr_61_merge_commit": "cdc29a5c2654f3509b3bbd76742d61bb4235da4a"
+  },
+  "result": "PR59_PRODUCTION_CLOSEOUT_SUCCESS",
+  "result_report": {
+    "path": "reports/pr59_production_final_closeout_success.json"
+  },
+  "preserved_unchanged": {
+    "blocked_report": "reports/pr59_production_final_closeout.json",
+    "blocked_lock": "reports/pr59_production_final_closeout_lock.json",
+    "rollback_manifest": "release/pr59_production_final_closeout_rollback_manifest.json",
+    "note": "These prior append-only records remain unmodified. This lock adds a new, separate success record only."
+  },
+  "workflow_runs": {
+    "product_full_ui_verification": 28695903577,
+    "production_browser_smoke_job": 85105291596
+  },
+  "validated": {
+    "regression_3_11": "PASS",
+    "regression_3_12": "PASS",
+    "production_deployment_ready": "PASS",
+    "production_root_marker": "PASS",
+    "production_archive_1230_records": "PASS",
+    "production_actual_browser_click": "PASS"
+  },
+  "artifacts": {
+    "production": {
+      "id": 8078574025,
+      "name": "full-product-ui-production-evidence"
+    }
+  },
+  "authorization": {
+    "main_merge_performed": true,
+    "main_merge_authorized_by_this_lock": false,
+    "production_release_complete": true,
+    "next_gate_authorized": false,
+    "additional_algorithm_work_authorized": false
+  },
+  "next_gate": "NONE",
+  "next_action_requires_user_approval": false,
+  "next_action": "None. This append-only success lock finalizes the PR59 production closeout."
+}
