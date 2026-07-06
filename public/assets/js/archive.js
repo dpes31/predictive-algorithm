@@ -160,7 +160,7 @@
       state.canonical = await PAData.loadCanonical();
       try {
         const serverState = await PAOverlayStore.fetchServerOverlay();
-        if (serverState.configured) {
+        if (serverState.configured && !serverState.warning) {
           state.overlayMode = "server";
           state.serverOverlayRecords = serverState.records;
         }
