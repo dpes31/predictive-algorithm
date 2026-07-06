@@ -122,6 +122,33 @@ class OverlayStoreUrllibTests(unittest.TestCase):
         self.assertEqual(captured_request["headers"]["authorization"], "Bearer dummy-service-key")
         self.assertEqual(captured_request["headers"]["apikey"], "dummy-service-key")
 
+    def test_base_url_variants_build_single_rest_v1_path(self) -> None:
+        # The Supabase dashboard shows both the project URL and the REST URL
+        # (with /rest/v1); either must produce exactly one /rest/v1 segment.
+        variants = [
+            "https://example.supabase.co",
+            "https://example.supabase.co/",
+            "https://example.supabase.co/rest/v1",
+            "https://example.supabase.co/rest/v1/",
+        ]
+        for variant in variants:
+            with self.subTest(url=variant):
+                captured_request = {}
+
+                def fake_urlopen(req, timeout=None):
+                    captured_request["url"] = req.full_url
+                    return _FakeHttpResponse(200, b"[]")
+
+                with mock.patch.dict("os.environ", {"SUPABASE_URL": variant}):
+                    with mock.patch("urllib.request.urlopen", side_effect=fake_urlopen):
+                        overlay_store.fetch_overlay()
+
+                self.assertTrue(
+                    captured_request["url"].startswith("https://example.supabase.co/rest/v1/draw_overlay"),
+                    captured_request["url"],
+                )
+                self.assertEqual(captured_request["url"].count("/rest/v1"), 1, captured_request["url"])
+
     def test_insert_record_sends_expected_payload_and_prefer_header(self) -> None:
         insert_seen = {}
 

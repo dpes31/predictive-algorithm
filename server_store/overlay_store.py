@@ -47,8 +47,18 @@ class OverlayStoreConflictError(OverlayStoreError):
     """Raised when an insert violates the draw_no primary key uniqueness."""
 
 
+def _normalize_base_url(url: str) -> str:
+    # Accept both the project URL (https://xxx.supabase.co) and the REST URL
+    # (https://xxx.supabase.co/rest/v1) shown side by side in the Supabase
+    # dashboard; requests always target {base}/rest/v1/... exactly once.
+    url = url.strip().rstrip("/")
+    if url.endswith("/rest/v1"):
+        url = url[: -len("/rest/v1")].rstrip("/")
+    return url
+
+
 def _env() -> tuple[str, str]:
-    url = os.environ.get("SUPABASE_URL", "").strip()
+    url = _normalize_base_url(os.environ.get("SUPABASE_URL", ""))
     key = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "").strip()
     return url, key
 
