@@ -6,6 +6,7 @@ import json
 from http.server import BaseHTTPRequestHandler
 
 from product.dynamic_prediction import run_dynamic_prediction
+from server_store.overlay_store import OverlayStoreError, fetch_overlay, is_configured
 
 MAX_BODY_BYTES = 1_000_000
 
@@ -28,7 +29,23 @@ class handler(BaseHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
             if not isinstance(payload, dict):
                 raise ValueError("request body must be an object")
-            result = run_dynamic_prediction(overlay=payload.get("overlay", []))
+
+            overlay_source = "client"
+            overlay_warning = None
+            overlay = payload.get("overlay", [])
+            if is_configured():
+                try:
+                    overlay = fetch_overlay()
+                    overlay_source = "server"
+                except OverlayStoreError as exc:
+                    overlay = payload.get("overlay", [])
+                    overlay_source = "client"
+                    overlay_warning = f"서버 overlay를 불러오지 못해 브라우저 입력을 사용합니다: {exc}"
+
+            result = run_dynamic_prediction(overlay=overlay)
+            result["data"]["overlay_source"] = overlay_source
+            if overlay_warning:
+                result["data"]["overlay_warning"] = overlay_warning
             self._write_json(200, result)
         except (ValueError, json.JSONDecodeError) as exc:
             self._write_json(400, {"error": "invalid_request", "detail": str(exc)})

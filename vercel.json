@@ -7,6 +7,9 @@
     },
     "api/predict.py": {
       "includeFiles": "data/draws.json"
+    },
+    "api/overlay.py": {
+      "includeFiles": "data/draws.json"
     }
   }
 }
