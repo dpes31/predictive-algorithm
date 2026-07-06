@@ -151,6 +151,19 @@
         render();
         setMessage("success", `${raw.draw_no}회 당첨번호를 공유 overlay에 저장했습니다. canonical 원본은 변경되지 않았습니다.`);
       } catch (error) {
+        if (error.code === "overlay_store_unavailable" || error.code === "overlay_store_not_configured") {
+          mode = "client";
+          try {
+            PAData.appendOverlay(canonical, raw);
+            overlayRecords = PAData.validateOverlaySequence(canonical, PAData.readOverlay());
+            resetNumberFields();
+            render();
+            setMessage("error", `${error.message} 이 브라우저에만 임시로 저장했습니다.`);
+          } catch (fallbackError) {
+            setMessage("error", fallbackError.message);
+          }
+          return;
+        }
         setMessage("error", error.message);
       }
       return;
@@ -200,14 +213,16 @@
       canonical = await PAData.loadCanonical();
       try {
         const serverState = await PAOverlayStore.fetchServerOverlay();
-        if (serverState.configured) {
+        if (serverState.configured && !serverState.warning) {
           mode = "server";
           overlayRecords = serverState.records;
           await migrateLocalStorageIfNeeded();
-          if (serverState.warning) setMessage("error", serverState.warning);
         } else {
           mode = "client";
           overlayRecords = PAData.validateOverlaySequence(canonical, PAData.readOverlay());
+          if (serverState.configured && serverState.warning) {
+            setMessage("error", `${serverState.warning} 이 브라우저에 임시로 저장합니다.`);
+          }
         }
       } catch (error) {
         mode = "client";
