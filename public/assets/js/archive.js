@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const state = { canonical: null, overlay: [], records: [], filtered: [], visibleLimit: 30 };
+  const state = { canonical: null, overlay: [], records: [], filtered: [], visibleLimit: 30, overlayMode: "client" };
   const elements = {
     status: document.querySelector("#data-status"),
     summaryCount: document.querySelector("#summary-count"),
@@ -27,7 +27,9 @@
   }
 
   function rebuild() {
-    state.overlay = PAData.validateOverlaySequence(state.canonical, PAData.readOverlay());
+    state.overlay = state.overlayMode === "server"
+      ? state.serverOverlayRecords
+      : PAData.validateOverlaySequence(state.canonical, PAData.readOverlay());
     state.records = [...state.canonical.records, ...state.overlay];
     state.filtered = [...state.records].sort((a, b) => b.draw_no - a.draw_no);
     state.visibleLimit = 30;
@@ -156,6 +158,15 @@
   async function init() {
     try {
       state.canonical = await PAData.loadCanonical();
+      try {
+        const serverState = await PAOverlayStore.fetchServerOverlay();
+        if (serverState.configured) {
+          state.overlayMode = "server";
+          state.serverOverlayRecords = serverState.records;
+        }
+      } catch (error) {
+        state.overlayMode = "client";
+      }
       rebuild();
       bind();
       elements.status.classList.add("ready");

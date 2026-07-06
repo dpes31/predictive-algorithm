@@ -21,6 +21,8 @@
   };
 
   let canonical = null;
+  let overlayMode = "client";
+  let serverOverlayRecords = [];
 
   function setStatus(type, title, detail) {
     elements.status.className = `status-strip ${type || ""}`.trim();
@@ -28,18 +30,33 @@
     elements.statusDetail.textContent = detail;
   }
 
+  function localState() {
+    return PAData.latestState(canonical, PAData.readOverlay());
+  }
+
+  function currentState() {
+    if (overlayMode === "server") {
+      const latest = serverOverlayRecords.length
+        ? serverOverlayRecords[serverOverlayRecords.length - 1]
+        : canonical.records[canonical.records.length - 1];
+      return { overlay: serverOverlayRecords, latest, target_draw_no: latest.draw_no + 1 };
+    }
+    return localState();
+  }
+
   function refreshSummary() {
     if (!canonical) return;
     try {
-      const state = PAData.latestState(canonical, PAData.readOverlay());
+      const state = currentState();
       elements.latestDraw.textContent = `${state.latest.draw_no}회`;
       elements.targetDraw.textContent = `${state.target_draw_no}회`;
       elements.overlayCount.textContent = `${state.overlay.length}건`;
       document.querySelector("#hero-title").textContent = `${state.target_draw_no}회차 예측하기`;
+      const sourceLabel = overlayMode === "server" ? "공유 저장소 입력" : "사용자 입력";
       setStatus(
         "ready",
         "데이터 준비 완료",
-        `canonical ${canonical.first_draw}~${canonical.last_draw}회 + 사용자 입력 ${state.overlay.length}건`
+        `canonical ${canonical.first_draw}~${canonical.last_draw}회 + ${sourceLabel} ${state.overlay.length}건`
       );
       elements.predictButton.disabled = false;
       elements.resultPanel.classList.add("hidden");
@@ -89,7 +106,9 @@
     elements.predictButton.textContent = "생성 중…";
     elements.error.classList.add("hidden");
     try {
-      const overlay = PAData.validateOverlaySequence(canonical, PAData.readOverlay());
+      const overlay = overlayMode === "server"
+        ? []
+        : PAData.validateOverlaySequence(canonical, PAData.readOverlay());
       const response = await fetch("/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -113,10 +132,21 @@
     elements.predictButton.disabled = true;
     try {
       canonical = await PAData.loadCanonical();
+      try {
+        const serverState = await PAOverlayStore.fetchServerOverlay();
+        if (serverState.configured) {
+          overlayMode = "server";
+          serverOverlayRecords = serverState.records;
+        }
+      } catch (error) {
+        overlayMode = "client";
+      }
       refreshSummary();
       elements.predictButton.addEventListener("click", predict);
-      window.addEventListener("pa:overlay-changed", refreshSummary);
-      window.addEventListener("storage", refreshSummary);
+      if (overlayMode === "client") {
+        window.addEventListener("pa:overlay-changed", refreshSummary);
+        window.addEventListener("storage", refreshSummary);
+      }
     } catch (error) {
       setStatus("error", "데이터 로드 실패", error.message);
       elements.error.textContent = error.message;

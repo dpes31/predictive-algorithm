@@ -15,6 +15,7 @@ if str(ROOT) not in sys.path:
 
 from product.config import EXPECTED_DATA_HASH
 from product.dynamic_prediction import run_dynamic_prediction
+from server_store.overlay_store import is_configured
 
 PUBLIC = ROOT / "public"
 
@@ -33,6 +34,9 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self) -> None:
+        if self.path.split("?", 1)[0] == "/api/overlay":
+            self._json(200, {"configured": is_configured(), "records": []})
+            return
         if self.path.split("?", 1)[0] != "/api/archive":
             return super().do_GET()
         raw = (ROOT / "data/draws.json").read_bytes()
@@ -57,7 +61,17 @@ class Handler(SimpleHTTPRequestHandler):
         )
 
     def do_POST(self) -> None:
-        if self.path.split("?", 1)[0] != "/api/predict":
+        path = self.path.split("?", 1)[0]
+        if path == "/api/overlay":
+            self._json(
+                503,
+                {
+                    "error": "overlay_store_not_configured",
+                    "detail": "서버 공유 저장소(Supabase)가 설정되지 않았습니다. 이 브라우저에만 저장됩니다.",
+                },
+            )
+            return
+        if path != "/api/predict":
             self._json(404, {"error": "not_found"})
             return
         try:
@@ -67,6 +81,18 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(200, result)
         except (ValueError, json.JSONDecodeError) as exc:
             self._json(400, {"error": "invalid_request", "detail": str(exc)})
+
+    def do_DELETE(self) -> None:
+        if self.path.split("?", 1)[0] == "/api/overlay":
+            self._json(
+                503,
+                {
+                    "error": "overlay_store_not_configured",
+                    "detail": "서버 공유 저장소(Supabase)가 설정되지 않았습니다.",
+                },
+            )
+            return
+        self._json(404, {"error": "not_found"})
 
 
 if __name__ == "__main__":
